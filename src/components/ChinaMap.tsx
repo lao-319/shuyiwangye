@@ -8,6 +8,7 @@ import {
   PROVINCE_COLORS, getSpeedColor, getSpeedLabel, getNodeDegreeRadius,
 } from '../constants';
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
+import { CyberpunkTitle } from './HUD';
 
 // ============================================================
 // Props：支持外部预加载数据以消除导航时的加载闪烁
@@ -73,12 +74,22 @@ const SPEED_LEGEND_ITEMS = [
 
 const MapLegend: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const chamferClip = `polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)`;
   return (
-    <div className="hud-panel" style={{
+    <div style={{
       position: 'absolute', bottom: 24, left: 24, zIndex: 1000,
       padding: collapsed ? '6px 10px' : '10px 14px',
-      cursor: 'default',
+      cursor: 'default', borderRadius: '5px',
+      backgroundColor: 'rgba(245,247,250,0.94)',
+      backdropFilter: 'blur(12px)',
     }}>
+      {/* 切角双线边框 */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        clipPath: chamferClip,
+        border: `1px solid ${MED_COLORS.BLUE}`,
+        boxShadow: `inset 0 0 0 1px ${MED_COLORS.BLUE}40`,
+        borderRadius: '5px',
+      }} />
       <div
         onClick={() => setCollapsed(!collapsed)}
         style={{
@@ -133,12 +144,27 @@ const MapLegend: React.FC = () => {
 // HUD 统计面板
 // ============================================================
 const StatsOverlay: React.FC<{ stats: PlagueStats | null }> = ({ stats }) => {
+  const chamferClip = `polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)`;
   if (!stats) return null;
   return (
-    <div className="hud-panel" style={{
+    <div style={{
       position: 'absolute', top: 24, right: 24, zIndex: 1000,
-      padding: '12px 16px', minWidth: 220,
+      padding: '12px 16px', minWidth: 220, borderRadius: '5px',
+      backgroundColor: 'rgba(245,247,250,0.94)',
+      backdropFilter: 'blur(12px)',
     }}>
+      {/* 切角双线边框 */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        clipPath: chamferClip,
+        border: `1px solid ${MED_COLORS.BLUE}`,
+        boxShadow: `inset 0 0 0 1px ${MED_COLORS.BLUE}40`,
+        borderRadius: '5px',
+      }} />
+      {/* 外部发光 */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        borderRadius: '5px',
+        boxShadow: `0 0 12px ${MED_COLORS.BLUE}30`,
+      }} />
       <div style={{
         fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
         letterSpacing: '0.1em', color: MED_COLORS.BLUE, marginBottom: 10,
@@ -183,6 +209,9 @@ const StatLine: React.FC<{ label: string; value: string; color: string }> = ({ l
 // ============================================================
 // 主地图组件
 // ============================================================
+// 入场动画阶段
+type IntroPhase = 'title' | 'fading' | 'map';
+
 const ChinaMap: React.FC<ChinaMapProps> = ({
   regions: externalRegions,
   sites: externalSites,
@@ -193,6 +222,10 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
   const [sites, setSites] = useState<FeatureCollection | null>(() => externalSites ?? null);
   const [stats, setStats] = useState<PlagueStats | null>(() => externalStats ?? null);
   const [loading, setLoading] = useState(() => !(externalRegions && externalSites));
+
+  // 入场动画状态
+  const [introPhase, setIntroPhase] = useState<IntroPhase>('title');
+  const introTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // 防止重复 fetch 的标记
   const fetchStartedRef = useRef(false);
@@ -242,6 +275,47 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       mountedRef.current = false;
     };
   }, [externalRegions, externalSites, externalStats]);
+
+  // ============================================================
+  // 入场动画时序控制
+  // title（闪烁）→ fading（淡出）→ map（地图显示）
+  // 数据加载完成后至少再显示标题 0.4s 以确保动画可见
+  // ============================================================
+  useEffect(() => {
+    // 清理之前的计时器
+    const timers = introTimersRef.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  useEffect(() => {
+    if (introPhase !== 'title') return;
+
+    // 数据就绪后至少保留标题闪烁 0.6s
+    const minDisplayMs = loading ? 2000 : 600;
+
+    const t1 = setTimeout(() => {
+      if (mountedRef.current) {
+        setIntroPhase('fading');
+      }
+    }, minDisplayMs);
+    introTimersRef.current.push(t1);
+
+    return () => clearTimeout(t1);
+  }, [introPhase, loading]);
+
+  useEffect(() => {
+    if (introPhase !== 'fading') return;
+
+    // 淡出动画持续 0.7s 后切到地图
+    const t2 = setTimeout(() => {
+      if (mountedRef.current) {
+        setIntroPhase('map');
+      }
+    }, 700);
+    introTimersRef.current.push(t2);
+
+    return () => clearTimeout(t2);
+  }, [introPhase]);
 
   // 站点按省份分色
   const siteProvinceLayers = useMemo(() => {
@@ -298,20 +372,50 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
     });
   };
 
-  // 加载中状态
-  if (loading) {
+  // ============================================================
+  // 入场动画：标题闪烁 → 淡出 → 地图
+  // ============================================================
+  if (introPhase !== 'map') {
+    const isFading = introPhase === 'fading';
     return (
       <div className="h-full flex items-center justify-center" style={{ backgroundColor: MED_COLORS.BG }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: 40, height: 40, border: `2px solid ${MED_COLORS.BLUE}`,
-            borderTopColor: 'transparent', borderRadius: '50%',
-            animation: 'spin 1s linear infinite', margin: '0 auto 16px',
-          }} />
-          <div style={{ fontSize: 11, color: MED_COLORS.BLUE, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            加载中 · INITIALIZING GIS MODULE
+        <motion.div
+          className="text-center space-y-4"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: isFading ? 0 : 1 }}
+          transition={{ duration: 0.7, ease: 'easeInOut' }}
+        >
+          {/* 顶部小字 — 无闪烁，稳定 */}
+          <div
+            className="text-xs uppercase tracking-[0.2em]"
+            style={{ color: MED_COLORS.BLUE, opacity: isFading ? 0 : 0.4 }}
+          >
+            INITIALIZING GIS MODULE
           </div>
-        </div>
+
+          {/* 主标题 — 闪烁效果 */}
+          <h2
+            className="text-2xl font-bold tracking-tighter uppercase"
+            style={{
+              color: MED_COLORS.GRAY_LIGHT,
+              animation: isFading ? 'none' : 'title-flicker 0.15s infinite',
+            }}
+          >
+            东北 · 肺鼠疫 1910-1911
+          </h2>
+
+          {/* 底部副标题 — 闪烁 */}
+          <p
+            className="text-[10px] uppercase tracking-wider"
+            style={{
+              color: MED_COLORS.GRAY_LIGHT,
+              opacity: isFading ? 0 : 0.3,
+              animation: isFading ? 'none' : 'title-flicker 0.2s infinite',
+            }}
+          >
+            LOADING // 地图数据加载中
+          </p>
+        </motion.div>
       </div>
     );
   }
@@ -321,8 +425,12 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       <MapContainer
         center={[43.5, 124]}
         zoom={6}
+        minZoom={3}
+        maxZoom={12}
+        maxBounds={[[-10, 40], [70, 180]]}
+        maxBoundsViscosity={0.8}
         style={{ height: '100%', width: '100%' }}
-        zoomControl={true}
+        zoomControl={false}
         attributionControl={false}
       >
         {/* 底图 — 浅灰色医疗风格 */}
@@ -406,18 +514,12 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       <StatsOverlay stats={stats} />
       <MapLegend />
 
-      {/* 标题栏 */}
-      <div className="hud-panel" style={{
-        position: 'absolute', top: 24, left: 24, zIndex: 1000,
-        padding: '8px 14px',
-      }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: MED_COLORS.BLUE, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          东北 · 肺鼠疫 1910-1911
-        </div>
-        <div style={{ fontSize: 8, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginTop: 2 }}>
-          GIS Projection: Xian 1980 → WGS84 | 疫情传播可视化
-        </div>
-      </div>
+      {/* 赛博朋克可折叠标题 — 自动收回/悬浮展开 */}
+      <CyberpunkTitle
+        text="东北 · 肺鼠疫 1910-1911"
+        subtext="GIS Projection: Xian 1980 → WGS84 | 疫情传播可视化"
+        color={MED_COLORS.BLUE}
+      />
     </div>
   );
 };

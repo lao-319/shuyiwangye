@@ -197,8 +197,10 @@ html, body, #root {
   letter-spacing: 0.05em;
 }
 
-/* ===== 旋转动画 (loading spinner) ===== */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* ===== 标题闪烁动画 — 模拟 CRT 字符抖动 ===== */
+@keyframes title-flicker {
+  0%   { opacity: 0.98; }
+  50%  { opacity: 0.72; }
+  51%  { opacity: 1; }
+  100% { opacity: 0.96; }
 }

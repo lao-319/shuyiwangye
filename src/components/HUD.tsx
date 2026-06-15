@@ -558,3 +558,305 @@ export const StatCard: React.FC<{
     )}
   </motion.div>
 );
+
+// ============================================================
+// 赛博朋克可折叠标题 — 随机汉字闪烁 + 展开/收回动画
+// ============================================================
+const CYBER_CHARS = '鼠疫肺东北监测系统病毒死感染扩散传播数据医分析报告安全警报危机关联网节点省市区县控防治隔离消杀疫苗';
+
+const getRandomCyberChar = () => CYBER_CHARS[Math.floor(Math.random() * CYBER_CHARS.length)];
+
+export const CyberpunkTitle: React.FC<{
+  text: string;
+  subtext?: string;
+  color?: string;
+  className?: string;
+}> = ({ text, subtext, color = MED_COLORS.BLUE, className = '' }) => {
+  const chars = [...text]; // 逐字拆分（含中文、空格、数字等）
+  const [phase, setPhase] = useState<'collapsed' | 'expanding' | 'glitching' | 'displayed' | 'deleting'>('collapsed');
+  const [displayMap, setDisplayMap] = useState<Record<number, string>>({}); // index → current char
+  const [visibleCount, setVisibleCount] = useState(0); // 当前可见字符数
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverRef = useRef(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const fullWidthRef = useRef(320);
+
+  // 测量完整宽度
+  useEffect(() => {
+    // 用临时不可见元素测量
+    const el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.visibility = 'hidden';
+    el.style.whiteSpace = 'nowrap';
+    el.style.fontSize = '13px';
+    el.style.fontWeight = '700';
+    el.style.fontFamily = "'JetBrains Mono','SimHei',monospace";
+    el.style.letterSpacing = '0.05em';
+    el.style.textTransform = 'uppercase';
+    el.textContent = text;
+    document.body.appendChild(el);
+    fullWidthRef.current = Math.ceil(el.offsetWidth) + 28; // padding
+    if (subtext) {
+      const el2 = document.createElement('div');
+      el2.style.position = 'absolute';
+      el2.style.visibility = 'hidden';
+      el2.style.fontSize = '8px';
+      el2.style.fontFamily = "'JetBrains Mono','SimHei',monospace";
+      el2.style.textTransform = 'uppercase';
+      el2.textContent = subtext;
+      document.body.appendChild(el2);
+      fullWidthRef.current = Math.max(fullWidthRef.current, Math.ceil(el2.offsetWidth) + 28);
+      document.body.removeChild(el2);
+    }
+    document.body.removeChild(el);
+  }, [text, subtext]);
+
+  // 清理所有计时器
+  const clearAllTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
+
+  // 设置超时（自动追踪）
+  const setTimer = (fn: () => void, ms: number) => {
+    const t = setTimeout(fn, ms);
+    timersRef.current.push(t);
+    return t;
+  };
+
+  // 展开：边框从左往右展开
+  const doExpand = () => {
+    clearAllTimers();
+    setPhase('expanding');
+    setVisibleCount(0);
+    setDisplayMap({});
+    // expanding 阶段 350ms 后开始逐字浮现
+    setTimer(() => doGlitch(0), 350);
+  };
+
+  // 逐字浮现（随机汉字闪烁）
+  const doGlitch = (idx: number) => {
+    if (idx >= chars.length) {
+      setPhase('displayed');
+      // 如果鼠标不在上面，开始倒计时收回
+      if (!hoverRef.current) {
+        setTimer(() => {
+          if (!hoverRef.current) doDelete();
+        }, 4000);
+      }
+      return;
+    }
+    setPhase('glitching');
+    setVisibleCount(idx + 1);
+
+    // 随机闪烁 2-3 次后定格
+    let flashes = 0;
+    const maxFlashes = 2 + Math.floor(Math.random() * 2);
+    const flashInterval = setInterval(() => {
+      setDisplayMap(prev => ({ ...prev, [idx]: getRandomCyberChar() }));
+      flashes++;
+      if (flashes >= maxFlashes) {
+        clearInterval(flashInterval);
+        setDisplayMap(prev => ({ ...prev, [idx]: chars[idx] }));
+        setTimer(() => doGlitch(idx + 1), 40 + Math.random() * 50);
+      }
+    }, 60);
+    timersRef.current.push(() => clearInterval(flashInterval));
+  };
+
+  // 收回：从右往左逐字删除
+  const doDelete = () => {
+    clearAllTimers();
+    setPhase('deleting');
+    let count = chars.length;
+    const deleteInterval = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(deleteInterval);
+        setVisibleCount(0);
+        setDisplayMap({});
+        setPhase('collapsed');
+      } else {
+        // 删除前简短闪烁
+        setDisplayMap(prev => ({ ...prev, [count]: getRandomCyberChar() }));
+        setTimeout(() => {
+          setDisplayMap(prev => {
+            const next = { ...prev };
+            delete next[count];
+            return next;
+          });
+          setVisibleCount(count);
+        }, 40);
+      }
+    }, 70);
+    timersRef.current.push(() => clearInterval(deleteInterval));
+  };
+
+  // 初始自动展开
+  useEffect(() => {
+    setTimer(() => doExpand(), 600);
+    return () => clearAllTimers();
+  }, []);
+
+  // 鼠标事件
+  const handleMouseEnter = () => {
+    hoverRef.current = true;
+    setIsHovered(true);
+    if (phase === 'collapsed') {
+      doExpand();
+    } else if (phase === 'deleting') {
+      // 正在删除中被打断，重新展开
+      clearAllTimers();
+      doExpand();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    hoverRef.current = false;
+    setIsHovered(false);
+    if (phase === 'displayed') {
+      setTimer(() => {
+        if (!hoverRef.current) doDelete();
+      }, 2500);
+    }
+  };
+
+  // 切角边框 clipPath（左上 + 右下 6px 45° 斜切）
+  const chamferClip = `polygon(
+    6px 0,
+    100% 0,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    0 100%,
+    0 6px
+  )`;
+
+  // 折叠/展开宽度
+  const collapsedW = 36;
+  const expandedW = fullWidthRef.current;
+  const currentW = phase === 'collapsed' ? collapsedW : expandedW;
+
+  return (
+    <div
+      ref={containerRef}
+      className={`absolute z-[1000] ${className}`}
+      style={{ top: 24, left: 24 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* 外部发光层（展开时） */}
+      {(phase === 'expanding' || phase === 'glitching' || phase === 'displayed' || phase === 'deleting') && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            borderRadius: '5px',
+            boxShadow: `0 0 12px ${color}30, 0 0 24px ${color}08`,
+            opacity: phase === 'displayed' ? 1 : 0.5,
+            transition: 'opacity 0.3s',
+          }}
+        />
+      )}
+
+      {/* 切角边框容器 */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          width: currentW,
+          borderRadius: '5px',
+          transition: 'width 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)',
+        }}
+      >
+        {/* 背景 */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundColor: 'rgba(245,247,250,0.94)',
+            backdropFilter: 'blur(12px)',
+            clipPath: chamferClip,
+          }}
+        />
+
+        {/* 切角边框线 + 内层双线 */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            clipPath: chamferClip,
+            border: `1px solid ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}`,
+            boxShadow: `inset 0 0 0 1px ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}40`,
+            borderRadius: '5px',
+            transition: 'border-color 0.3s, box-shadow 0.3s',
+          }}
+        />
+
+        {/* 折叠状态小蓝点 */}
+        {phase === 'collapsed' && (
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              width: 6, height: 6,
+              backgroundColor: color,
+              borderRadius: '50%',
+              boxShadow: `0 0 6px ${color}`,
+              animation: 'pulse-blue 1.5s ease-in-out infinite',
+            }}
+          />
+        )}
+
+        {/* 文字内容 */}
+        <div
+          className="relative py-[5px] px-[14px] whitespace-nowrap select-none"
+          style={{ minWidth: expandedW }}
+        >
+          {/* 主标题 */}
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.05em',
+              fontFamily: "'JetBrains Mono','SimHei',monospace",
+            }}
+          >
+            {phase === 'collapsed'
+              ? ''
+              : chars.map((ch, i) => {
+                  if (i >= visibleCount) return null;
+                  const displayed = displayMap[i] ?? ch;
+                  const isGlitch = displayed !== ch;
+                  return (
+                    <span
+                      key={i}
+                      style={{
+                        opacity: isGlitch ? 0.6 : 1,
+                        transition: 'opacity 0.05s',
+                      }}
+                    >
+                      {displayed}
+                    </span>
+                  );
+                })}
+          </div>
+
+          {/* 副标题（展开时显示） */}
+          {subtext && visibleCount >= chars.length && phase === 'displayed' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                fontSize: 8,
+                color: MED_COLORS.GRAY_LIGHT,
+                textTransform: 'uppercase' as const,
+                marginTop: 2,
+              }}
+            >
+              {subtext}
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
