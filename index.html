@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PESTIS Terminal — 鼠疫监测系统 v4.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="crt-flicker">
+<body>
     <div id="root"></div>
     <!-- 终端全局效果叠加层 -->
-    <div class="surveillance-grid" style="position:fixed;inset:0;z-index:998;"></div>
+    <div class="med-dot-grid" style="position:fixed;inset:0;z-index:998;"></div>
     <div class="vignette" style="position:fixed;inset:0;z-index:998;"></div>
-    <div class="poi-scanline" style="position:fixed;inset:0;z-index:999;"></div>
+    <div class="med-beam"></div>
     <div class="poi-noise"></div>
     <script type="module" src="/src/main.tsx"></script>
 </body>

@@ -1,23 +1,23 @@
 import React from 'react';
 
-// ===== 医疗终端色彩系统 =====
+// ===== 医疗终端色彩系统 — 红蓝白未来科技风格 =====
 export const MED_COLORS = {
-  CYAN:       '#00E5FF',   // 主色调 — 医疗监测
-  AMBER:      '#FFB300',   // 警告色 — 疫情爆发
-  RED:        '#FF1744',   // 危险色 — 高死亡率
-  GREEN:      '#00E676',   // 安全色 — 已控制
-  VIOLET:     '#B388FF',   // 系统色 — 管理员
-  BG:         '#020202',   // 终端底色
-  TEXT:       '#E0F2F1',   // 监视器文字
-  GRAY_DARK:  '#1A1A1A',
-  GRAY_MID:   '#333333',
-  GRAY_LIGHT: '#555555',
+  BLUE:       '#4DABF7',   // 主色调 — 未来科技蓝
+  RED:        '#EF4444',   // 危险色 — 高死亡率
+  ORANGE:     '#F97316',   // 警告色 — 疫情爆发
+  GREEN:      '#22C55E',   // 安全色 — 已控制
+  VIOLET:     '#8B5CF6',   // 系统色 — 管理员
+  BG:         '#0B1A2E',   // 终端底色 — 深海军蓝
+  TEXT:       '#F1F5F9',   // 监视器文字 — 纯冷白
+  GRAY_DARK:  '#12233D',   // 卡片/面板背景
+  GRAY_MID:   '#1B3254',   // 中蓝表面
+  GRAY_LIGHT: '#254575',   // 蓝色边框
 } as const;
 
 // ===== 疫情严重度等级阈值 =====
 export const SEVERITY_THRESHOLDS = {
   LOW:      { max: 50,    color: MED_COLORS.GREEN,  label: '低风险' },
-  MODERATE: { max: 500,   color: MED_COLORS.AMBER,  label: '中度风险' },
+  MODERATE: { max: 500,   color: MED_COLORS.ORANGE, label: '中度风险' },
   HIGH:     { max: 2000,  color: MED_COLORS.RED,    label: '高风险' },
   CRITICAL: { max: Infinity, color: MED_COLORS.RED, label: '危急' },
 } as const;
@@ -139,15 +139,15 @@ export function formatPlagueDate(value: number | null): string {
 export function getDeathSeverityColor(deaths: number | null): string {
   if (deaths == null) return MED_COLORS.GRAY_LIGHT;
   if (deaths > 2000) return MED_COLORS.RED;
-  if (deaths > 500)  return MED_COLORS.AMBER;
-  if (deaths > 50)   return MED_COLORS.CYAN;
+  if (deaths > 500)  return MED_COLORS.ORANGE;
+  if (deaths > 50)   return MED_COLORS.BLUE;
   return MED_COLORS.GREEN;
 }
 
 /** 根据爆发次数返回气泡颜色 */
 export function getOutbreakColor(count: number): string {
   if (count > 80) return MED_COLORS.RED;
-  if (count > 50) return MED_COLORS.AMBER;
-  if (count > 20) return MED_COLORS.CYAN;
+  if (count > 50) return MED_COLORS.ORANGE;
+  if (count > 20) return MED_COLORS.BLUE;
   return MED_COLORS.GREEN;
 }

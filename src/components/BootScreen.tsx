@@ -66,9 +66,9 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
   const lineColor = (type: BootLine['type']) => {
     switch (type) {
       case 'success': return MED_COLORS.GREEN;
-      case 'warn':    return MED_COLORS.AMBER;
+      case 'warn':    return MED_COLORS.ORANGE;
       case 'error':   return MED_COLORS.RED;
-      case 'header':  return MED_COLORS.CYAN;
+      case 'header':  return MED_COLORS.BLUE;
       default:        return MED_COLORS.GRAY_LIGHT;
     }
   };
@@ -76,7 +76,7 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ backgroundColor: MED_COLORS.BG }}>
       {/* 启动画面背景网格 */}
-      <div className="surveillance-grid absolute inset-0 opacity-30" />
+      <div className="med-dot-grid absolute inset-0 opacity-30" />
 
       <div className="w-full max-w-2xl px-8 font-mono text-sm">
         {/* 启动日志 */}
@@ -107,8 +107,8 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
               className="flex flex-col items-center gap-6"
             >
               <motion.div
-                className="text-xs uppercase tracking-[0.4em] font-bold"
-                style={{ color: MED_COLORS.CYAN }}
+                className="text-xs uppercase tracking-[0.2em] font-bold"
+                style={{ color: MED_COLORS.BLUE }}
                 animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
@@ -121,11 +121,11 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
                   onClick={onComplete}
-                  className="px-10 py-4 border-2 font-bold uppercase tracking-[0.3em] text-sm transition-all hover:scale-105 active:scale-95"
+                  className="px-10 py-4 border-2 font-bold uppercase tracking-[0.15em] text-sm transition-all hover:scale-105 active:scale-95"
                   style={{
-                    borderColor: MED_COLORS.CYAN,
-                    color: MED_COLORS.CYAN,
-                    boxShadow: `0 0 30px ${MED_COLORS.CYAN}20`,
+                    borderColor: MED_COLORS.BLUE,
+                    color: MED_COLORS.BLUE,
+                    boxShadow: `0 0 30px ${MED_COLORS.BLUE}20`,
                   }}
                 >
                   Enter PESTIS Terminal

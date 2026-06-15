@@ -19,7 +19,7 @@ const PlaceholderView: React.FC<{ title: string; view: TerminalView }> = ({ titl
   <PageTransition keyValue={view}>
     <div className="h-full flex items-center justify-center">
       <div className="text-center space-y-4">
-        <div className="text-xs uppercase tracking-[0.4em] opacity-40" style={{ color: MED_COLORS.CYAN }}>
+        <div className="text-xs uppercase tracking-[0.2em] opacity-40" style={{ color: MED_COLORS.BLUE }}>
           MODULE OFFLINE
         </div>
         <h2 className="text-2xl font-bold tracking-tighter uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
@@ -73,7 +73,7 @@ const App: React.FC = () => {
 
       {/* 背景数据流 */}
       <div className="fixed inset-0 z-0">
-        <DataFlow color={MED_COLORS.CYAN} />
+        <DataFlow color={MED_COLORS.BLUE} />
       </div>
 
       <ParallaxWrapper>
@@ -82,8 +82,8 @@ const App: React.FC = () => {
           <header
             className="h-16 border-b flex items-center justify-between px-6 z-30 pointer-events-auto"
             style={{
-              borderColor: '#1a1a1a',
-              backgroundColor: 'rgba(2,2,2,0.7)',
+              borderColor: '#254575',
+              backgroundColor: 'rgba(11,26,46,0.75)',
               backdropFilter: 'blur(12px)',
             }}
           >
@@ -93,9 +93,9 @@ const App: React.FC = () => {
                 <div
                   className="w-10 h-10 border-2 flex items-center justify-center font-bold text-xl"
                   style={{
-                    borderColor: MED_COLORS.CYAN,
-                    color: MED_COLORS.CYAN,
-                    boxShadow: `0 0 12px ${MED_COLORS.CYAN}20`,
+                    borderColor: MED_COLORS.BLUE,
+                    color: MED_COLORS.BLUE,
+                    boxShadow: `0 0 12px ${MED_COLORS.BLUE}20`,
                   }}
                 >
                   P
@@ -106,7 +106,7 @@ const App: React.FC = () => {
                 />
               </div>
               <div>
-                <h1 className="text-lg font-bold tracking-tighter uppercase leading-none" style={{ color: MED_COLORS.CYAN }}>
+                <h1 className="text-lg font-bold tracking-tighter uppercase leading-none" style={{ color: MED_COLORS.BLUE }}>
                   {SYSTEM_INFO.NAME}
                 </h1>
                 <p className="text-[8px] uppercase tracking-[0.2em] mt-0.5 opacity-50" style={{ color: MED_COLORS.GRAY_LIGHT }}>
@@ -167,17 +167,17 @@ const App: React.FC = () => {
           <footer
             className="h-8 border-t flex items-center justify-between px-6 text-[9px] uppercase font-mono z-30 pointer-events-auto"
             style={{
-              borderColor: '#1a1a1a',
-              backgroundColor: 'rgba(2,2,2,0.8)',
+              borderColor: '#254575',
+              backgroundColor: 'rgba(11,26,46,0.85)',
               color: MED_COLORS.GRAY_LIGHT,
               backdropFilter: 'blur(8px)',
             }}
           >
             <div className="flex gap-6">
               <StatusIndicator label="Biosafety Level 4" active={true} color={MED_COLORS.GREEN} />
-              <StatusIndicator label="Temporal Anchor" active={true} color={MED_COLORS.CYAN} />
+              <StatusIndicator label="Temporal Anchor" active={true} color={MED_COLORS.BLUE} />
               <span className="opacity-40">
-                <VoiceWave active={true} color={MED_COLORS.CYAN} />
+                <VoiceWave active={true} color={MED_COLORS.BLUE} />
               </span>
             </div>
             <div className="flex gap-5 opacity-50">
@@ -210,12 +210,12 @@ const NavButton: React.FC<{
       color={color || MED_COLORS.GRAY_LIGHT}
       className="w-[72px] h-10 flex flex-col items-center justify-center"
     >
-      <div className="transition-colors duration-300" style={{ color: active ? MED_COLORS.CYAN : MED_COLORS.GRAY_LIGHT }}>
+      <div className="transition-colors duration-300" style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}>
         {icon}
       </div>
       <span
         className="text-[7px] uppercase font-bold mt-0.5 tracking-widest transition-colors duration-300"
-        style={{ color: active ? MED_COLORS.CYAN : MED_COLORS.GRAY_MID }}
+        style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_MID }}
       >
         {label}
       </span>
