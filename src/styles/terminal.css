@@ -138,3 +138,67 @@ html, body, #root {
   background: var(--blue);
   border-radius: 0;
 }
+
+/* ===== Leaflet 覆盖样式 — 医疗终端风格 ===== */
+.leaflet-container {
+  background-color: #F5F7FA !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0 !important;
+  border: 1px solid var(--blue) !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15) !important;
+  background: #FFFFFF !important;
+  font-family: 'JetBrains Mono', 'Consolas', 'SimHei', monospace !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--blue) !important;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
+  background: rgba(245, 247, 250, 0.92) !important;
+  border: 1px solid var(--gray-mid) !important;
+  color: var(--text) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.leaflet-control-layers {
+  border-radius: 0 !important;
+  border: 1px solid var(--gray-mid) !important;
+  background: rgba(245, 247, 250, 0.92) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace !important;
+  font-size: 10px !important;
+}
+
+/* ===== 医疗 HUD 覆盖层 ===== */
+.hud-panel {
+  background: rgba(245, 247, 250, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--gray-mid);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.06);
+}
+
+/* ===== 图例样式 ===== */
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== 旋转动画 (loading spinner) ===== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -7,18 +7,23 @@ import { MED_COLORS } from '../constants';
 // ============================================================
 
 /** 视差 3D 倾斜容器 */
-export const ParallaxWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ParallaxWrapper: React.FC<{ children: React.ReactNode; disabled?: boolean }> = ({ children, disabled = false }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const handleMouseMove = (e: React.MouseEvent) => {
     const x = (window.innerHeight / 2 - e.clientY) / 100;
     const y = (e.clientX - window.innerWidth / 2) / 200;
     setRotate({ x, y });
   };
+  // 禁用时或旋转值为零时不应用 transform，避免 CSS containing block 干扰 Leaflet 地图定位
+  const hasTilt = !disabled && (rotate.x !== 0 || rotate.y !== 0);
+  const transformStyle = hasTilt
+    ? `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`
+    : 'none';
   return (
     <div
       onMouseMove={handleMouseMove}
       className="h-full w-full transition-transform duration-300 ease-out"
-      style={{ transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)` }}
+      style={{ transform: transformStyle }}
     >
       {children}
     </div>

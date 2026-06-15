@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { TerminalView } from './types';
 import { MED_COLORS, SYSTEM_INFO, GeoIcons } from './constants';
 import { BootScreen } from './components/BootScreen';
 import { Dashboard } from './components/Dashboard';
+import ChinaMap from './components/ChinaMap';
+import type { FeatureCollection } from 'geojson';
+import type { PlagueStats } from './constants';
 import {
   CursorScanner,
   DataFlow,
@@ -37,26 +40,61 @@ const App: React.FC = () => {
   const [view, setView] = useState<TerminalView>(TerminalView.BOOT);
   const [showIntro, setShowIntro] = useState(true);
 
+  // ============================================================
+  // 地图数据预加载 — 启动画面结束后立即后台加载
+  // 消除从其他页面跳转到东北·肺鼠疫页面的加载闪烁
+  // ============================================================
+  const [mapRegions, setMapRegions] = useState<FeatureCollection | null>(null);
+  const [mapSites, setMapSites] = useState<FeatureCollection | null>(null);
+  const [mapStats, setMapStats] = useState<PlagueStats | null>(null);
+  const [mapDataReady, setMapDataReady] = useState(false);
+
+  const preloadMapData = useCallback(() => {
+    if (mapDataReady) return; // 已加载完成，跳过
+    Promise.all([
+      fetch('/data/plague_region.geojson').then(r => r.json()),
+      fetch('/data/plague_sites.geojson').then(r => r.json()),
+      fetch('/data/plague_stats.json').then(r => r.json()),
+    ]).then(([regions, sites, stats]) => {
+      setMapRegions(regions);
+      setMapSites(sites);
+      setMapStats(stats);
+      setMapDataReady(true);
+    }).catch(err => {
+      console.error('Map data preload error:', err);
+      setMapDataReady(true); // 标记为完成，让 ChinaMap 自行处理 fallback
+    });
+  }, [mapDataReady]);
+
   const handleViewChange = (newView: TerminalView) => {
     setView(newView);
   };
 
   const renderContent = () => {
+    // 每个分支都加上 key={view}，让 AnimatePresence 能正确追踪子元素切换
     switch (view) {
       case TerminalView.DASHBOARD:
-        return <Dashboard />;
+        return <Dashboard key={view} />;
       case TerminalView.CHINA_MAP:
-        return <PlaceholderView title="中国东北·肺鼠疫 1910-1911" view={view} />;
+        return (
+          <PageTransition key={view} keyValue={TerminalView.CHINA_MAP}>
+            <ChinaMap
+              regions={mapRegions}
+              sites={mapSites}
+              stats={mapStats}
+            />
+          </PageTransition>
+        );
       case TerminalView.CHINA_ANALYSIS:
-        return <PlaceholderView title="医疗分析：东北肺鼠疫" view={view} />;
+        return <PlaceholderView key={view} title="医疗分析：东北肺鼠疫" view={view} />;
       case TerminalView.CHINA_REPORT:
-        return <PlaceholderView title="分析报告：东北肺鼠疫" view={view} />;
+        return <PlaceholderView key={view} title="分析报告：东北肺鼠疫" view={view} />;
       case TerminalView.EUROPE_MAP:
-        return <PlaceholderView title="欧洲大陆·腺鼠疫 1347-1900" view={view} />;
+        return <PlaceholderView key={view} title="欧洲大陆·腺鼠疫 1347-1900" view={view} />;
       case TerminalView.EUROPE_ANALYSIS:
-        return <PlaceholderView title="医疗分析：欧洲腺鼠疫" view={view} />;
+        return <PlaceholderView key={view} title="医疗分析：欧洲腺鼠疫" view={view} />;
       case TerminalView.EUROPE_REPORT:
-        return <PlaceholderView title="分析报告：欧洲腺鼠疫" view={view} />;
+        return <PlaceholderView key={view} title="分析报告：欧洲腺鼠疫" view={view} />;
       default:
         return null;
     }
@@ -64,7 +102,14 @@ const App: React.FC = () => {
 
   // 启动画面
   if (showIntro) {
-    return <BootScreen onComplete={() => { setShowIntro(false); setView(TerminalView.DASHBOARD); }} />;
+    return (
+      <BootScreen onComplete={() => {
+        setShowIntro(false);
+        setView(TerminalView.DASHBOARD);
+        // 后台预加载地图数据，确保用户导航到东北·肺鼠疫时数据已就绪
+        preloadMapData();
+      }} />
+    );
   }
 
   return (
@@ -76,7 +121,7 @@ const App: React.FC = () => {
         <DataFlow color={MED_COLORS.BLUE} />
       </div>
 
-      <ParallaxWrapper>
+      <ParallaxWrapper disabled={view === TerminalView.CHINA_MAP}>
         <div className="h-screen w-screen flex flex-col relative z-10 pointer-events-none">
           {/* ===== Header ===== */}
           <header
@@ -141,7 +186,6 @@ const App: React.FC = () => {
                   view === TerminalView.EUROPE_ANALYSIS || view === TerminalView.EUROPE_REPORT
                 }
                 onClick={() => {
-                  // 根据当前上下文进入对应分析页
                   if (view.toString().startsWith('CHINA')) handleViewChange(TerminalView.CHINA_ANALYSIS);
                   else handleViewChange(TerminalView.EUROPE_ANALYSIS);
                 }}
@@ -205,7 +249,6 @@ const NavButton: React.FC<{
       color={color || MED_COLORS.GRAY_LIGHT}
       className="w-[72px] h-10 flex flex-col items-center justify-center"
     >
-      {/* 极简几何图标 */}
       <div className="transition-colors duration-300 flex-shrink-0" style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}>
         {icon}
       </div>

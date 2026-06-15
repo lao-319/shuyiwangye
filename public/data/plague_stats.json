@@ -1,0 +1,34 @@
+{
+  "total_regions": 129,
+  "total_sites": 130,
+  "total_deaths": 51816,
+  "provinces": {
+    "山东": {
+      "region_count": 27,
+      "total_deaths": 3815,
+      "total_v": 336.93
+    },
+    "直隶": {
+      "region_count": 27,
+      "total_deaths": 1258,
+      "total_v": 279.53
+    },
+    "奉天": {
+      "region_count": 34,
+      "total_deaths": 6727,
+      "total_v": 199.30999999999997
+    },
+    "吉林": {
+      "region_count": 25,
+      "total_deaths": 25204,
+      "total_v": 104.10000000000002
+    },
+    "黑龙江": {
+      "region_count": 16,
+      "total_deaths": 14812,
+      "total_v": 114.66999999999999
+    }
+  },
+  "max_speed_region": "满城县",
+  "max_speed_value": 43.58
+}

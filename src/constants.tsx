@@ -218,3 +218,86 @@ export function getOutbreakColor(count: number): string {
   if (count > 20) return MED_COLORS.BLUE;
   return MED_COLORS.GREEN;
 }
+
+// ===== 省份颜色映射 =====
+export const PROVINCE_COLORS: Record<string, string> = {
+  '直隶':   '#8B5CF6',  // violet
+  '山东':   '#3B82F6',  // blue
+  '奉天':   '#F97316',  // orange
+  '吉林':   '#22C55E',  // green
+  '黑龙江': '#DC2626',  // red
+};
+
+// ===== 传播速度 → 颜色 =====
+export function getSpeedColor(v: number): string {
+  if (v > 20) return '#991B1B'; // 暗红 - 极高
+  if (v > 10) return MED_COLORS.RED;
+  if (v > 5)  return MED_COLORS.ORANGE;
+  if (v > 2)  return MED_COLORS.BLUE;
+  return MED_COLORS.GREEN;
+}
+
+export function getSpeedLabel(v: number): string {
+  if (v > 20) return 'CRITICAL';
+  if (v > 10) return 'HIGH';
+  if (v > 5)  return 'MODERATE';
+  if (v > 2)  return 'LOW';
+  return 'MINIMAL';
+}
+
+// ===== 节点度 → 圆半径 =====
+export function getNodeDegreeRadius(jdd: number): number {
+  if (jdd > 20) return 14;
+  if (jdd > 10) return 10;
+  if (jdd > 5)  return 7;
+  if (jdd > 2)  return 5;
+  return 3.5;
+}
+
+// ===== GeoJSON Feature 类型 =====
+export interface RegionProperties {
+  NAME_PY: string;
+  NAME_CH: string;
+  NAME_FT: string;
+  LEV1_CH: string;
+  BEG_YR: number;
+  V: number;
+  Shape_Area: number;
+  deaths: number;
+  first_date: string;
+  term_date: string;
+  duration_days: number;
+  node_degree: number;
+  mortality_per_capita: number;
+  mortality_intensity: number;
+}
+
+export interface SiteProperties {
+  NAME_PY: string;
+  NAME_CH: string;
+  NAME_FT: string;
+  LEV1_CH: string;
+  BEG_YR: number;
+  SFR: string;
+  ZZR: string;
+  SFRJ: number;
+  JDD: number;
+  deaths: number;
+  first_date: string;
+  term_date: string;
+  duration_days: number;
+  speed_km_day: number;
+}
+
+export interface PlagueStats {
+  total_regions: number;
+  total_sites: number;
+  total_deaths: number;
+  provinces: Record<string, {
+    region_count: number;
+    total_deaths: number;
+    total_v: number;
+  }>;
+  max_speed_region: string;
+  max_speed_value: number;
+}
