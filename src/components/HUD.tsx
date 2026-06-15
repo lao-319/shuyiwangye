@@ -1,0 +1,482 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MED_COLORS } from '../constants';
+
+// ============================================================
+// 基础 HUD 组件（从 The Machine 迁移 + 医疗风改造）
+// ============================================================
+
+/** 视差 3D 倾斜容器 */
+export const ParallaxWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const x = (window.innerHeight / 2 - e.clientY) / 60;
+    const y = (e.clientX - window.innerWidth / 2) / 120;
+    setRotate({ x, y });
+  };
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      className="h-full w-full transition-transform duration-300 ease-out"
+      style={{ transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+/** 光标扫描标签 */
+export const CursorScanner: React.FC = () => {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const handle = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handle);
+    return () => window.removeEventListener('mousemove', handle);
+  }, []);
+  return (
+    <div
+      className="fixed pointer-events-none z-[100] mix-blend-screen opacity-30 font-mono text-[8px] overflow-hidden w-28 h-14"
+      style={{ left: pos.x + 18, top: pos.y + 18, color: MED_COLORS.CYAN }}
+    >
+      <div className="animate-pulse">
+        PESTIS_{Math.random().toString(16).slice(2, 8).toUpperCase()}<br />
+        BIO_HZRD_{Math.floor(Math.random() * 1000)}<br />
+        LAT:{pos.y.toFixed(1)} LON:{pos.x.toFixed(1)}
+      </div>
+    </div>
+  );
+};
+
+/** 目标锁定框（逐步缩小的扫描框） */
+export const TargetingBox: React.FC<{ active: boolean; onComplete?: () => void }> = ({ active, onComplete }) => {
+  const [locked, setLocked] = useState(false);
+  useEffect(() => {
+    if (active) {
+      const timer = setTimeout(() => { setLocked(true); onComplete?.(); }, 1500);
+      return () => { clearTimeout(timer); setLocked(false); };
+    }
+  }, [active, onComplete]);
+  if (!active) return null;
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+      <div
+        className="relative border-2 transition-all duration-[1500ms] ease-in-out"
+        style={{
+          borderColor: MED_COLORS.CYAN,
+          width: locked ? '80px' : '256px',
+          height: locked ? '80px' : '256px',
+          opacity: locked ? 0 : 1,
+        }}
+      >
+        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4" style={{ borderColor: MED_COLORS.CYAN }} />
+        <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4" style={{ borderColor: MED_COLORS.CYAN }} />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4" style={{ borderColor: MED_COLORS.CYAN }} />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4" style={{ borderColor: MED_COLORS.CYAN }} />
+      </div>
+      {locked && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 py-1 text-xs font-bold tracking-widest uppercase"
+          style={{ backgroundColor: MED_COLORS.RED, color: '#000' }}
+        >
+          [BIOHAZARD CONFIRMED]
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+/** 包围框（监控镜头目标标记） */
+export const BoundingBox: React.FC<{
+  label: string;
+  color?: string;
+  className?: string;
+  subtext?: string;
+  style?: React.CSSProperties;
+}> = ({ label, color = MED_COLORS.CYAN, className = '', subtext, style }) => (
+  <div className={`absolute border flex flex-col ${className}`} style={{ ...style, borderColor: color }}>
+    <div
+      className="absolute top-0 left-0 p-1 text-[10px] uppercase font-bold flex justify-between items-center gap-2 whitespace-nowrap"
+      style={{ backgroundColor: color, color: '#000' }}
+    >
+      <span>{label}</span>
+      {subtext && <span className="opacity-60 text-[8px]">{subtext}</span>}
+    </div>
+    <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 pointer-events-none" style={{ borderColor: color }} />
+    <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 pointer-events-none" style={{ borderColor: color }} />
+    <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 pointer-events-none" style={{ borderColor: color }} />
+    <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 pointer-events-none" style={{ borderColor: color }} />
+  </div>
+);
+
+/** 交互框（四角 L 形描点 + 标签） */
+export const InteractiveBox: React.FC<{
+  children: React.ReactNode;
+  label: string;
+  color?: string;
+  active?: boolean;
+  className?: string;
+}> = ({ children, label, color = MED_COLORS.GRAY_LIGHT, active, className = '' }) => {
+  const currentColor = active ? MED_COLORS.CYAN : color;
+  return (
+    <div
+      className={`relative p-1 border transition-colors duration-300 ${className}`}
+      style={{ borderColor: active ? MED_COLORS.CYAN : 'transparent' }}
+    >
+      <div className="absolute -top-[2px] -left-[2px] w-3 h-3 border-t-2 border-l-2" style={{ borderColor: currentColor }} />
+      <div className="absolute -top-[2px] -right-[2px] w-3 h-3 border-t-2 border-r-2" style={{ borderColor: currentColor }} />
+      <div className="absolute -bottom-[2px] -left-[2px] w-3 h-3 border-b-2 border-l-2" style={{ borderColor: currentColor }} />
+      <div className="absolute -bottom-[2px] -right-[2px] w-3 h-3 border-b-2 border-r-2" style={{ borderColor: currentColor }} />
+      <div className="absolute -top-5 left-0 flex items-center gap-1">
+        <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: currentColor }} />
+        <span className="text-[9px] font-bold uppercase tracking-widest opacity-70" style={{ color: currentColor }}>{label}</span>
+      </div>
+      {children}
+    </div>
+  );
+};
+
+/** 语音波形（8 条跳动柱） */
+export const VoiceWave: React.FC<{ active: boolean; color?: string }> = ({ active, color = MED_COLORS.CYAN }) => (
+  <div className={`flex items-center gap-[2px] h-6 ${active ? 'opacity-100' : 'opacity-20'}`}>
+    {[...Array(8)].map((_, i) => (
+      <div
+        key={i}
+        className="w-[3px] rounded-full"
+        style={{
+          backgroundColor: color,
+          height: active ? `${20 + Math.random() * 60}%` : '20%',
+          animationDelay: `${i * 0.1}s`,
+        }}
+      />
+    ))}
+  </div>
+);
+
+/** 战术覆盖弹窗 */
+export const TacticalOverlay: React.FC<{
+  title: string;
+  objective: string;
+  onClose: () => void;
+  color?: string;
+}> = ({ title, objective, onClose, color = MED_COLORS.CYAN }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="absolute inset-0 z-50 flex items-center justify-center p-8 m-4"
+    style={{
+      backgroundColor: 'rgba(2,2,2,0.95)',
+      border: `2px solid ${color}`,
+      boxShadow: `0 0 60px ${color}15`,
+    }}
+  >
+    <div className="max-w-md w-full space-y-6 relative">
+      <div className="font-bold text-2xl tracking-tighter border-b pb-2 uppercase" style={{ color, borderColor: color }}>
+        {title}
+      </div>
+      <div className="text-sm leading-relaxed font-mono uppercase" style={{ color: MED_COLORS.TEXT }}>
+        <span className="font-bold block mb-2" style={{ color }}>Objective:</span>
+        {objective}
+      </div>
+      <button
+        onClick={onClose}
+        className="w-full py-4 font-bold uppercase tracking-widest transition-colors"
+        style={{ backgroundColor: color, color: '#000' }}
+      >
+        Acknowledge & Deploy
+      </button>
+    </div>
+  </motion.div>
+);
+
+/** 威胁/严重度计量器 */
+export const SeverityMeter: React.FC<{
+  level: number;
+  label?: string;
+}> = ({ level, label = 'OUTBREAK LEVEL' }) => {
+  const color = level > 70 ? MED_COLORS.RED : level > 30 ? MED_COLORS.AMBER : level > 10 ? MED_COLORS.CYAN : MED_COLORS.GREEN;
+  return (
+    <div className="flex flex-col gap-1 w-36">
+      <div className="flex justify-between text-[10px] uppercase font-bold" style={{ color }}>
+        <span>{label}</span>
+        <span>{level}%</span>
+      </div>
+      <div className="h-2 flex" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
+        <motion.div
+          className="h-full"
+          animate={{ width: `${level}%` }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+          style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}60` }}
+        />
+      </div>
+    </div>
+  );
+};
+
+/** 打字机效果 */
+export const Typewriter: React.FC<{
+  text: string;
+  delay?: number;
+  className?: string;
+  onComplete?: () => void;
+}> = ({ text, delay = 20, className = '', onComplete }) => {
+  const [displayed, setDisplayed] = useState('');
+  useEffect(() => {
+    setDisplayed('');
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayed(prev => prev + text.charAt(i));
+      i++;
+      if (i >= text.length) { clearInterval(timer); onComplete?.(); }
+    }, delay);
+    return () => clearInterval(timer);
+  }, [text, delay]);
+  return <span className={className}>{displayed}<span className="animate-pulse opacity-70">█</span></span>;
+};
+
+/** 状态指示灯 */
+export const StatusIndicator: React.FC<{
+  label: string;
+  active?: boolean;
+  color?: string;
+}> = ({ label, active, color = MED_COLORS.GREEN }) => (
+  <div className="flex items-center gap-2 text-[10px] opacity-80 uppercase tracking-tighter border-l-2 border-gray-700 pl-2">
+    <div
+      className={`w-1.5 h-1.5 rounded-full ${active ? '' : 'animate-pulse'}`}
+      style={{
+        backgroundColor: active ? color : MED_COLORS.RED,
+        boxShadow: active ? `0 0 5px ${color}` : 'none',
+      }}
+    />
+    <span style={{ color: active ? MED_COLORS.TEXT : MED_COLORS.GRAY_LIGHT }}>{label}</span>
+  </div>
+);
+
+/** 背景数据流 */
+export const DataFlow: React.FC<{ color?: string }> = ({ color = MED_COLORS.CYAN }) => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden font-mono text-[8px] flex justify-around p-4 select-none z-0" style={{ opacity: 0.04 }}>
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div key={i} className="flex flex-col gap-1 data-stream" style={{ animationDelay: `${i * -2}s`, opacity: 0.3 + Math.random() * 0.7 }}>
+        {Array.from({ length: 60 }).map((_, j) => (
+          <div key={j} style={{ color: Math.random() > 0.92 ? color : undefined }}>
+            {Math.random().toString(16).substring(2, 8).toUpperCase()}
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+);
+
+// ============================================================
+// 医学风定制 HUD 组件（新增）
+// ============================================================
+
+/** 心电图式波动线 */
+export const ECGLine: React.FC<{
+  width?: number;
+  height?: number;
+  color?: string;
+  className?: string;
+}> = ({ width = 200, height = 60, color = MED_COLORS.CYAN, className = '' }) => {
+  const generatePath = () => {
+    const points: string[] = [];
+    const segW = width / 12;
+    for (let i = 0; i <= 12; i++) {
+      const x = i * segW;
+      let y: number;
+      if (i % 3 === 0) {
+        y = Math.random() * height * 0.6 + height * 0.1;
+      } else if (i % 3 === 1) {
+        y = height * 0.9;
+      } else {
+        y = height * 0.15;
+      }
+      points.push(`${x},${y}`);
+    }
+    return `M${points.join(' L')}`;
+  };
+  return (
+    <svg width={width} height={height} className={`${className} overflow-visible`}>
+      <motion.path
+        d={generatePath()}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.8 }}
+        transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' }}
+        style={{ filter: `drop-shadow(0 0 3px ${color})` }}
+      />
+    </svg>
+  );
+};
+
+/** 生命体征式数据面板 */
+export const VitalSigns: React.FC<{
+  label: string;
+  value: string | number;
+  unit?: string;
+  color?: string;
+  pulse?: boolean;
+}> = ({ label, value, unit = '', color = MED_COLORS.CYAN, pulse = false }) => (
+  <div className="flex flex-col items-center p-2 border border-gray-800" style={{ minWidth: 80 }}>
+    <span className="text-[8px] uppercase tracking-wider opacity-50 mb-1" style={{ color: MED_COLORS.GRAY_LIGHT }}>{label}</span>
+    <motion.span
+      className="text-lg font-bold font-mono"
+      style={{ color }}
+      animate={pulse ? { opacity: [0.7, 1, 0.7] } : {}}
+      transition={{ duration: 1.5, repeat: Infinity }}
+    >
+      {typeof value === 'number' ? value.toLocaleString() : value}
+      <span className="text-[10px] ml-0.5 opacity-60">{unit}</span>
+    </motion.span>
+  </div>
+);
+
+/** 扫描分析进度条（CT 扫描线风格） */
+export const ScanProgress: React.FC<{
+  progress: number; // 0-100
+  label?: string;
+  color?: string;
+}> = ({ progress, label = 'ANALYZING BIOSAMPLE', color = MED_COLORS.CYAN }) => (
+  <div className="w-full space-y-2">
+    <div className="flex justify-between text-[9px] uppercase font-bold" style={{ color }}>
+      <span>{label}</span>
+      <span>{Math.round(progress)}%</span>
+    </div>
+    <div className="relative h-3 overflow-hidden" style={{ backgroundColor: '#111', border: '1px solid #333' }}>
+      <motion.div
+        className="h-full"
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 0.5, ease: 'linear' }}
+        style={{ backgroundColor: color, boxShadow: `0 0 12px ${color}40` }}
+      />
+      {/* 扫描线 */}
+      <motion.div
+        className="absolute top-0 w-1 h-full"
+        animate={{ left: ['0%', '100%'] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+        style={{ backgroundColor: '#fff', opacity: 0.6 }}
+      />
+    </div>
+  </div>
+);
+
+/** 顶部警报横幅 */
+export const AlertBanner: React.FC<{
+  message: string;
+  level?: 'WARNING' | 'CRITICAL' | 'INFO';
+  visible: boolean;
+}> = ({ message, level = 'WARNING', visible }) => {
+  const color = level === 'CRITICAL' ? MED_COLORS.RED : level === 'WARNING' ? MED_COLORS.AMBER : MED_COLORS.CYAN;
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          className="overflow-hidden border-b text-center py-2 px-4 font-mono text-[10px] uppercase font-bold tracking-widest"
+          style={{ backgroundColor: `${color}15`, borderColor: color, color }}
+        >
+          <span className="animate-pulse mr-2">⚠</span>
+          [{level}] {message}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+/** 报告分段渲染 */
+export const ReportSection: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  delay?: number;
+  color?: string;
+}> = ({ title, children, delay = 0, color = MED_COLORS.CYAN }) => (
+  <motion.div
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay, duration: 0.5 }}
+    className="border-l-2 pl-4 py-2 mb-4"
+    style={{ borderColor: color }}
+  >
+    <h3 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color }}>{title}</h3>
+    <div className="text-xs leading-relaxed" style={{ color: MED_COLORS.TEXT }}>{children}</div>
+  </motion.div>
+);
+
+/** 时间轴标记点 */
+export const TimelineMarker: React.FC<{
+  date: string;
+  label: string;
+  active?: boolean;
+  color?: string;
+  onClick?: () => void;
+}> = ({ date, label, active, color = MED_COLORS.CYAN, onClick }) => (
+  <div
+    className="flex items-center gap-3 py-1.5 px-2 cursor-pointer transition-all duration-300 hover:bg-white/5"
+    onClick={onClick}
+  >
+    <div
+      className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all ${active ? 'scale-125' : ''}`}
+      style={{
+        backgroundColor: active ? color : 'transparent',
+        border: `2px solid ${active ? color : MED_COLORS.GRAY_LIGHT}`,
+        boxShadow: active ? `0 0 8px ${color}` : 'none',
+      }}
+    />
+    <span className="text-[9px] font-mono opacity-50 w-16 flex-shrink-0" style={{ color: MED_COLORS.GRAY_LIGHT }}>{date}</span>
+    <span
+      className="text-[9px] uppercase tracking-wider font-bold truncate"
+      style={{ color: active ? color : MED_COLORS.GRAY_LIGHT }}
+    >
+      {label}
+    </span>
+  </div>
+);
+
+/** 页面过渡容器 */
+export const PageTransition: React.FC<{
+  children: React.ReactNode;
+  keyValue: string;
+}> = ({ children, keyValue }) => (
+  <motion.div
+    key={keyValue}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.3 }}
+    className="h-full w-full"
+  >
+    {children}
+  </motion.div>
+);
+
+/** 统计卡片 */
+export const StatCard: React.FC<{
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  color?: string;
+  icon?: React.ReactNode;
+}> = ({ title, value, subtitle, color = MED_COLORS.CYAN, icon }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="border p-4 relative overflow-hidden group"
+    style={{ borderColor: `${color}30`, backgroundColor: '#0a0a0a' }}
+  >
+    <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: color }} />
+    <div className="flex items-start justify-between mb-2">
+      <span className="text-[9px] uppercase tracking-wider opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{title}</span>
+      {icon && <span style={{ color }}>{icon}</span>}
+    </div>
+    <div className="text-2xl font-bold font-mono" style={{ color }}>{value}</div>
+    {subtitle && (
+      <div className="text-[9px] mt-1 opacity-40" style={{ color: MED_COLORS.GRAY_LIGHT }}>{subtitle}</div>
+    )}
+  </motion.div>
+);

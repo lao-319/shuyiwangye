@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* ===== CSS 变量 ===== */
+:root {
+  --cyan: #00E5FF;
+  --amber: #FFB300;
+  --red: #FF1744;
+  --green: #00E676;
+  --violet: #B388FF;
+  --bg: #020202;
+  --text: #E0F2F1;
+}
+
+/* ===== 全局基础 ===== */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', 'SimHei', 'Microsoft YaHei', monospace;
+  overflow: hidden;
+  text-shadow: 0 0 3px rgba(0, 229, 255, 0.15);
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== 监控网格 ===== */
+.surveillance-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+/* ===== 扫描线 ===== */
+.poi-scanline {
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 229, 255, 0.02) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+/* ===== 噪点纹理（纯 CSS，无外部依赖） ===== */
+.poi-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 997;
+  opacity: 0.06;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ===== CRT 暗角 ===== */
+.vignette {
+  background: radial-gradient(circle, transparent 35%, rgba(2, 2, 2, 0.9) 100%);
+  pointer-events: none;
+}
+
+/* ===== CRT 闪烁 ===== */
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+.crt-flicker {
+  animation: flicker 0.2s infinite;
+}
+
+/* ===== 数据流动画 ===== */
+@keyframes flow {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.data-stream {
+  animation: flow 25s linear infinite;
+}
+
+/* ===== 医疗扫描线 ===== */
+@keyframes medscan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+.med-scanline {
+  animation: medscan 3s ease-in-out infinite;
+}
+
+/* ===== 终端滚动条 ===== */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cyan);
+  border-radius: 0;
+}
