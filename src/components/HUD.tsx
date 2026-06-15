@@ -110,7 +110,7 @@ export const BoundingBox: React.FC<{
   <div className={`absolute border flex flex-col ${className}`} style={{ ...style, borderColor: color }}>
     <div
       className="absolute top-0 left-0 p-1 text-[10px] uppercase font-bold flex justify-between items-center gap-2 whitespace-nowrap"
-      style={{ backgroundColor: color, color: '#0B1A2E' }}
+      style={{ backgroundColor: color, color: '#FFFFFF' }}
     >
       <span>{label}</span>
       {subtext && <span className="opacity-60 text-[8px]">{subtext}</span>}
@@ -123,7 +123,7 @@ export const BoundingBox: React.FC<{
   </div>
 );
 
-/** 交互框（底部发光强调条 + 顶部居中 pill 标签 — 医疗设备按钮风格） */
+/** 交互框（45° 切角科技感边框 + 双重线条 + 蓝色发光） */
 export const InteractiveBox: React.FC<{
   children: React.ReactNode;
   label: string;
@@ -132,28 +132,65 @@ export const InteractiveBox: React.FC<{
   className?: string;
 }> = ({ children, label, color = MED_COLORS.GRAY_LIGHT, active, className = '' }) => {
   const currentColor = active ? MED_COLORS.BLUE : color;
+  // 左上角 + 右下角 6px 45° 斜切
+  const chamferClip = `polygon(
+    6px 0,
+    100% 0,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    0 100%,
+    0 6px
+  )`;
+
   return (
-    <div className={`relative p-1 transition-colors duration-300 ${className}`}>
-      {/* 顶部居中 pill 标签 */}
-      <div className="absolute -top-5 left-1/2 -translate-x-1/2 flex items-center gap-1">
-        <div className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: currentColor }} />
+    <div className={`relative ${className}`}>
+      {/* 切角边框叠加层 — 绝对定位，不干扰子元素 flex 布局 */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-300"
+        style={{ borderRadius: '5px' }}
+      >
+        <div
+          className="w-full h-full transition-all duration-300"
+          style={{
+            clipPath: chamferClip,
+            border: `1px solid ${currentColor}`,
+            boxShadow: `inset 0 0 0 1px ${currentColor}40`,
+            backgroundColor: active ? `${MED_COLORS.BLUE}08` : 'transparent',
+          }}
+        />
+      </div>
+
+      {/* 外部发光层 — 独立 div，box-shadow 不被 clip-path 裁剪 */}
+      {active && (
+        <div
+          className="absolute inset-0 pointer-events-none transition-all duration-300"
+          style={{
+            borderRadius: '5px',
+            boxShadow: `0 0 12px ${MED_COLORS.BLUE}30, 0 0 24px ${MED_COLORS.BLUE}08`,
+          }}
+        />
+      )}
+
+      {/* 子元素 — 在正常流中渲染，享受 className 中的 flex 布局 */}
+      {children}
+
+      {/* 底部标签 — 脉冲圆点 + 文字 */}
+      <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1">
+        <div
+          className="w-1 h-1 rounded-full"
+          style={{
+            backgroundColor: currentColor,
+            boxShadow: active ? `0 0 4px ${currentColor}` : 'none',
+            animation: active ? 'pulse-blue 1.5s ease-in-out infinite' : 'none',
+          }}
+        />
         <span
-          className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm"
-          style={{ color: currentColor, backgroundColor: `${currentColor}18` }}
+          className="text-[8px] font-bold uppercase tracking-widest whitespace-nowrap"
+          style={{ color: currentColor, opacity: active ? 1 : 0.5 }}
         >
           {label}
         </span>
       </div>
-      {/* 底部强调条 — 激活时展开 */}
-      <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300"
-        style={{
-          width: active ? '100%' : '0%',
-          backgroundColor: currentColor,
-          boxShadow: active ? `0 0 6px ${currentColor}` : 'none',
-        }}
-      />
-      {children}
     </div>
   );
 };
@@ -189,7 +226,7 @@ export const TacticalOverlay: React.FC<{
     exit={{ opacity: 0 }}
     className="absolute inset-0 z-50 flex items-center justify-center p-8 m-4"
     style={{
-      backgroundColor: 'rgba(11,26,46,0.95)',
+      backgroundColor: 'rgba(245,247,250,0.97)',
       border: `2px solid ${color}`,
       boxShadow: `0 0 60px ${color}15`,
     }}
@@ -225,7 +262,7 @@ export const SeverityMeter: React.FC<{
         <span>{label}</span>
         <span>{level}%</span>
       </div>
-      <div className="h-2 flex" style={{ backgroundColor: '#0D1F33', border: '1px solid #254575' }}>
+      <div className="h-2 flex rounded-sm overflow-hidden" style={{ backgroundColor: MED_COLORS.GRAY_DARK, border: `1px solid ${MED_COLORS.GRAY_MID}` }}>
         <motion.div
           className="h-full"
           animate={{ width: `${level}%` }}
@@ -379,7 +416,7 @@ export const ScanProgress: React.FC<{
       <span>{label}</span>
       <span>{Math.round(progress)}%</span>
     </div>
-    <div className="relative h-3 overflow-hidden" style={{ backgroundColor: '#0D1F33', border: '1px solid #254575' }}>
+    <div className="relative h-3 overflow-hidden rounded-sm" style={{ backgroundColor: MED_COLORS.GRAY_DARK, border: `1px solid ${MED_COLORS.GRAY_MID}` }}>
       <motion.div
         className="h-full"
         animate={{ width: `${progress}%` }}
@@ -500,7 +537,7 @@ export const StatCard: React.FC<{
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     className="border p-4 relative overflow-hidden group"
-    style={{ borderColor: `${color}30`, backgroundColor: '#0F2340' }}
+    style={{ borderColor: `${color}30`, backgroundColor: '#FFFFFF' }}
   >
     <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: color }} />
     <div className="flex items-start justify-between mb-2">

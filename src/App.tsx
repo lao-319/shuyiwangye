@@ -82,8 +82,8 @@ const App: React.FC = () => {
           <header
             className="h-16 border-b flex items-center justify-between px-6 z-30 pointer-events-auto"
             style={{
-              borderColor: '#254575',
-              backgroundColor: 'rgba(11,26,46,0.75)',
+              borderColor: MED_COLORS.GRAY_MID,
+              backgroundColor: 'rgba(245,247,250,0.88)',
               backdropFilter: 'blur(12px)',
             }}
           >
@@ -167,8 +167,8 @@ const App: React.FC = () => {
           <footer
             className="h-8 border-t flex items-center justify-between px-6 text-[9px] uppercase font-mono z-30 pointer-events-auto"
             style={{
-              borderColor: '#254575',
-              backgroundColor: 'rgba(11,26,46,0.85)',
+              borderColor: MED_COLORS.GRAY_MID,
+              backgroundColor: 'rgba(245,247,250,0.92)',
               color: MED_COLORS.GRAY_LIGHT,
               backdropFilter: 'blur(8px)',
             }}
@@ -215,7 +215,7 @@ const NavButton: React.FC<{
       </div>
       <span
         className="text-[7px] uppercase font-bold mt-0.5 tracking-widest transition-colors duration-300"
-        style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_MID }}
+        style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}
       >
         {label}
       </span>

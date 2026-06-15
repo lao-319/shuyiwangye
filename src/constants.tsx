@@ -2,16 +2,16 @@ import React from 'react';
 
 // ===== 医疗终端色彩系统 — 红蓝白未来科技风格 =====
 export const MED_COLORS = {
-  BLUE:       '#4DABF7',   // 主色调 — 未来科技蓝
-  RED:        '#EF4444',   // 危险色 — 高死亡率
+  BLUE:       '#3B82F6',   // 主色调 — 心电图蓝
+  RED:        '#DC2626',   // 危险色 — 心电图红
   ORANGE:     '#F97316',   // 警告色 — 疫情爆发
   GREEN:      '#22C55E',   // 安全色 — 已控制
   VIOLET:     '#8B5CF6',   // 系统色 — 管理员
-  BG:         '#0B1A2E',   // 终端底色 — 深海军蓝
-  TEXT:       '#F1F5F9',   // 监视器文字 — 纯冷白
-  GRAY_DARK:  '#12233D',   // 卡片/面板背景
-  GRAY_MID:   '#1B3254',   // 中蓝表面
-  GRAY_LIGHT: '#254575',   // 蓝色边框
+  BG:         '#F5F7FA',   // 终端底色 — 医疗白
+  TEXT:       '#1E293B',   // 监视器文字 — 深石板灰
+  GRAY_DARK:  '#E2E8F0',   // 卡片/面板背景
+  GRAY_MID:   '#CBD5E1',   // 中灰表面
+  GRAY_LIGHT: '#94A3B8',   // 灰色边框
 } as const;
 
 // ===== 疫情严重度等级阈值 =====

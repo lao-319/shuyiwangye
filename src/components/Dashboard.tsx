@@ -96,8 +96,8 @@ export const Dashboard: React.FC = () => {
         {/* 第二行：生命体征面板 + 严重度 */}
         <div className="grid grid-cols-3 gap-6">
           {/* 左侧：生命体征面板 */}
-          <div className="col-span-2 border p-5 space-y-4" style={{ borderColor: '#254575', backgroundColor: '#0D1F33' }}>
-            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: '#254575' }}>
+          <div className="col-span-2 border p-5 space-y-4 rounded" style={{ borderColor: MED_COLORS.GRAY_MID, backgroundColor: '#FFFFFF' }}>
+            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: MED_COLORS.GRAY_MID }}>
               <h2 className="text-xs uppercase tracking-[0.15em] font-bold" style={{ color: MED_COLORS.BLUE }}>
                 ◈ 疫情生命体征监测
               </h2>
@@ -119,7 +119,7 @@ export const Dashboard: React.FC = () => {
 
           {/* 右侧：严重度 + 快速导航 */}
           <div className="space-y-4">
-            <div className="border p-5 space-y-4" style={{ borderColor: '#254575', backgroundColor: '#0D1F33' }}>
+            <div className="border p-5 space-y-4 rounded" style={{ borderColor: MED_COLORS.GRAY_MID, backgroundColor: '#FFFFFF' }}>
               <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: MED_COLORS.GRAY_LIGHT }}>
                 疫情威胁评估
               </h3>
@@ -141,24 +141,53 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* 快速导航磁贴 */}
+            {/* 快速导航磁贴 — 医疗白底 + 左侧色彩点缀 + 右列空心边框 */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: <Icons.MapPin />, label: '东北肺鼠疫', color: MED_COLORS.BLUE },
-                { icon: <Icons.Globe />, label: '欧洲腺鼠疫', color: MED_COLORS.ORANGE },
-                { icon: <Icons.Chart />, label: '医疗分析', color: MED_COLORS.VIOLET },
-                { icon: <Icons.Report />, label: '查看报告', color: MED_COLORS.GREEN },
+                { icon: <Icons.MapPin />, label: '东北肺鼠疫', color: MED_COLORS.BLUE, variant: 'accent' as const },
+                { icon: <Icons.Globe />, label: '欧洲腺鼠疫', color: MED_COLORS.ORANGE, variant: 'outlined' as const },
+                { icon: <Icons.Chart />, label: '医疗分析', color: MED_COLORS.VIOLET, variant: 'accent' as const },
+                { icon: <Icons.Report />, label: '查看报告', color: MED_COLORS.GREEN, variant: 'outlined' as const },
               ].map((item, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.1 }}
-                  className="border p-3 flex flex-col items-center gap-1 cursor-pointer hover:bg-white/5 transition-colors"
-                  style={{ borderColor: '#254575' }}
+                  className="relative p-3 flex items-center gap-2.5 cursor-pointer transition-all duration-300 hover:scale-[1.03] overflow-hidden"
+                  style={{
+                    borderRadius: '5px',
+                    backgroundColor: '#FFFFFF',
+                    border: item.variant === 'outlined' ? `1px solid ${item.color}50` : 'none',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                  }}
                 >
-                  <span style={{ color: item.color }}>{item.icon}</span>
-                  <span className="text-[8px] uppercase tracking-wider" style={{ color: MED_COLORS.GRAY_LIGHT }}>{item.label}</span>
+                  {/* 左列：左侧窄色彩强调条 */}
+                  {item.variant === 'accent' && (
+                    <div
+                      className="absolute left-0 top-0 h-full w-1"
+                      style={{ backgroundColor: item.color }}
+                    />
+                  )}
+                  {/* 右列：左侧圆形装饰 */}
+                  {item.variant === 'outlined' && (
+                    <span
+                      className="w-2 h-2 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor: item.color,
+                        boxShadow: `0 0 5px ${item.color}50`,
+                      }}
+                    />
+                  )}
+                  <span style={{ color: item.color }}>
+                    {item.icon}
+                  </span>
+                  <span
+                    className="text-[8px] uppercase tracking-wider font-bold"
+                    style={{ color: '#334155' }}
+                  >
+                    {item.label}
+                  </span>
                 </motion.div>
               ))}
             </div>
@@ -166,8 +195,8 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* 第三行：数据来源 */}
-        <div className="border-t pt-3" style={{ borderColor: '#254575' }}>
-          <div className="flex justify-between text-[8px] uppercase" style={{ color: MED_COLORS.GRAY_MID }}>
+        <div className="border-t pt-3" style={{ borderColor: MED_COLORS.GRAY_MID }}>
+          <div className="flex justify-between text-[8px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
             <span>DATA: 中国东北鼠疫1910-1911 + 欧洲历史鼠疫爆发1347-1900</span>
             <span>COORD: Xian 1980 / WGS84 · SOURCE: Academic Research Datasets</span>
           </div>
