@@ -119,11 +119,13 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
   const [visibleLines, setVisibleLines] = useState<number[]>([]);
   const [showButton, setShowButton] = useState(false);
   const [phase, setPhase] = useState<'loading' | 'danger' | 'ready'>('loading');
-  const [bgColor, setBgColor] = useState(MED_WHITE);
+  const [bgColor, setBgColor] = useState('#E8ECF0'); // 比 MED_WHITE 暗一点，衬托暗角
   const [ecgColor, setEcgColor] = useState(ECG_BLUE);
   const [alarmFlash, setAlarmFlash] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
   const [svgSize, setSvgSize] = useState({ width: 800, height: 120 });
+  const [pathLen, setPathLen] = useState(1600); // 近似值，渲染后实测修正
 
   // 响应式 SVG 尺寸
   useEffect(() => {
@@ -139,7 +141,14 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
   }, []);
 
   const ecgPath = generateECGPath(svgSize.width, svgSize.height, 64);
-  const pathLength = useRef(0);
+
+  // 实测 ECG 路径真实长度，修正描边动画速度
+  useEffect(() => {
+    if (pathRef.current) {
+      const len = pathRef.current.getTotalLength();
+      if (len > 0) setPathLen(len);
+    }
+  }, [ecgPath]);
 
   // 后台启动文本逐行显示
   useEffect(() => {
@@ -203,13 +212,22 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center overflow-hidden"
       style={{
         backgroundColor: bgColor,
-        transition: 'background-color 0.15s ease-out',
         animation: phase === 'danger' ? 'screen-shake 0.3s ease-in-out infinite' : 'none',
       }}
     >
+      {/* ===== 屏幕四周虚化暗角（进度100%时移除） ===== */}
+      {progress < 100 && (
+        <div
+          className="absolute inset-0 pointer-events-none z-[2]"
+          style={{
+            background: 'radial-gradient(ellipse 60% 70% at center, transparent 30%, rgba(60,70,85,0.70) 100%)',
+          }}
+        />
+      )}
+
       {/* ===== 医疗白背景网格 ===== */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -317,14 +335,15 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
 
             {/* ECG 波形路径 — 使用 stroke-dasharray 实现绘制动画 */}
             <path
+              ref={pathRef}
               d={ecgPath}
               fill="none"
               stroke={ecgColor}
               strokeWidth={2}
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeDasharray={svgSize.width * 2}
-              strokeDashoffset={svgSize.width * 2 * (1 - progress / 100)}
+              strokeDasharray={pathLen}
+              strokeDashoffset={pathLen * (1 - progress / 100)}
               style={{
                 transition: 'stroke 0.25s ease-out',
               }}
@@ -339,8 +358,8 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
               strokeLinecap="round"
               strokeLinejoin="round"
               opacity={0.25}
-              strokeDasharray={svgSize.width * 2}
-              strokeDashoffset={svgSize.width * 2 * (1 - progress / 100)}
+              strokeDasharray={pathLen}
+              strokeDashoffset={pathLen * (1 - progress / 100)}
               style={{
                 filter: `blur(3px)`,
                 transition: 'stroke 0.25s ease-out',
