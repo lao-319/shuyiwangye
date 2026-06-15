@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MED_COLORS, SYSTEM_INFO } from '../constants';
 
@@ -38,13 +38,111 @@ const BOOT_SEQUENCE: BootLine[] = [
   { id: 26, text: '[SYS] Awaiting ADMIN authorization............', type: 'info', delay: 8500 },
 ];
 
+// ===== ECG 波形路径生成 =====
+// 生成模拟真实心电图的 SVG path
+const generateECGPath = (width: number, height: number, segments: number): string => {
+  const midY = height / 2;
+  const amp = height * 0.35;
+  const segW = width / segments;
+  const points: [number, number][] = [];
+
+  for (let i = 0; i <= segments; i++) {
+    const x = i * segW;
+    // 每个周期内模拟 P-Q-R-S-T 波形
+    const phase = (i % 8) / 8; // 8个点一个心跳周期
+    let y: number;
+
+    if (phase < 0.15) {
+      // 基线
+      y = midY;
+    } else if (phase < 0.25) {
+      // P 波 (小隆起)
+      const p = (phase - 0.15) / 0.10;
+      y = midY - amp * 0.25 * Math.sin(p * Math.PI);
+    } else if (phase < 0.35) {
+      // PR 段
+      y = midY;
+    } else if (phase < 0.40) {
+      // Q 波 (小下陷)
+      const q = (phase - 0.35) / 0.05;
+      y = midY + amp * 0.15 * Math.sin(q * Math.PI / 2);
+    } else if (phase < 0.50) {
+      // R 波 (大尖峰)
+      const r = (phase - 0.40) / 0.10;
+      y = midY - amp * Math.sin(r * Math.PI);
+    } else if (phase < 0.55) {
+      // S 波 (深下陷)
+      const s = (phase - 0.50) / 0.05;
+      y = midY + amp * 0.5 * Math.sin(s * Math.PI / 2);
+    } else if (phase < 0.70) {
+      // ST 段
+      y = midY;
+    } else if (phase < 0.90) {
+      // T 波 (宽隆起)
+      const t = (phase - 0.70) / 0.20;
+      y = midY - amp * 0.35 * Math.sin(t * Math.PI);
+    } else {
+      // 回到基线
+      y = midY;
+    }
+
+    points.push([x, y]);
+  }
+
+  // 平滑路径
+  if (points.length < 3) return '';
+  let path = `M ${points[0][0].toFixed(2)} ${points[0][1].toFixed(2)}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const [x0, y0] = points[i - 1];
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[i + 1];
+    const cpx = x1;
+    const cpy = y1;
+    const endX = (x1 + x2) / 2;
+    const endY = (y1 + y2) / 2;
+    path += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${endX.toFixed(2)} ${endY.toFixed(2)}`;
+  }
+  const last = points[points.length - 1];
+  path += ` L ${last[0].toFixed(2)} ${last[1].toFixed(2)}`;
+  return path;
+};
+
+/** 医疗白色调 */
+const MED_WHITE = '#F5F7FA';
+const MED_WHITE_BG = '#EEF1F5';
+const DANGER_RED = '#DC2626';
+const DANGER_RED_DARK = '#991B1B';
+const ECG_BLUE = '#3B82F6';
+
 export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+  const [progress, setProgress] = useState(0);
   const [visibleLines, setVisibleLines] = useState<number[]>([]);
   const [showButton, setShowButton] = useState(false);
-  const [bootPhase, setBootPhase] = useState<'booting' | 'ready'>('booting');
+  const [phase, setPhase] = useState<'loading' | 'danger' | 'ready'>('loading');
+  const [bgColor, setBgColor] = useState(MED_WHITE);
+  const [ecgColor, setEcgColor] = useState(ECG_BLUE);
+  const [alarmFlash, setAlarmFlash] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [svgSize, setSvgSize] = useState({ width: 800, height: 120 });
 
+  // 响应式 SVG 尺寸
   useEffect(() => {
-    // 逐行显示启动序列
+    const updateSize = () => {
+      if (containerRef.current) {
+        const w = containerRef.current.clientWidth - 80;
+        setSvgSize({ width: Math.max(w, 400), height: 120 });
+      }
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  const ecgPath = generateECGPath(svgSize.width, svgSize.height, 64);
+  const pathLength = useRef(0);
+
+  // 后台启动文本逐行显示
+  useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
     BOOT_SEQUENCE.forEach((line) => {
       const t = setTimeout(() => {
@@ -52,88 +150,281 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
       }, line.delay);
       timers.push(t);
     });
-
-    // 启动完成
-    const finalTimer = setTimeout(() => {
-      setBootPhase('ready');
-      setTimeout(() => setShowButton(true), 500);
-    }, 9000);
-    timers.push(finalTimer);
-
     return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // 进度条动画（ECG 描边 + 百分比）
+  useEffect(() => {
+    const totalDuration = 9000; // 与启动序列同步
+    const startTime = Date.now();
+
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const p = Math.min((elapsed / totalDuration) * 100, 100);
+      setProgress(p);
+
+      if (p < 100) {
+        requestAnimationFrame(tick);
+      } else {
+        // 进度完成 → 立即触发危险警报（无延迟，制造紧迫感）
+        setPhase('danger');
+        setBgColor(DANGER_RED_DARK);
+        setEcgColor(DANGER_RED);
+
+        // 快速警报闪烁（短间隔、少次数，像真实紧急警报）
+        let flashes = 0;
+        const flashInterval = setInterval(() => {
+          setAlarmFlash(prev => !prev);
+          flashes++;
+          if (flashes >= 5) {
+            clearInterval(flashInterval);
+            setAlarmFlash(false);
+            setPhase('ready');
+            // 几乎立即显示按钮
+            setTimeout(() => setShowButton(true), 250);
+          }
+        }, 180);
+      }
+    };
+
+    requestAnimationFrame(tick);
   }, []);
 
   const lineColor = (type: BootLine['type']) => {
     switch (type) {
-      case 'success': return MED_COLORS.GREEN;
-      case 'warn':    return MED_COLORS.ORANGE;
-      case 'error':   return MED_COLORS.RED;
-      case 'header':  return MED_COLORS.BLUE;
-      default:        return MED_COLORS.GRAY_LIGHT;
+      case 'success': return '#94A3B8';
+      case 'warn':    return '#A1A1AA';
+      case 'error':   return '#DC2626';
+      case 'header':  return '#6B7280';
+      default:        return '#B0B7C3';
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ backgroundColor: MED_COLORS.BG }}>
-      {/* 启动画面背景网格 */}
-      <div className="med-dot-grid absolute inset-0 opacity-30" />
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden"
+      style={{
+        backgroundColor: bgColor,
+        transition: 'background-color 0.15s ease-out',
+        animation: phase === 'danger' ? 'screen-shake 0.3s ease-in-out infinite' : 'none',
+      }}
+    >
+      {/* ===== 医疗白背景网格 ===== */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundSize: '20px 20px',
+          backgroundImage: phase === 'danger'
+            ? `radial-gradient(circle, ${DANGER_RED}18 1px, transparent 1px)`
+            : 'radial-gradient(circle, #CBD5E1 1px, transparent 1px)',
+          opacity: phase === 'danger' ? 0.6 : 0.5,
+          transition: 'opacity 0.25s ease-out, background-image 0.25s ease-out',
+        }}
+      />
 
-      <div className="w-full max-w-2xl px-8 font-mono text-sm">
-        {/* 启动日志 */}
-        <div className="mb-8 space-y-0 leading-relaxed">
-          <AnimatePresence>
-            {BOOT_SEQUENCE.filter(l => visibleLines.includes(l.id)).map((line) => (
-              <motion.div
-                key={line.id}
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.15 }}
-                style={{ color: lineColor(line.type) }}
-                className="text-[11px] tracking-wide whitespace-pre"
-              >
-                {line.text || ' '}
-              </motion.div>
+      {/* ===== 警报闪烁叠加层 ===== */}
+      <AnimatePresence>
+        {alarmFlash && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.35 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 pointer-events-none z-10"
+            style={{ backgroundColor: DANGER_RED }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ===== 背景数据加载文本（极淡、低层级） ===== */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+        style={{ opacity: 0.09 }}
+      >
+        <div className="w-full h-full flex items-start justify-center pt-20">
+          <div className="font-mono text-[11px] leading-relaxed space-y-0 max-w-2xl px-8">
+            <AnimatePresence>
+              {BOOT_SEQUENCE.filter(l => visibleLines.includes(l.id)).map((line) => (
+                <motion.div
+                  key={line.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ color: lineColor(line.type) }}
+                  className="whitespace-pre tracking-wide"
+                >
+                  {line.text || ' '}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== 主视觉区：ECG 心电图进度条 ===== */}
+      <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-4xl px-10">
+        {/* 标题 */}
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1
+            className="text-2xl font-bold tracking-[0.3em] uppercase mb-2"
+            style={{
+              color: phase === 'danger' ? DANGER_RED : '#1E293B',
+              fontFamily: "'JetBrains Mono', 'SimHei', monospace",
+              transition: 'color 0.25s ease-out',
+            }}
+          >
+            {SYSTEM_INFO.NAME}
+          </h1>
+          <p
+            className="text-[10px] tracking-[0.2em] uppercase"
+            style={{
+              color: phase === 'danger' ? `${DANGER_RED}99` : '#94A3B8',
+              transition: 'color 0.25s ease-out',
+            }}
+          >
+            {SYSTEM_INFO.BUILD}
+          </p>
+        </motion.div>
+
+        {/* ECG 波形图 */}
+        <div className="relative w-full">
+          <svg
+            width={svgSize.width}
+            height={svgSize.height}
+            viewBox={`0 0 ${svgSize.width} ${svgSize.height}`}
+            className="w-full"
+            style={{ filter: `drop-shadow(0 0 6px ${ecgColor}40)` }}
+          >
+            {/* 背景网格线 */}
+            {Array.from({ length: 5 }).map((_, i) => (
+              <line
+                key={i}
+                x1={0}
+                y1={(svgSize.height / 5) * i}
+                x2={svgSize.width}
+                y2={(svgSize.height / 5) * i}
+                stroke={phase === 'danger' ? `${DANGER_RED}15` : '#CBD5E1'}
+                strokeWidth={0.5}
+                strokeDasharray="4 4"
+              />
             ))}
-          </AnimatePresence>
+
+            {/* ECG 波形路径 — 使用 stroke-dasharray 实现绘制动画 */}
+            <path
+              d={ecgPath}
+              fill="none"
+              stroke={ecgColor}
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray={svgSize.width * 2}
+              strokeDashoffset={svgSize.width * 2 * (1 - progress / 100)}
+              style={{
+                transition: 'stroke 0.25s ease-out',
+              }}
+            />
+
+            {/* ECG 发光轨迹（更粗、半透明，跟随主线） */}
+            <path
+              d={ecgPath}
+              fill="none"
+              stroke={ecgColor}
+              strokeWidth={6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={0.25}
+              strokeDasharray={svgSize.width * 2}
+              strokeDashoffset={svgSize.width * 2 * (1 - progress / 100)}
+              style={{
+                filter: `blur(3px)`,
+                transition: 'stroke 0.25s ease-out',
+              }}
+            />
+          </svg>
+
+          {/* 进度百分比 */}
+          <div className="absolute right-0 -bottom-8 flex items-center gap-2">
+            <span
+              className="text-sm font-mono font-bold tabular-nums"
+              style={{
+                color: phase === 'danger' ? DANGER_RED : '#64748B',
+                transition: 'color 0.25s ease-out',
+              }}
+            >
+              {Math.round(progress)}%
+            </span>
+          </div>
         </div>
 
-        {/* 就绪提示 + 进入按钮 */}
-        <AnimatePresence>
-          {bootPhase === 'ready' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="flex flex-col items-center gap-6"
+        {/* 状态标签 — 固定高度避免文本/按钮切换时跳动 */}
+        <div className="flex flex-col items-center gap-3 mt-4" style={{ minHeight: 80 }}>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{
+                backgroundColor: phase === 'danger' ? DANGER_RED : ECG_BLUE,
+                boxShadow: phase === 'danger'
+                  ? `0 0 10px ${DANGER_RED}, 0 0 20px ${DANGER_RED}60`
+                  : `0 0 8px ${ECG_BLUE}80`,
+                transition: 'all 0.25s ease-out',
+                animation: phase === 'danger' ? 'pulse-red 0.8s ease-in-out infinite' : 'pulse-blue 2s ease-in-out infinite',
+              }}
+            />
+            <span
+              className="text-[11px] uppercase font-bold tracking-[0.15em] font-mono whitespace-nowrap"
+              style={{
+                color: phase === 'danger' ? DANGER_RED : '#64748B',
+                transition: 'color 0.25s ease-out',
+              }}
             >
-              <motion.div
-                className="text-xs uppercase tracking-[0.2em] font-bold"
-                style={{ color: MED_COLORS.BLUE }}
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                ◈ System Ready — Temporal Anchor Released ◈
-              </motion.div>
+              {phase === 'loading' && 'MONITORING BIOSIGNAL...'}
+              {phase === 'danger' && '⚠ BIOHAZARD DETECTED ⚠'}
+              {phase === 'ready' && '◈ SYSTEM ALERT — PANDEMIC CRISIS ◈'}
+            </span>
+          </div>
 
+          {/* 进入按钮 — 绝对定位，不影响布局流 */}
+          <div className="relative" style={{ width: 240, height: 52 }}>
+            <AnimatePresence>
               {showButton && (
                 <motion.button
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
                   onClick={onComplete}
-                  className="px-10 py-4 border-2 font-bold uppercase tracking-[0.15em] text-sm transition-all hover:scale-105 active:scale-95"
+                  className="absolute inset-0 border-2 font-bold uppercase tracking-[0.2em] text-sm transition-all hover:scale-105 active:scale-95"
                   style={{
-                    borderColor: MED_COLORS.BLUE,
-                    color: MED_COLORS.BLUE,
-                    boxShadow: `0 0 30px ${MED_COLORS.BLUE}20`,
+                    borderColor: DANGER_RED,
+                    color: DANGER_RED,
+                    backgroundColor: `${DANGER_RED}08`,
+                    boxShadow: `0 0 40px ${DANGER_RED}20`,
                   }}
                 >
                   Enter PESTIS Terminal
                 </motion.button>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== 底部信息（极淡） ===== */}
+      <div
+        className="absolute bottom-6 z-10 font-mono text-[9px] tracking-wider uppercase"
+        style={{
+          color: phase === 'danger' ? `${DANGER_RED}50` : '#94A3B8',
+          opacity: 0.4,
+          transition: 'color 0.25s ease-out',
+        }}
+      >
+        BIOSAFETY LEVEL 4 &nbsp;|&nbsp; YERSINIA CORE &nbsp;|&nbsp; TEMPORAL ANCHOR
       </div>
     </div>
   );
