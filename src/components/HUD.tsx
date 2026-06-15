@@ -860,3 +860,176 @@ export const CyberpunkTitle: React.FC<{
     </div>
   );
 };
+
+// ============================================================
+// 赛博朋克可折叠面板 — 包裹任意内容，标题闪烁 + 展开/收回
+// ============================================================
+export const CyberpunkPanel: React.FC<{
+  title: string;
+  color?: string;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}> = ({ title, color = MED_COLORS.BLUE, children, style }) => {
+  const chars = [...title];
+  const [phase, setPhase] = useState<'collapsed' | 'expanding' | 'glitching' | 'displayed' | 'deleting'>('collapsed');
+  const [displayMap, setDisplayMap] = useState<Record<number, string>>({});
+  const [visibleCount, setVisibleCount] = useState(0);
+  const [contentVisible, setContentVisible] = useState(false);
+  const hoverRef = useRef(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearAllTimers = () => { timersRef.current.forEach(clearTimeout); timersRef.current = []; };
+  const setTimer = (fn: () => void, ms: number) => { const t = setTimeout(fn, ms); timersRef.current.push(t); return t; };
+
+  const doGlitch = (idx: number) => {
+    if (idx >= chars.length) {
+      setPhase('displayed');
+      setContentVisible(true);
+      if (!hoverRef.current) {
+        setTimer(() => { if (!hoverRef.current) doDelete(); }, 3000);
+      }
+      return;
+    }
+    setPhase('glitching');
+    setVisibleCount(idx + 1);
+    let flashes = 0;
+    const maxFlashes = 2 + Math.floor(Math.random() * 2);
+    const flashInterval = setInterval(() => {
+      setDisplayMap(prev => ({ ...prev, [idx]: getRandomCyberChar() }));
+      flashes++;
+      if (flashes >= maxFlashes) {
+        clearInterval(flashInterval);
+        setDisplayMap(prev => ({ ...prev, [idx]: chars[idx] }));
+        setTimer(() => doGlitch(idx + 1), 35 + Math.random() * 45);
+      }
+    }, 55);
+    timersRef.current.push(() => clearInterval(flashInterval));
+  };
+
+  const doExpand = () => {
+    clearAllTimers();
+    setPhase('expanding');
+    setVisibleCount(0);
+    setDisplayMap({});
+    setContentVisible(false);
+    setTimer(() => doGlitch(0), 300);
+  };
+
+  const doDelete = () => {
+    clearAllTimers();
+    setPhase('deleting');
+    setContentVisible(false);
+    let count = chars.length;
+    const deleteInterval = setInterval(() => {
+      count--;
+      if (count <= 0) {
+        clearInterval(deleteInterval);
+        setVisibleCount(0);
+        setDisplayMap({});
+        setPhase('collapsed');
+      } else {
+        setDisplayMap(prev => ({ ...prev, [count]: getRandomCyberChar() }));
+        setTimeout(() => {
+          setDisplayMap(prev => { const next = { ...prev }; delete next[count]; return next; });
+          setVisibleCount(count);
+        }, 35);
+      }
+    }, 60);
+    timersRef.current.push(() => clearInterval(deleteInterval));
+  };
+
+  // Initial auto-expand
+  useEffect(() => {
+    setTimer(() => doExpand(), 400);
+    return () => clearAllTimers();
+  }, []);
+
+  const handleMouseEnter = () => {
+    hoverRef.current = true;
+    if (phase === 'collapsed') doExpand();
+    else if (phase === 'deleting') { clearAllTimers(); doExpand(); }
+  };
+
+  const handleMouseLeave = () => {
+    hoverRef.current = false;
+    if (phase === 'displayed') {
+      setTimer(() => { if (!hoverRef.current) doDelete(); }, 2000);
+    }
+  };
+
+  const chamferClip = `polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)`;
+  const isExpanded = phase !== 'collapsed';
+
+  return (
+    <div
+      style={{ ...style, position: 'absolute', zIndex: 1000 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* 外部发光 */}
+      {isExpanded && (
+        <div className="absolute inset-0 pointer-events-none" style={{
+          borderRadius: '5px',
+          boxShadow: `0 0 14px ${color}30`,
+          opacity: phase === 'displayed' ? 1 : 0.5,
+          transition: 'opacity 0.3s',
+        }} />
+      )}
+      <div className="relative" style={{ borderRadius: '5px', overflow: 'hidden', transition: 'all 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)' }}>
+        {/* 背景 */}
+        <div className="absolute inset-0" style={{
+          backgroundColor: 'rgba(245,247,250,0.94)',
+          backdropFilter: 'blur(12px)',
+          clipPath: chamferClip,
+        }} />
+        {/* 切角双线边框 */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          clipPath: chamferClip,
+          border: `1px solid ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}`,
+          boxShadow: `inset 0 0 0 1px ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}40`,
+          borderRadius: '5px',
+          transition: 'border-color 0.3s, box-shadow 0.3s',
+        }} />
+        {/* 折叠态：脉冲小圆点 */}
+        {phase === 'collapsed' && (
+          <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <div style={{
+              width: 6, height: 6, backgroundColor: color, borderRadius: '50%',
+              boxShadow: `0 0 6px ${color}`, animation: 'pulse-blue 1.5s ease-in-out infinite',
+            }} />
+          </div>
+        )}
+        {/* 展开态：标题 + 内容 */}
+        {isExpanded && (
+          <div style={{ padding: '8px 12px', minWidth: 160 }}>
+            {/* 标题行（闪烁效果） */}
+            <div style={{
+              fontSize: 10, fontWeight: 700, color, textTransform: 'uppercase' as const,
+              letterSpacing: '0.08em', fontFamily: "'JetBrains Mono','SimHei',monospace",
+              marginBottom: contentVisible ? 8 : 0,
+            }}>
+              {chars.map((ch, i) => {
+                if (i >= visibleCount) return null;
+                const displayed = displayMap[i] ?? ch;
+                return (
+                  <span key={i} style={{ opacity: displayed !== ch ? 0.55 : 1, transition: 'opacity 0.04s' }}>
+                    {displayed}
+                  </span>
+                );
+              })}
+            </div>
+            {/* 内容区（标题完全露出后才显示） */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: contentVisible ? 1 : 0 }}
+              transition={{ duration: 0.35 }}
+              style={{ pointerEvents: contentVisible ? 'auto' : 'none' }}
+            >
+              {children}
+            </motion.div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

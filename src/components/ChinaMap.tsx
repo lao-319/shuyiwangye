@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, GeoJSON, LayersControl, useMap } from 'react-leaflet';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { FeatureCollection, Feature } from 'geojson';
 import L from 'leaflet';
 import {
@@ -8,7 +8,7 @@ import {
   PROVINCE_COLORS, getSpeedColor, getSpeedLabel, getNodeDegreeRadius,
 } from '../constants';
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
-import { CyberpunkTitle } from './HUD';
+import { CyberpunkTitle, CyberpunkPanel } from './HUD';
 
 // ============================================================
 // Props：支持外部预加载数据以消除导航时的加载闪烁
@@ -73,70 +73,26 @@ const SPEED_LEGEND_ITEMS = [
 ];
 
 const MapLegend: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const chamferClip = `polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)`;
   return (
-    <div style={{
-      position: 'absolute', bottom: 24, left: 24, zIndex: 1000,
-      padding: collapsed ? '6px 10px' : '10px 14px',
-      cursor: 'default', borderRadius: '5px',
-      backgroundColor: 'rgba(245,247,250,0.94)',
-      backdropFilter: 'blur(12px)',
-    }}>
-      {/* 切角双线边框 */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        clipPath: chamferClip,
-        border: `1px solid ${MED_COLORS.BLUE}`,
-        boxShadow: `inset 0 0 0 1px ${MED_COLORS.BLUE}40`,
-        borderRadius: '5px',
-      }} />
-      <div
-        onClick={() => setCollapsed(!collapsed)}
-        style={{
-          fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
-          letterSpacing: '0.1em', color: MED_COLORS.BLUE,
-          marginBottom: collapsed ? 0 : 8, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 6,
-        }}
-      >
-        <span style={{
-          display: 'inline-block', width: 6, height: 6,
-          background: MED_COLORS.BLUE, borderRadius: '50%',
-          boxShadow: `0 0 4px ${MED_COLORS.BLUE}`,
-          animation: collapsed ? 'none' : 'pulse-blue 1.5s ease-in-out infinite',
-        }} />
-        传播速度图例
-        <span style={{ fontSize: 8, opacity: 0.4 }}>{collapsed ? '▶' : '▼'}</span>
+    <CyberpunkPanel title="传播速度图例" color={MED_COLORS.BLUE} style={{ bottom: 24, left: 24 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {SPEED_LEGEND_ITEMS.map(item => (
+          <div key={item.label} className="legend-item">
+            <div style={{
+              width: 24, height: 10,
+              backgroundColor: item.color,
+              border: `1px solid ${MED_COLORS.GRAY_MID}`,
+            }} />
+            <span style={{ color: MED_COLORS.TEXT }}>{item.label}</span>
+          </div>
+        ))}
+        <div style={{ marginTop: 6, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 6 }}>
+          <span className="legend-item" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+            ● 站点大小 = 节点度 (传播连接数)
+          </span>
+        </div>
       </div>
-      <AnimatePresence>
-        {!collapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {SPEED_LEGEND_ITEMS.map(item => (
-                <div key={item.label} className="legend-item">
-                  <div style={{
-                    width: 24, height: 10,
-                    backgroundColor: item.color,
-                    border: `1px solid ${MED_COLORS.GRAY_MID}`,
-                  }} />
-                  <span style={{ color: MED_COLORS.TEXT }}>{item.label}</span>
-                </div>
-              ))}
-              <div style={{ marginTop: 6, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 6 }}>
-                <span className="legend-item" style={{ color: MED_COLORS.GRAY_LIGHT }}>
-                  ● 站点大小 = 节点度 (传播连接数)
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    </CyberpunkPanel>
   );
 };
 
@@ -144,40 +100,9 @@ const MapLegend: React.FC = () => {
 // HUD 统计面板
 // ============================================================
 const StatsOverlay: React.FC<{ stats: PlagueStats | null }> = ({ stats }) => {
-  const chamferClip = `polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)`;
   if (!stats) return null;
   return (
-    <div style={{
-      position: 'absolute', top: 24, right: 24, zIndex: 1000,
-      padding: '12px 16px', minWidth: 220, borderRadius: '5px',
-      backgroundColor: 'rgba(245,247,250,0.94)',
-      backdropFilter: 'blur(12px)',
-    }}>
-      {/* 切角双线边框 */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        clipPath: chamferClip,
-        border: `1px solid ${MED_COLORS.BLUE}`,
-        boxShadow: `inset 0 0 0 1px ${MED_COLORS.BLUE}40`,
-        borderRadius: '5px',
-      }} />
-      {/* 外部发光 */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        borderRadius: '5px',
-        boxShadow: `0 0 12px ${MED_COLORS.BLUE}30`,
-      }} />
-      <div style={{
-        fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
-        letterSpacing: '0.1em', color: MED_COLORS.BLUE, marginBottom: 10,
-        display: 'flex', alignItems: 'center', gap: 6,
-      }}>
-        <span style={{
-          display: 'inline-block', width: 6, height: 6,
-          background: MED_COLORS.BLUE, borderRadius: '50%',
-          boxShadow: `0 0 4px ${MED_COLORS.BLUE}`,
-          animation: 'pulse-blue 1.5s ease-in-out infinite',
-        }} />
-        疫情统计摘要
-      </div>
+    <CyberpunkPanel title="疫情统计摘要" color={MED_COLORS.BLUE} style={{ top: 24, right: 24 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <StatLine label="疫区数" value={`${stats.total_regions}`} color={MED_COLORS.BLUE} />
         <StatLine label="疫点数" value={`${stats.total_sites}`} color={MED_COLORS.VIOLET} />
@@ -195,7 +120,7 @@ const StatsOverlay: React.FC<{ stats: PlagueStats | null }> = ({ stats }) => {
           </div>
         </div>
       </div>
-    </div>
+    </CyberpunkPanel>
   );
 };
 
