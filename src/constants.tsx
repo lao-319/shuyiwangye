@@ -116,7 +116,74 @@ export const Icons = {
   ),
 };
 
-// ===== 系统常量 =====
+// ===== 极简几何图标系统（线性轮廓 · 菱形/直线/直角 · 2px 描边 · 无填充） =====
+// 设计原则：高度抽象符号化，统一菱形基础形 + 内部简单几何线条
+const geoStyle: React.CSSProperties = {
+  width: 14,
+  height: 14,
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.5,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+};
+
+export const GeoIcons = {
+  /** 菱形 + 十字准星 — 仪表盘/总览 */
+  Dashboard: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <path d="M8 1.5 L14 8 L8 14.5 L2 8 Z" />
+      <path d="M8 5.5 V10.5 M5 8 H11" />
+    </svg>
+  ),
+
+  /** 菱形定位标 — 地图/定位 */
+  MapPin: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <path d="M8 1.5 L14 6 L10 14.5 L8 9 L6 14.5 L2 6 Z" />
+    </svg>
+  ),
+
+  /** 菱形 + 经纬线 — 全球 */
+  Globe: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <path d="M8 1.5 L14 8 L8 14.5 L2 8 Z" />
+      <path d="M4 8 H12 M4 5 L12 5 M4 11 L12 11" />
+    </svg>
+  ),
+
+  /** 折线 + 菱形节点 — 分析/图表 */
+  Chart: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <polyline points="2,13 6,7 10,9 14,2" />
+      <path d="M6 7 L7.3 5.7 L8.6 7 Z M10 9 L11.3 7.7 L12.6 9 Z" />
+    </svg>
+  ),
+
+  /** 菱形 + 医疗十字 — 生化危险/死亡 */
+  Biohazard: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <path d="M8 1.5 L14 8 L8 14.5 L2 8 Z" />
+      <path d="M8 4.5 V11.5 M4.5 8 H11.5" />
+    </svg>
+  ),
+
+  /** 菱形 + 终端符 — 系统 */
+  Terminal: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <path d="M8 1.5 L14 8 L8 14.5 L2 8 Z" />
+      <path d="M5 6 L3 8 L5 10 M7 10 H11" />
+    </svg>
+  ),
+
+  /** 菱形 + 横线 — 报告/文档 */
+  Report: () => (
+    <svg style={geoStyle} viewBox="0 0 16 16">
+      <path d="M8 1.5 L14 8 L8 14.5 L2 8 Z" />
+      <path d="M5 6.5 H11 M5 9 H9.5 M5 11.5 H10.5" />
+    </svg>
+  ),
+};
 export const SYSTEM_INFO = {
   NAME: 'PESTIS Terminal',
   VERSION: 'v4.1-MEDICAL',

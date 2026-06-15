@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { TerminalView } from './types';
-import { MED_COLORS, Icons, SYSTEM_INFO } from './constants';
+import { MED_COLORS, SYSTEM_INFO, GeoIcons } from './constants';
 import { BootScreen } from './components/BootScreen';
 import { Dashboard } from './components/Dashboard';
 import {
@@ -120,23 +120,20 @@ const App: React.FC = () => {
               <NavButton
                 active={view === TerminalView.DASHBOARD}
                 onClick={() => handleViewChange(TerminalView.DASHBOARD)}
-                icon={<Icons.Dashboard />}
                 label="总览"
-                tag="SYS:OVERVIEW"
+                icon={<GeoIcons.Dashboard />}
               />
               <NavButton
                 active={view === TerminalView.CHINA_MAP || view === TerminalView.CHINA_ANALYSIS || view === TerminalView.CHINA_REPORT}
                 onClick={() => handleViewChange(TerminalView.CHINA_MAP)}
-                icon={<Icons.MapPin />}
                 label="东北·肺鼠疫"
-                tag="LOC:CHINA_1910"
+                icon={<GeoIcons.MapPin />}
               />
               <NavButton
                 active={view === TerminalView.EUROPE_MAP || view === TerminalView.EUROPE_ANALYSIS || view === TerminalView.EUROPE_REPORT}
                 onClick={() => handleViewChange(TerminalView.EUROPE_MAP)}
-                icon={<Icons.Globe />}
                 label="欧洲·腺鼠疫"
-                tag="LOC:EUROPE"
+                icon={<GeoIcons.Globe />}
               />
               <NavButton
                 active={
@@ -148,10 +145,9 @@ const App: React.FC = () => {
                   if (view.toString().startsWith('CHINA')) handleViewChange(TerminalView.CHINA_ANALYSIS);
                   else handleViewChange(TerminalView.EUROPE_ANALYSIS);
                 }}
-                icon={<Icons.Chart />}
                 label="分析"
-                tag="MED:ANALYSIS"
                 color={MED_COLORS.VIOLET}
+                icon={<GeoIcons.Chart />}
               />
             </nav>
           </header>
@@ -198,19 +194,19 @@ const App: React.FC = () => {
 const NavButton: React.FC<{
   active: boolean;
   onClick: () => void;
-  icon: React.ReactNode;
   label: string;
-  tag: string;
   color?: string;
-}> = ({ active, onClick, icon, label, tag, color }) => (
+  icon?: React.ReactNode;
+}> = ({ active, onClick, label, color, icon }) => (
   <button onClick={onClick} className="focus:outline-none">
     <InteractiveBox
-      label={tag}
+      label=""
       active={active}
       color={color || MED_COLORS.GRAY_LIGHT}
       className="w-[72px] h-10 flex flex-col items-center justify-center"
     >
-      <div className="transition-colors duration-300" style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}>
+      {/* 极简几何图标 */}
+      <div className="transition-colors duration-300 flex-shrink-0" style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}>
         {icon}
       </div>
       <span

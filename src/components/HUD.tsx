@@ -174,23 +174,25 @@ export const InteractiveBox: React.FC<{
       {/* 子元素 — 在正常流中渲染，享受 className 中的 flex 布局 */}
       {children}
 
-      {/* 底部标签 — 脉冲圆点 + 文字 */}
-      <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1">
-        <div
-          className="w-1 h-1 rounded-full"
-          style={{
-            backgroundColor: currentColor,
-            boxShadow: active ? `0 0 4px ${currentColor}` : 'none',
-            animation: active ? 'pulse-blue 1.5s ease-in-out infinite' : 'none',
-          }}
-        />
-        <span
-          className="text-[8px] font-bold uppercase tracking-widest whitespace-nowrap"
-          style={{ color: currentColor, opacity: active ? 1 : 0.5 }}
-        >
-          {label}
-        </span>
-      </div>
+      {/* 底部标签 — 脉冲圆点 + 文字（label 为空时不渲染） */}
+      {label && (
+        <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1">
+          <div
+            className="w-1 h-1 rounded-full"
+            style={{
+              backgroundColor: currentColor,
+              boxShadow: active ? `0 0 4px ${currentColor}` : 'none',
+              animation: active ? 'pulse-blue 1.5s ease-in-out infinite' : 'none',
+            }}
+          />
+          <span
+            className="text-[8px] font-bold uppercase tracking-widest whitespace-nowrap"
+            style={{ color: currentColor, opacity: active ? 1 : 0.5 }}
+          >
+            {label}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
@@ -540,9 +542,10 @@ export const StatCard: React.FC<{
     style={{ borderColor: `${color}30`, backgroundColor: '#FFFFFF' }}
   >
     <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: color }} />
-    <div className="flex items-start justify-between mb-2">
-      <span className="text-[9px] uppercase tracking-wider opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{title}</span>
+    <div className="flex items-center gap-2 mb-2">
+      {/* 极简几何图标 */}
       {icon && <span style={{ color }}>{icon}</span>}
+      <span className="text-[9px] uppercase tracking-wider opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{title}</span>
     </div>
     <div className="text-2xl font-bold font-mono" style={{ color }}>{value}</div>
     {subtitle && (

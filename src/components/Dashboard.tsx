@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { MED_COLORS, Icons, SYSTEM_INFO } from '../constants';
+import { MED_COLORS, SYSTEM_INFO, GeoIcons } from '../constants';
 import {
   PageTransition,
   SeverityMeter,
@@ -68,28 +68,28 @@ export const Dashboard: React.FC = () => {
             value={chinaStats?.total_regions ?? '--'}
             subtitle="1910-1911 中国东北"
             color={MED_COLORS.BLUE}
-            icon={<Icons.MapPin />}
+            icon={<GeoIcons.MapPin />}
           />
           <StatCard
             title="总死亡人数"
             value={totalDeaths.toLocaleString()}
             subtitle={`最严重: ${chinaStats?.max_death_region ?? '--'} (${chinaStats?.max_death_count?.toLocaleString() ?? '--'}人)`}
             color={MED_COLORS.RED}
-            icon={<Icons.Biohazard />}
+            icon={<GeoIcons.Biohazard />}
           />
           <StatCard
             title="欧洲历史记录"
             value={europeStats?.total_records?.toLocaleString() ?? '--'}
             subtitle={`${europeStats?.total_cities ?? '--'} 个城市 · ${europeStats?.year_range ?? '--'}`}
             color={MED_COLORS.ORANGE}
-            icon={<Icons.Globe />}
+            icon={<GeoIcons.Globe />}
           />
           <StatCard
             title="系统状态"
             value="NOMINAL"
             subtitle={`${SYSTEM_INFO.VERSION} // 时空脱离`}
             color={MED_COLORS.GREEN}
-            icon={<Icons.Terminal />}
+            icon={<GeoIcons.Terminal />}
           />
         </div>
 
@@ -144,10 +144,10 @@ export const Dashboard: React.FC = () => {
             {/* 快速导航磁贴 — 医疗白底 + 左侧色彩点缀 + 右列空心边框 */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: <Icons.MapPin />, label: '东北肺鼠疫', color: MED_COLORS.BLUE, variant: 'accent' as const },
-                { icon: <Icons.Globe />, label: '欧洲腺鼠疫', color: MED_COLORS.ORANGE, variant: 'outlined' as const },
-                { icon: <Icons.Chart />, label: '医疗分析', color: MED_COLORS.VIOLET, variant: 'accent' as const },
-                { icon: <Icons.Report />, label: '查看报告', color: MED_COLORS.GREEN, variant: 'outlined' as const },
+                { label: '东北肺鼠疫', color: MED_COLORS.BLUE, variant: 'accent' as const, icon: <GeoIcons.MapPin /> },
+                { label: '欧洲腺鼠疫', color: MED_COLORS.ORANGE, variant: 'outlined' as const, icon: <GeoIcons.Globe /> },
+                { label: '医疗分析', color: MED_COLORS.VIOLET, variant: 'accent' as const, icon: <GeoIcons.Chart /> },
+                { label: '查看报告', color: MED_COLORS.GREEN, variant: 'outlined' as const, icon: <GeoIcons.Report /> },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -169,19 +169,8 @@ export const Dashboard: React.FC = () => {
                       style={{ backgroundColor: item.color }}
                     />
                   )}
-                  {/* 右列：左侧圆形装饰 */}
-                  {item.variant === 'outlined' && (
-                    <span
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{
-                        backgroundColor: item.color,
-                        boxShadow: `0 0 5px ${item.color}50`,
-                      }}
-                    />
-                  )}
-                  <span style={{ color: item.color }}>
-                    {item.icon}
-                  </span>
+                  {/* 极简几何图标 */}
+                  <span className="flex-shrink-0" style={{ color: item.color }}>{item.icon}</span>
                   <span
                     className="text-[8px] uppercase tracking-wider font-bold"
                     style={{ color: '#334155' }}
