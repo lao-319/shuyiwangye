@@ -1,10 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MED_COLORS } from '../constants';
 
 // ============================================================
 // 基础 HUD 组件（红蓝白未来科技风格 — 医疗监测终端）
 // ============================================================
+
+// ============================================================
+// 鼠标倾斜上下文 — 供子组件获取当前倾斜角度，用于逆变换等
+// ============================================================
+export interface MouseTilt {
+  x: number; // rotateX 角度（度）
+  y: number; // rotateY 角度（度）
+}
+
+const MouseTiltContext = createContext<MouseTilt>({ x: 0, y: 0 });
+
+/** 获取当前父级 ParallaxWrapper 的倾斜角度 */
+export const useMouseTilt = (): MouseTilt => useContext(MouseTiltContext);
 
 /** 视差 3D 倾斜容器 */
 export const ParallaxWrapper: React.FC<{ children: React.ReactNode; disabled?: boolean }> = ({ children, disabled = false }) => {
@@ -20,13 +33,15 @@ export const ParallaxWrapper: React.FC<{ children: React.ReactNode; disabled?: b
     ? `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`
     : 'none';
   return (
-    <div
-      onMouseMove={handleMouseMove}
-      className="h-full w-full transition-transform duration-300 ease-out"
-      style={{ transform: transformStyle }}
-    >
-      {children}
-    </div>
+    <MouseTiltContext.Provider value={rotate}>
+      <div
+        onMouseMove={handleMouseMove}
+        className="h-full w-full transition-transform duration-300 ease-out"
+        style={{ transform: transformStyle }}
+      >
+        {children}
+      </div>
+    </MouseTiltContext.Provider>
   );
 };
 

@@ -9,7 +9,7 @@ import {
   ANIMATION,
 } from '../constants';
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
-import { CyberpunkTitle, CyberpunkPanel } from './HUD';
+import { CyberpunkTitle, CyberpunkPanel, useMouseTilt } from './HUD';
 import { extractSortedDates, dateToEpoch } from '../utils/dateUtils';
 import { useTimeController } from './useTimeController';
 import DateDisplay from './DateDisplay';
@@ -162,6 +162,15 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
 
   // 防止重复 fetch 的标记
   const fetchStartedRef = useRef(false);
+
+  // ============================================================
+  // 倾斜逆变换 — 地图容器抵消父级 ParallaxWrapper 的 3D 倾斜
+  // 使地图保持平坦，而周围 HUD 面板仍随鼠标倾斜
+  // ============================================================
+  const tilt = useMouseTilt();
+  const inverseTransform = (tilt.x !== 0 || tilt.y !== 0)
+    ? `perspective(1000px) rotateX(${-tilt.x}deg) rotateY(${-tilt.y}deg)`
+    : 'none';
 
   // ============================================================
   // 核心逻辑：同步外部预加载数据或自行 fetch
@@ -445,17 +454,22 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
 
   return (
     <div className="h-full w-full relative">
-      <MapContainer
-        center={[43.5, 124]}
-        zoom={6}
-        minZoom={3}
-        maxZoom={12}
-        maxBounds={[[-10, 40], [70, 180]]}
-        maxBoundsViscosity={0.8}
-        style={{ height: '100%', width: '100%' }}
-        zoomControl={false}
-        attributionControl={false}
+      {/* 地图容器 — 应用逆变换抵消父级倾斜，保持地图平坦 */}
+      <div
+        className="h-full w-full transition-transform duration-300 ease-out"
+        style={{ transform: inverseTransform }}
       >
+        <MapContainer
+          center={[43.5, 124]}
+          zoom={6}
+          minZoom={3}
+          maxZoom={12}
+          maxBounds={[[-10, 40], [70, 180]]}
+          maxBoundsViscosity={0.8}
+          style={{ height: '100%', width: '100%' }}
+          zoomControl={false}
+          attributionControl={false}
+        >
         {/* 底图 — 浅灰色医疗风格 */}
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -532,6 +546,7 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         {/* 自动适配边界 */}
         <MapBoundsFit regions={regions} />
       </MapContainer>
+      </div>
 
       {/* HUD 覆盖层 — 右上统计面板 */}
       <StatsOverlay stats={stats} />

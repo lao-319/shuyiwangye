@@ -121,7 +121,7 @@ const App: React.FC = () => {
         <DataFlow color={MED_COLORS.BLUE} />
       </div>
 
-      <ParallaxWrapper disabled={view === TerminalView.CHINA_MAP}>
+      <ParallaxWrapper>
         <div className="h-screen w-screen flex flex-col relative z-10 pointer-events-none">
           {/* ===== Header ===== */}
           <header
