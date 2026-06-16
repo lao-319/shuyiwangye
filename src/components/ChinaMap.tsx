@@ -1,14 +1,19 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, GeoJSON, LayersControl, useMap } from 'react-leaflet';
 import { motion } from 'framer-motion';
 import type { FeatureCollection, Feature } from 'geojson';
 import L from 'leaflet';
 import {
-  MED_COLORS, SYSTEM_INFO,
+  MED_COLORS,
   PROVINCE_COLORS, getSpeedColor, getSpeedLabel, getNodeDegreeRadius,
+  ANIMATION,
 } from '../constants';
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
 import { CyberpunkTitle, CyberpunkPanel } from './HUD';
+import { extractSortedDates, dateToEpoch } from '../utils/dateUtils';
+import { useTimeController } from './useTimeController';
+import DateDisplay from './DateDisplay';
+import PlaybackControls from './PlaybackControls';
 
 // ============================================================
 // Props：支持外部预加载数据以消除导航时的加载闪烁
@@ -37,19 +42,22 @@ const MapBoundsFit: React.FC<{ regions: FeatureCollection | null }> = ({ regions
 };
 
 // ============================================================
-// 区域面样式
+// 区域面样式 — 无首发日期的区域（行政枢纽）使用虚线低透明度
 // ============================================================
 const regionStyle = (feature?: Feature) => {
   const props = feature?.properties as RegionProperties | undefined;
   const v = props?.V ?? 0;
   const color = getSpeedColor(v);
+  const rawDate = props?.first_date;
+  const hasDate = rawDate && rawDate.trim() !== '';
+
   return {
     fillColor: color,
-    weight: 1,
-    opacity: 0.7,
-    color: MED_COLORS.GRAY_LIGHT,
-    fillOpacity: 0.35,
-    dashArray: '',
+    weight: hasDate ? 1 : 0.5,
+    opacity: hasDate ? 0.7 : 0.3,
+    color: hasDate ? MED_COLORS.GRAY_LIGHT : MED_COLORS.GRAY_MID,
+    fillOpacity: hasDate ? 0.35 : 0.12,
+    dashArray: hasDate ? '' : '4 3',
   };
 };
 
@@ -154,14 +162,11 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
 
   // 防止重复 fetch 的标记
   const fetchStartedRef = useRef(false);
-  const mountedRef = useRef(true);
 
   // ============================================================
   // 核心逻辑：同步外部预加载数据或自行 fetch
   // ============================================================
   useEffect(() => {
-    mountedRef.current = true;
-
     // 如果外部数据可用，直接使用
     if (externalRegions && externalSites) {
       setRegions(externalRegions);
@@ -182,7 +187,7 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       fetch('/data/plague_sites.geojson').then(r => r.json()),
       fetch('/data/plague_stats.json').then(r => r.json()),
     ]).then(([r, s, st]) => {
-      if (!cancelled && mountedRef.current) {
+      if (!cancelled) {
         setRegions(r);
         setSites(s);
         setStats(st);
@@ -190,26 +195,22 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       }
     }).catch(err => {
       console.error('Map data load error:', err);
-      if (!cancelled && mountedRef.current) {
+      if (!cancelled) {
         setLoading(false);
       }
     });
 
     return () => {
       cancelled = true;
-      mountedRef.current = false;
     };
   }, [externalRegions, externalSites, externalStats]);
 
   // ============================================================
   // 入场动画时序控制
   // title（闪烁）→ fading（淡出）→ map（地图显示）
-  // 数据加载完成后至少再显示标题 0.4s 以确保动画可见
   // ============================================================
   useEffect(() => {
-    // 清理之前的计时器
-    const timers = introTimersRef.current;
-    return () => timers.forEach(clearTimeout);
+    return () => introTimersRef.current.forEach(clearTimeout);
   }, []);
 
   useEffect(() => {
@@ -219,9 +220,7 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
     const minDisplayMs = loading ? 2000 : 600;
 
     const t1 = setTimeout(() => {
-      if (mountedRef.current) {
-        setIntroPhase('fading');
-      }
+      setIntroPhase('fading');
     }, minDisplayMs);
     introTimersRef.current.push(t1);
 
@@ -233,14 +232,113 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
 
     // 淡出动画持续 0.7s 后切到地图
     const t2 = setTimeout(() => {
-      if (mountedRef.current) {
-        setIntroPhase('map');
-      }
+      setIntroPhase('map');
     }, 700);
     introTimersRef.current.push(t2);
 
     return () => clearTimeout(t2);
   }, [introPhase]);
+
+  // ============================================================
+  // 时间动画相关 — 从 regions 中提取排序日期
+  // ============================================================
+  const sortedDates = useMemo(() => {
+    if (!regions) return [] as string[];
+    return extractSortedDates(regions.features);
+  }, [regions]);
+
+  const { state: timeState, actions: timeActions } = useTimeController({
+    sortedDates,
+    baseIntervalMs: ANIMATION.BASE_INTERVAL_MS,
+    autoPlay: true,
+  });
+
+  // 追踪新出现的区域，用于高亮效果
+  const [newRegionNames, setNewRegionNames] = useState<Set<string>>(new Set());
+  const prevEpochsRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    const prev = prevEpochsRef.current;
+    const curr = timeState.visibleEpochs;
+
+    // 找出本轮新增的 epoch
+    const newEpochs = new Set<number>();
+    for (const e of curr) {
+      if (!prev.has(e)) {
+        newEpochs.add(e);
+      }
+    }
+
+    if (newEpochs.size > 0 && regions) {
+      // 收集新出现区域的名字
+      const names = new Set<string>();
+      for (const f of regions.features) {
+        const props = f.properties as RegionProperties | undefined;
+        const raw = props?.first_date;
+        if (raw && raw.trim() !== '') {
+          const epoch = dateToEpoch(raw);
+          if (epoch !== null && newEpochs.has(epoch)) {
+            names.add(props?.NAME_CH ?? '');
+          }
+        }
+      }
+
+      if (names.size > 0) {
+        setNewRegionNames(names);
+        // 1.5 秒后清除高亮
+        const timer = setTimeout(() => {
+          setNewRegionNames(new Set());
+        }, ANIMATION.NEW_REGION_HIGHLIGHT_MS);
+        return () => clearTimeout(timer);
+      }
+    }
+
+    prevEpochsRef.current = new Set(curr);
+  }, [timeState.visibleEpochs, timeState.currentFrameIndex, regions]);
+
+  // ============================================================
+  // 根据时间过滤区域
+  // ============================================================
+  const filteredRegionFC = useMemo((): FeatureCollection | null => {
+    if (!regions) return null;
+
+    const filtered = regions.features.filter(f => {
+      const props = f.properties as RegionProperties | undefined;
+      const raw = props?.first_date;
+      if (!raw || raw.trim() === '') {
+        // 无首发日期的行政枢纽始终可见
+        return true;
+      }
+      const epoch = dateToEpoch(raw);
+      if (epoch === null) return true;
+      // 在当前时间之前或等于当前时间的区域可见
+      return timeState.visibleEpochs.has(epoch);
+    });
+
+    return {
+      type: 'FeatureCollection',
+      features: filtered,
+    };
+  }, [regions, timeState.visibleEpochs]);
+
+  // 动态区域样式 — 新出现的区域高亮显示
+  const dynamicRegionStyle = useCallback((feature?: Feature) => {
+    const base = regionStyle(feature);
+    const props = feature?.properties as RegionProperties | undefined;
+    const name = props?.NAME_CH ?? '';
+
+    if (newRegionNames.has(name)) {
+      return {
+        ...base,
+        fillOpacity: 0.65,
+        weight: 2,
+        opacity: 1,
+        color: MED_COLORS.RED,
+        dashArray: '',
+      };
+    }
+    return base;
+  }, [newRegionNames]);
 
   // 站点按省份分色
   const siteProvinceLayers = useMemo(() => {
@@ -365,13 +463,13 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         />
 
         <LayersControl position="topright">
-          {/* ===== 区域面图层 ===== */}
+          {/* ===== 区域面图层（时间过滤） ===== */}
           <LayersControl.Overlay checked name="疫区面 (传播速度)">
-            {regions && (
+            {filteredRegionFC && (
               <GeoJSON
-                key="regions"
-                data={regions}
-                style={regionStyle}
+                key={`regions-${timeState.currentFrameIndex}`}
+                data={filteredRegionFC}
+                style={dynamicRegionStyle}
                 onEachFeature={onEachRegion}
               />
             )}
@@ -435,14 +533,35 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         <MapBoundsFit regions={regions} />
       </MapContainer>
 
-      {/* HUD 覆盖层 */}
+      {/* HUD 覆盖层 — 右上统计面板 */}
       <StatsOverlay stats={stats} />
+      {/* 左下角图例保留，但在动画运行时被日期面板和播放控件覆盖位置 */}
       <MapLegend />
+
+      {/* 时间动画 HUD */}
+      <DateDisplay
+        currentDate={timeState.currentDate}
+        frameIndex={timeState.currentFrameIndex}
+        totalFrames={timeState.totalFrames}
+        progress={timeState.progress}
+        isPlaying={timeState.isPlaying}
+        hasReachedEnd={timeState.hasReachedEnd}
+        regions={regions}
+        visibleEpochs={timeState.visibleEpochs}
+      />
+      <PlaybackControls
+        isPlaying={timeState.isPlaying}
+        speed={timeState.speed}
+        hasReachedEnd={timeState.hasReachedEnd}
+        onTogglePlay={timeActions.toggle}
+        onRestart={timeActions.restart}
+        onSetSpeed={timeActions.setSpeed}
+      />
 
       {/* 赛博朋克可折叠标题 — 自动收回/悬浮展开 */}
       <CyberpunkTitle
         text="东北 · 肺鼠疫 1910-1911"
-        subtext="GIS Projection: Xian 1980 → WGS84 | 疫情传播可视化"
+        subtext="GIS Projection: Xian 1980 → WGS84 | 疫情传播时间轴"
         color={MED_COLORS.BLUE}
       />
     </div>

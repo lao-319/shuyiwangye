@@ -872,16 +872,24 @@ export const CyberpunkPanel: React.FC<{
   color?: string;
   children: React.ReactNode;
   style?: React.CSSProperties;
-}> = ({ title, color = MED_COLORS.BLUE, children, style }) => {
+  /** 始终展开，不自动折叠 */
+  persistent?: boolean;
+  /** 折叠时显示的内容（替换默认脉冲点） */
+  collapsedContent?: React.ReactNode;
+}> = ({ title, color = MED_COLORS.BLUE, children, style, persistent = false, collapsedContent }) => {
   const chars = [...title];
-  const [phase, setPhase] = useState<'collapsed' | 'expanding' | 'glitching' | 'displayed' | 'deleting'>('collapsed');
+  const [phase, setPhase] = useState<'collapsed' | 'expanding' | 'glitching' | 'displayed' | 'deleting'>(
+    persistent ? 'displayed' : 'collapsed'
+  );
   const [displayMap, setDisplayMap] = useState<Record<number, string>>({});
-  const [visibleCount, setVisibleCount] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(
+    persistent ? chars.length : 0
+  );
   const hoverRef = useRef(false);
   const timersRef = useRef<Array<() => void>>([]);
 
-  const isExpanded = phase !== 'collapsed';
-  const contentVisible = phase === 'displayed';
+  const isExpanded = persistent || phase !== 'collapsed';
+  const contentVisible = persistent || phase === 'displayed';
 
   const clearAllTimers = () => { timersRef.current.forEach(fn => fn()); timersRef.current = []; };
   const setTimer = (fn: () => void, ms: number) => { const t = setTimeout(fn, ms); timersRef.current.push(() => clearTimeout(t)); return t; };
@@ -891,7 +899,7 @@ export const CyberpunkPanel: React.FC<{
     if (idx >= chars.length) {
       setPhase('displayed');
       // 初始自动展开后，若鼠标不在面板上则定时收回
-      if (!hoverRef.current) {
+      if (!persistent && !hoverRef.current) {
         setTimer(() => { if (!hoverRef.current) doDelete(); }, 3000);
       }
       return;
@@ -922,6 +930,7 @@ export const CyberpunkPanel: React.FC<{
 
   // 逐字删除 — 每字删前短暂闪烁为随机汉字（快速删除）
   const doDelete = () => {
+    if (persistent) return;
     clearAllTimers();
     setPhase('deleting');
     let count = chars.length;
@@ -945,7 +954,9 @@ export const CyberpunkPanel: React.FC<{
 
   // 初始自动展开
   useEffect(() => {
-    setTimer(() => doExpand(), 400);
+    if (!persistent) {
+      setTimer(() => doExpand(), 400);
+    }
     return () => clearAllTimers();
   }, []);
 
@@ -1006,17 +1017,23 @@ export const CyberpunkPanel: React.FC<{
           }}
         />
 
-        {/* 折叠态：脉冲小蓝点 — 与 CyberpunkTitle 完全相同 */}
+        {/* 折叠态：自定义内容 或 脉冲小圆点 */}
         {phase === 'collapsed' && (
-          <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <div style={{
-              width: 6, height: 6,
-              backgroundColor: color,
-              borderRadius: '50%',
-              boxShadow: `0 0 6px ${color}`,
-              animation: 'pulse-blue 1.5s ease-in-out infinite',
-            }} />
-          </div>
+          collapsedContent ? (
+            <div style={{ padding: '5px 10px' }}>
+              {collapsedContent}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
+              <div style={{
+                width: 6, height: 6,
+                backgroundColor: color,
+                borderRadius: '50%',
+                boxShadow: `0 0 6px ${color}`,
+                animation: 'pulse-blue 1.5s ease-in-out infinite',
+              }} />
+            </div>
+          )
         )}
 
         {/* 展开态：标题 + 内容 — position:relative 确保在绝对定位背景之上 */}

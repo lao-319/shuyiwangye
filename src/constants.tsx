@@ -220,6 +220,19 @@ export function getOutbreakColor(count: number): string {
 }
 
 // ===== 省份颜色映射 =====
+// ===== 动画常量 =====
+export const ANIMATION = {
+  /** 1x 速度下的帧间隔 (毫秒) */
+  BASE_INTERVAL_MS: 500,
+  /** 可选播放速度倍数 */
+  SPEED_OPTIONS: [1, 2, 4, 8] as const,
+  /** 默认速度 */
+  DEFAULT_SPEED: 1,
+  /** 新出现区域的高亮持续时间 (毫秒) */
+  NEW_REGION_HIGHLIGHT_MS: 1500,
+} as const;
+
+// ===== 省份颜色映射 =====
 export const PROVINCE_COLORS: Record<string, string> = {
   '直隶':   '#8B5CF6',  // violet
   '山东':   '#3B82F6',  // blue
