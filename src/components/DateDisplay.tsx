@@ -49,12 +49,13 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
   const cnDate = formatDateDisplay(currentDate);
   const enDate = formatDateEn(currentDate);
 
-  // 折叠态：紧凑日期 + 红色脉冲点
+  // 折叠态：脉冲点 + 时间文字（中英文双行，始终可见）
   const collapsedContent = (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 6,
+      display: 'flex', alignItems: 'center', gap: 8,
       fontFamily: "'JetBrains Mono','SimHei',monospace",
     }}>
+      {/* 红色脉冲指示灯 */}
       <div style={{
         width: 5, height: 5, borderRadius: '50%',
         backgroundColor: MED_COLORS.RED,
@@ -62,12 +63,21 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
         animation: 'pulse-red 1s ease-in-out infinite',
         flexShrink: 0,
       }} />
-      <span style={{
-        fontSize: 11, fontWeight: 700, color: MED_COLORS.RED,
-        letterSpacing: '0.03em', whiteSpace: 'nowrap',
-      }}>
-        {cnDate || '----年-月-日'}
-      </span>
+      {/* 时间文字：英文日期 + 中文日期 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <span style={{
+          fontSize: 12, fontWeight: 700, color: MED_COLORS.RED,
+          letterSpacing: '0.05em', whiteSpace: 'nowrap', lineHeight: 1.2,
+        }}>
+          {enDate || '--- -- ----'}
+        </span>
+        <span style={{
+          fontSize: 9, color: MED_COLORS.GRAY_LIGHT,
+          letterSpacing: '0.03em', whiteSpace: 'nowrap', lineHeight: 1.2,
+        }}>
+          {cnDate || '----年-月-日'}
+        </span>
+      </div>
     </div>
   );
 

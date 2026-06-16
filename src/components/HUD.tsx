@@ -1017,14 +1017,14 @@ export const CyberpunkPanel: React.FC<{
           }}
         />
 
-        {/* 折叠态：自定义内容 或 脉冲小圆点 */}
+        {/* 折叠态：自定义内容 或 脉冲小圆点（position:relative 确保在背景之上） */}
         {phase === 'collapsed' && (
           collapsedContent ? (
-            <div style={{ padding: '5px 10px' }}>
+            <div style={{ padding: '5px 10px', position: 'relative', zIndex: 1 }}>
               {collapsedContent}
             </div>
           ) : (
-            <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <div className="flex items-center justify-center" style={{ width: 32, height: 32, position: 'relative', zIndex: 1 }}>
               <div style={{
                 width: 6, height: 6,
                 backgroundColor: color,
