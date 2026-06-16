@@ -578,7 +578,7 @@ export const CyberpunkTitle: React.FC<{
   const [visibleCount, setVisibleCount] = useState(0); // 当前可见字符数
   const [isHovered, setIsHovered] = useState(false);
   const hoverRef = useRef(false);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const timersRef = useRef<Array<() => void>>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const fullWidthRef = useRef(320);
 
@@ -614,14 +614,14 @@ export const CyberpunkTitle: React.FC<{
 
   // 清理所有计时器
   const clearAllTimers = () => {
-    timersRef.current.forEach(clearTimeout);
+    timersRef.current.forEach(fn => fn());
     timersRef.current = [];
   };
 
   // 设置超时（自动追踪）
   const setTimer = (fn: () => void, ms: number) => {
     const t = setTimeout(fn, ms);
-    timersRef.current.push(t);
+    timersRef.current.push(() => clearTimeout(t));
     return t;
   };
 
@@ -862,7 +862,10 @@ export const CyberpunkTitle: React.FC<{
 };
 
 // ============================================================
-// 赛博朋克可折叠面板 — 包裹任意内容，标题闪烁 + 展开/收回
+// 赛博朋克可折叠面板 — 与 CyberpunkTitle 统一视觉语言
+// 医疗白底 + 蓝灰配色 + 切角边框 + 微弱光晕
+// 鼠标悬浮 → 面板展开，标题逐字打出（随机字符闪烁后定格，同 Title）
+// 鼠标离开 → 标题逐字删除（每字删前短暂闪烁为随机汉字）→ 面板收起
 // ============================================================
 export const CyberpunkPanel: React.FC<{
   title: string;
@@ -874,17 +877,20 @@ export const CyberpunkPanel: React.FC<{
   const [phase, setPhase] = useState<'collapsed' | 'expanding' | 'glitching' | 'displayed' | 'deleting'>('collapsed');
   const [displayMap, setDisplayMap] = useState<Record<number, string>>({});
   const [visibleCount, setVisibleCount] = useState(0);
-  const [contentVisible, setContentVisible] = useState(false);
   const hoverRef = useRef(false);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const timersRef = useRef<Array<() => void>>([]);
 
-  const clearAllTimers = () => { timersRef.current.forEach(clearTimeout); timersRef.current = []; };
-  const setTimer = (fn: () => void, ms: number) => { const t = setTimeout(fn, ms); timersRef.current.push(t); return t; };
+  const isExpanded = phase !== 'collapsed';
+  const contentVisible = phase === 'displayed';
 
+  const clearAllTimers = () => { timersRef.current.forEach(fn => fn()); timersRef.current = []; };
+  const setTimer = (fn: () => void, ms: number) => { const t = setTimeout(fn, ms); timersRef.current.push(() => clearTimeout(t)); return t; };
+
+  // 逐字浮现 — 每字先闪烁为随机汉字 2~3 次后定格
   const doGlitch = (idx: number) => {
     if (idx >= chars.length) {
       setPhase('displayed');
-      setContentVisible(true);
+      // 初始自动展开后，若鼠标不在面板上则定时收回
       if (!hoverRef.current) {
         setTimer(() => { if (!hoverRef.current) doDelete(); }, 3000);
       }
@@ -900,9 +906,9 @@ export const CyberpunkPanel: React.FC<{
       if (flashes >= maxFlashes) {
         clearInterval(flashInterval);
         setDisplayMap(prev => ({ ...prev, [idx]: chars[idx] }));
-        setTimer(() => doGlitch(idx + 1), 35 + Math.random() * 45);
+        setTimer(() => doGlitch(idx + 1), 40 + Math.random() * 50);
       }
-    }, 55);
+    }, 60);
     timersRef.current.push(() => clearInterval(flashInterval));
   };
 
@@ -911,14 +917,13 @@ export const CyberpunkPanel: React.FC<{
     setPhase('expanding');
     setVisibleCount(0);
     setDisplayMap({});
-    setContentVisible(false);
-    setTimer(() => doGlitch(0), 300);
+    setTimer(() => doGlitch(0), 350);
   };
 
+  // 逐字删除 — 每字删前短暂闪烁为随机汉字（快速删除）
   const doDelete = () => {
     clearAllTimers();
     setPhase('deleting');
-    setContentVisible(false);
     let count = chars.length;
     const deleteInterval = setInterval(() => {
       count--;
@@ -932,13 +937,13 @@ export const CyberpunkPanel: React.FC<{
         setTimeout(() => {
           setDisplayMap(prev => { const next = { ...prev }; delete next[count]; return next; });
           setVisibleCount(count);
-        }, 35);
+        }, 30);
       }
-    }, 60);
+    }, 40);
     timersRef.current.push(() => clearInterval(deleteInterval));
   };
 
-  // Initial auto-expand
+  // 初始自动展开
   useEffect(() => {
     setTimer(() => doExpand(), 400);
     return () => clearAllTimers();
@@ -952,13 +957,12 @@ export const CyberpunkPanel: React.FC<{
 
   const handleMouseLeave = () => {
     hoverRef.current = false;
-    if (phase === 'displayed') {
-      setTimer(() => { if (!hoverRef.current) doDelete(); }, 2000);
+    if (phase === 'displayed' || phase === 'glitching') {
+      setTimer(() => { if (!hoverRef.current) doDelete(); }, 800);
     }
   };
 
   const chamferClip = `polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)`;
-  const isExpanded = phase !== 'collapsed';
 
   return (
     <div
@@ -966,59 +970,83 @@ export const CyberpunkPanel: React.FC<{
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* 外部发光 */}
-      {isExpanded && (
-        <div className="absolute inset-0 pointer-events-none" style={{
-          borderRadius: '5px',
-          boxShadow: `0 0 14px ${color}30`,
-          opacity: phase === 'displayed' ? 1 : 0.5,
-          transition: 'opacity 0.3s',
-        }} />
+      {/* 外部光晕层（展开时）— 与 CyberpunkTitle 相同 */}
+      {(phase === 'expanding' || phase === 'glitching' || phase === 'displayed' || phase === 'deleting') && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            borderRadius: '5px',
+            boxShadow: `0 0 12px ${color}30, 0 0 24px ${color}08`,
+            opacity: phase === 'displayed' ? 1 : 0.5,
+            transition: 'opacity 0.3s',
+          }}
+        />
       )}
-      <div className="relative" style={{ borderRadius: '5px', overflow: 'hidden', transition: 'all 0.35s cubic-bezier(0.22, 0.61, 0.36, 1)' }}>
-        {/* 背景 */}
-        <div className="absolute inset-0" style={{
-          backgroundColor: 'rgba(245,247,250,0.94)',
-          backdropFilter: 'blur(12px)',
-          clipPath: chamferClip,
-        }} />
-        {/* 切角双线边框 */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          clipPath: chamferClip,
-          border: `1px solid ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}`,
-          boxShadow: `inset 0 0 0 1px ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}40`,
-          borderRadius: '5px',
-          transition: 'border-color 0.3s, box-shadow 0.3s',
-        }} />
-        {/* 折叠态：脉冲小圆点 */}
+
+      <div className="relative" style={{ borderRadius: '5px', overflow: 'hidden' }}>
+        {/* 医疗白底 — 与 CyberpunkTitle 完全相同 */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundColor: 'rgba(245,247,250,0.94)',
+            backdropFilter: 'blur(12px)',
+            clipPath: chamferClip,
+          }}
+        />
+
+        {/* 切角双线边框 — 与 CyberpunkTitle 完全相同 */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            clipPath: chamferClip,
+            border: `1px solid ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}`,
+            boxShadow: `inset 0 0 0 1px ${phase === 'collapsed' ? MED_COLORS.GRAY_LIGHT : color}40`,
+            borderRadius: '5px',
+            transition: 'border-color 0.3s, box-shadow 0.3s',
+          }}
+        />
+
+        {/* 折叠态：脉冲小蓝点 — 与 CyberpunkTitle 完全相同 */}
         {phase === 'collapsed' && (
           <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
             <div style={{
-              width: 6, height: 6, backgroundColor: color, borderRadius: '50%',
-              boxShadow: `0 0 6px ${color}`, animation: 'pulse-blue 1.5s ease-in-out infinite',
+              width: 6, height: 6,
+              backgroundColor: color,
+              borderRadius: '50%',
+              boxShadow: `0 0 6px ${color}`,
+              animation: 'pulse-blue 1.5s ease-in-out infinite',
             }} />
           </div>
         )}
-        {/* 展开态：标题 + 内容 */}
+
+        {/* 展开态：标题 + 内容 — position:relative 确保在绝对定位背景之上 */}
         {isExpanded && (
-          <div style={{ padding: '8px 12px', minWidth: 160 }}>
-            {/* 标题行（闪烁效果） */}
+          <div style={{ position: 'relative', zIndex: 1, padding: '8px 12px', minWidth: 160 }}>
+            {/* 标题 — 逐字 glitch 闪烁（与 CyberpunkTitle 完全一致） */}
             <div style={{
-              fontSize: 10, fontWeight: 700, color, textTransform: 'uppercase' as const,
-              letterSpacing: '0.08em', fontFamily: "'JetBrains Mono','SimHei',monospace",
+              fontSize: 10,
+              fontWeight: 700,
+              color,
+              textTransform: 'uppercase' as const,
+              letterSpacing: '0.08em',
+              fontFamily: "'JetBrains Mono','SimHei',monospace",
               marginBottom: contentVisible ? 8 : 0,
             }}>
               {chars.map((ch, i) => {
                 if (i >= visibleCount) return null;
                 const displayed = displayMap[i] ?? ch;
                 return (
-                  <span key={i} style={{ opacity: displayed !== ch ? 0.55 : 1, transition: 'opacity 0.04s' }}>
+                  <span key={i} style={{
+                    opacity: displayed !== ch ? 0.55 : 1,
+                    transition: 'opacity 0.04s',
+                  }}>
                     {displayed}
                   </span>
                 );
               })}
             </div>
-            {/* 内容区（标题完全露出后才显示） */}
+
+            {/* 内容区 — 标题完全露出后淡入 */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: contentVisible ? 1 : 0 }}
