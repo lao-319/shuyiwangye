@@ -10,6 +10,9 @@ import {
 } from '../constants';
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
 import { CyberpunkTitle, CyberpunkPanel, useMouseTilt } from './HUD';
+import ChinaBoundary from './ChinaBoundary';
+import ZoomControl from './ZoomControl';
+import SouthChinaSeaInset from './SouthChinaSeaInset';
 import { extractSortedDates, dateToEpoch } from '../utils/dateUtils';
 import { useTimeController } from './useTimeController';
 import DateDisplay from './DateDisplay';
@@ -82,7 +85,7 @@ const SPEED_LEGEND_ITEMS = [
 
 const MapLegend: React.FC = () => {
   return (
-    <CyberpunkPanel title="传播速度图例" color={MED_COLORS.BLUE} style={{ bottom: 24, left: 24 }}>
+    <CyberpunkPanel title="传播速度图例" color={MED_COLORS.BLUE} style={{ bottom: 24, left: 85 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {SPEED_LEGEND_ITEMS.map(item => (
           <div key={item.label} className="legend-item">
@@ -545,6 +548,12 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
 
         {/* 自动适配边界 */}
         <MapBoundsFit regions={regions} />
+
+        {/* 中国国界线叠加层（省界 + 九段线）— 始终可见，不入 LayersControl */}
+        <ChinaBoundary />
+
+        {/* 自定义缩放控制面板 */}
+        <ZoomControl />
       </MapContainer>
       </div>
 
@@ -579,6 +588,9 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         subtext="GIS Projection: Xian 1980 → WGS84 | 疫情传播时间轴"
         color={MED_COLORS.BLUE}
       />
+
+      {/* 南海诸岛缩略图 */}
+      <SouthChinaSeaInset />
     </div>
   );
 };
