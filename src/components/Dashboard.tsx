@@ -186,8 +186,8 @@ export const Dashboard: React.FC = () => {
         {/* 第三行：数据来源 */}
         <div className="border-t pt-3" style={{ borderColor: MED_COLORS.GRAY_MID }}>
           <div className="flex justify-between text-[8px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
-            <span>DATA: 中国东北鼠疫1910-1911 + 欧洲历史鼠疫爆发1347-1900</span>
-            <span>COORD: Xian 1980 / WGS84 · SOURCE: Academic Research Datasets</span>
+            <span>东北大鼠疫数据: 刘晓峥,龚胜生 (2025) DOI:10.3974/geodb.2025.01.06.V1</span>
+            <span>欧洲鼠疫数据: Büntgen et al. (2012) DOI:10.1093/cid/cis723 — opendata.swiss</span>
           </div>
         </div>
       </div>

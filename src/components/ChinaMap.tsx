@@ -582,6 +582,37 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         onSetSpeed={timeActions.setSpeed}
       />
 
+      {/* ===== 数据来源标注 ===== */}
+      <CyberpunkPanel
+        title="数据来源"
+        color={MED_COLORS.BLUE}
+        persistent={true}
+        style={{ bottom: 24, right: 24 }}
+      >
+        <div style={{ fontSize: 9, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 280 }}>
+          <div style={{ fontWeight: 700, marginBottom: 4, color: MED_COLORS.BLUE }}>
+            刘晓峥, 龚胜生*
+          </div>
+          <div style={{ color: MED_COLORS.GRAY_LIGHT, marginBottom: 2 }}>
+            1910-1911年东北大鼠疫传播与死亡时空数据集
+          </div>
+          <div style={{ color: MED_COLORS.GRAY_LIGHT, marginBottom: 2 }}>
+            全球变化数据仓储电子杂志(中英文), 2025
+          </div>
+          <div style={{ color: MED_COLORS.GRAY_LIGHT, marginBottom: 4 }}>
+            CSTR: 20146.11.2025.01.06.V1
+          </div>
+          <a
+            href="https://doi.org/10.3974/geodb.2025.01.06.V1"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 8 }}
+          >
+            DOI: 10.3974/geodb.2025.01.06.V1
+          </a>
+        </div>
+      </CyberpunkPanel>
+
       {/* 赛博朋克可折叠标题 — 自动收回/悬浮展开 */}
       <CyberpunkTitle
         text="东北 · 肺鼠疫 1910-1911"

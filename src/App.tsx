@@ -8,6 +8,7 @@ import ChinaMap from './components/ChinaMap';
 import type { FeatureCollection } from 'geojson';
 import type { PlagueStats, EuropeStats } from './constants';
 import EuropeMap from './components/EuropeMap';
+import AnalysisView from './components/AnalysisView';
 import {
   CursorScanner,
   DataFlow,
@@ -17,25 +18,6 @@ import {
   VoiceWave,
   PageTransition,
 } from './components/HUD';
-
-// 占位组件（后续会话实现）
-const PlaceholderView: React.FC<{ title: string; view: TerminalView }> = ({ title, view }) => (
-  <PageTransition keyValue={view}>
-    <div className="h-full flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <div className="text-xs uppercase tracking-[0.2em] opacity-40" style={{ color: MED_COLORS.BLUE }}>
-          MODULE OFFLINE
-        </div>
-        <h2 className="text-2xl font-bold tracking-tighter uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
-          {title}
-        </h2>
-        <p className="text-[10px] opacity-30" style={{ color: MED_COLORS.GRAY_LIGHT }}>
-          SESSION_2_PENDING // COMING SOON
-        </p>
-      </div>
-    </div>
-  </PageTransition>
-);
 
 const App: React.FC = () => {
   const [view, setView] = useState<TerminalView>(TerminalView.BOOT);
@@ -109,9 +91,9 @@ const App: React.FC = () => {
           </PageTransition>
         );
       case TerminalView.CHINA_ANALYSIS:
-        return <PlaceholderView key={view} title="医疗分析：东北肺鼠疫" view={view} />;
+        return <AnalysisView key={view} keyValue={TerminalView.CHINA_ANALYSIS} />;
       case TerminalView.CHINA_REPORT:
-        return <PlaceholderView key={view} title="分析报告：东北肺鼠疫" view={view} />;
+        return <AnalysisView key={view} keyValue={TerminalView.CHINA_REPORT} />;
       case TerminalView.EUROPE_MAP:
         return (
           <PageTransition key={view} keyValue={TerminalView.EUROPE_MAP}>
@@ -122,9 +104,9 @@ const App: React.FC = () => {
           </PageTransition>
         );
       case TerminalView.EUROPE_ANALYSIS:
-        return <PlaceholderView key={view} title="医疗分析：欧洲腺鼠疫" view={view} />;
+        return <AnalysisView key={view} keyValue={TerminalView.EUROPE_ANALYSIS} />;
       case TerminalView.EUROPE_REPORT:
-        return <PlaceholderView key={view} title="分析报告：欧洲腺鼠疫" view={view} />;
+        return <AnalysisView key={view} keyValue={TerminalView.EUROPE_REPORT} />;
       default:
         return null;
     }
@@ -250,6 +232,12 @@ const App: React.FC = () => {
               <span className="opacity-40">
                 <VoiceWave active={true} color={MED_COLORS.BLUE} />
               </span>
+              {view === TerminalView.CHINA_MAP && (
+                <span>数据来源: 刘晓峥,龚胜生 (2025) DOI:10.3974/geodb.2025.01.06.V1</span>
+              )}
+              {view === TerminalView.EUROPE_MAP && (
+                <span>数据来源: Büntgen et al. (2012) DOI:10.1093/cid/cis723 — opendata.swiss</span>
+              )}
             </div>
             <div className="flex gap-5 opacity-50">
               <span>NODES: 1,492,055</span>

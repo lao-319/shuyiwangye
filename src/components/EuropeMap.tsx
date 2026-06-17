@@ -380,6 +380,46 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
       <StatsOverlay stats={stats} />
       <MapLegend />
 
+      {/* ===== 数据来源标注 ===== */}
+      <CyberpunkPanel
+        title="数据来源"
+        color={MED_COLORS.BLUE}
+        persistent={true}
+        style={{ bottom: 24, right: 24 }}
+      >
+        <div style={{ fontSize: 9, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 280 }}>
+          <div style={{ fontWeight: 700, marginBottom: 4, color: MED_COLORS.BLUE }}>
+            Büntgen, U., Ginzler, C., Esper, J., Tegel, W. & McMichael, A.J.
+          </div>
+          <div style={{ color: MED_COLORS.GRAY_LIGHT, marginBottom: 2 }}>
+            Digitizing Historical Plague
+          </div>
+          <div style={{ color: MED_COLORS.GRAY_LIGHT, marginBottom: 2 }}>
+            Clinical Infectious Diseases, 55(11), 1586–1588 (2012)
+          </div>
+          <div style={{ color: MED_COLORS.GRAY_LIGHT, marginBottom: 4 }}>
+            基于 Biraben (1976) 原始清单 · 6,929 条爆发记录
+          </div>
+          <a
+            href="https://doi.org/10.1093/cid/cis723"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 8 }}
+          >
+            DOI: 10.1093/cid/cis723
+          </a>
+          <span style={{ color: MED_COLORS.GRAY_LIGHT, fontSize: 8, margin: '0 4px' }}>|</span>
+          <a
+            href="https://opendata.swiss/en/dataset/digitizing-historical-plague"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 8 }}
+          >
+            opendata.swiss
+          </a>
+        </div>
+      </CyberpunkPanel>
+
       {/* 赛博朋克可折叠标题 */}
       <CyberpunkTitle
         text="欧洲 · 腺鼠疫 1347-1900"
