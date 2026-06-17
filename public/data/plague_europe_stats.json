@@ -1,0 +1,353 @@
+{
+  "total_records": 6926,
+  "total_cities": 1172,
+  "year_range": "1347 - 1900",
+  "top_cities": [
+    {
+      "Location": "London",
+      "outbreak_count": 146,
+      "first_year": 1348,
+      "last_year": 1667,
+      "lat": 51.50016,
+      "lon": -0.126296
+    },
+    {
+      "Location": "Alger",
+      "outbreak_count": 112,
+      "first_year": 1530,
+      "last_year": 1822,
+      "lat": 36.76666,
+      "lon": 3.049991
+    },
+    {
+      "Location": "Paris",
+      "outbreak_count": 90,
+      "first_year": 1349,
+      "last_year": 1668,
+      "lat": 48.85665,
+      "lon": 2.350932
+    },
+    {
+      "Location": "Toulouse",
+      "outbreak_count": 89,
+      "first_year": 1361,
+      "last_year": 1653,
+      "lat": 43.604392,
+      "lon": 1.443003
+    },
+    {
+      "Location": "Izmir",
+      "outbreak_count": 86,
+      "first_year": 1661,
+      "last_year": 1837,
+      "lat": 38.432221,
+      "lon": 27.146801
+    },
+    {
+      "Location": "Bourg-en-Bresse",
+      "outbreak_count": 78,
+      "first_year": 1349,
+      "last_year": 1637,
+      "lat": 46.204849,
+      "lon": 5.225536
+    },
+    {
+      "Location": "Amiens",
+      "outbreak_count": 76,
+      "first_year": 1349,
+      "last_year": 1669,
+      "lat": 49.893892,
+      "lon": 2.294192
+    },
+    {
+      "Location": "Nantes",
+      "outbreak_count": 75,
+      "first_year": 1348,
+      "last_year": 1641,
+      "lat": 47.216821,
+      "lon": -1.5568
+    },
+    {
+      "Location": "Bordeaux",
+      "outbreak_count": 69,
+      "first_year": 1348,
+      "last_year": 1657,
+      "lat": 44.837321,
+      "lon": -0.576182
+    },
+    {
+      "Location": "Venezia",
+      "outbreak_count": 63,
+      "first_year": 1348,
+      "last_year": 1631,
+      "lat": 45.434345,
+      "lon": 12.338774
+    },
+    {
+      "Location": "Strasbourg",
+      "outbreak_count": 60,
+      "first_year": 1349,
+      "last_year": 1635,
+      "lat": 48.58289,
+      "lon": 7.743769
+    },
+    {
+      "Location": "Limoges",
+      "outbreak_count": 59,
+      "first_year": 1348,
+      "last_year": 1634,
+      "lat": 45.82848,
+      "lon": 1.261711
+    },
+    {
+      "Location": "Rouen",
+      "outbreak_count": 58,
+      "first_year": 1349,
+      "last_year": 1669,
+      "lat": 49.442324,
+      "lon": 1.098469
+    },
+    {
+      "Location": "Kairo",
+      "outbreak_count": 57,
+      "first_year": 1348,
+      "last_year": 1841,
+      "lat": 30.076833,
+      "lon": 31.251077
+    },
+    {
+      "Location": "Basel",
+      "outbreak_count": 56,
+      "first_year": 1349,
+      "last_year": 1668,
+      "lat": 47.559619,
+      "lon": 7.580653
+    }
+  ],
+  "decade_trend": [
+    {
+      "decade": 1340,
+      "count": 187
+    },
+    {
+      "decade": 1350,
+      "count": 72
+    },
+    {
+      "decade": 1360,
+      "count": 89
+    },
+    {
+      "decade": 1370,
+      "count": 75
+    },
+    {
+      "decade": 1380,
+      "count": 98
+    },
+    {
+      "decade": 1390,
+      "count": 60
+    },
+    {
+      "decade": 1400,
+      "count": 69
+    },
+    {
+      "decade": 1410,
+      "count": 83
+    },
+    {
+      "decade": 1420,
+      "count": 77
+    },
+    {
+      "decade": 1430,
+      "count": 94
+    },
+    {
+      "decade": 1440,
+      "count": 49
+    },
+    {
+      "decade": 1450,
+      "count": 144
+    },
+    {
+      "decade": 1460,
+      "count": 133
+    },
+    {
+      "decade": 1470,
+      "count": 153
+    },
+    {
+      "decade": 1480,
+      "count": 185
+    },
+    {
+      "decade": 1490,
+      "count": 151
+    },
+    {
+      "decade": 1500,
+      "count": 248
+    },
+    {
+      "decade": 1510,
+      "count": 204
+    },
+    {
+      "decade": 1520,
+      "count": 306
+    },
+    {
+      "decade": 1530,
+      "count": 165
+    },
+    {
+      "decade": 1540,
+      "count": 215
+    },
+    {
+      "decade": 1550,
+      "count": 128
+    },
+    {
+      "decade": 1560,
+      "count": 254
+    },
+    {
+      "decade": 1570,
+      "count": 257
+    },
+    {
+      "decade": 1580,
+      "count": 384
+    },
+    {
+      "decade": 1590,
+      "count": 365
+    },
+    {
+      "decade": 1600,
+      "count": 367
+    },
+    {
+      "decade": 1610,
+      "count": 106
+    },
+    {
+      "decade": 1620,
+      "count": 456
+    },
+    {
+      "decade": 1630,
+      "count": 571
+    },
+    {
+      "decade": 1640,
+      "count": 279
+    },
+    {
+      "decade": 1650,
+      "count": 186
+    },
+    {
+      "decade": 1660,
+      "count": 213
+    },
+    {
+      "decade": 1670,
+      "count": 57
+    },
+    {
+      "decade": 1680,
+      "count": 53
+    },
+    {
+      "decade": 1690,
+      "count": 21
+    },
+    {
+      "decade": 1700,
+      "count": 41
+    },
+    {
+      "decade": 1710,
+      "count": 42
+    },
+    {
+      "decade": 1720,
+      "count": 32
+    },
+    {
+      "decade": 1730,
+      "count": 17
+    },
+    {
+      "decade": 1740,
+      "count": 27
+    },
+    {
+      "decade": 1750,
+      "count": 20
+    },
+    {
+      "decade": 1760,
+      "count": 13
+    },
+    {
+      "decade": 1770,
+      "count": 4
+    },
+    {
+      "decade": 1780,
+      "count": 44
+    },
+    {
+      "decade": 1790,
+      "count": 47
+    },
+    {
+      "decade": 1800,
+      "count": 9
+    },
+    {
+      "decade": 1810,
+      "count": 42
+    },
+    {
+      "decade": 1820,
+      "count": 14
+    },
+    {
+      "decade": 1830,
+      "count": 14
+    },
+    {
+      "decade": 1840,
+      "count": 1
+    },
+    {
+      "decade": 1850,
+      "count": 3
+    },
+    {
+      "decade": 1890,
+      "count": 1
+    },
+    {
+      "decade": 1900,
+      "count": 1
+    }
+  ],
+  "century_stats": {
+    "1300": 249,
+    "1400": 124,
+    "1500": 327,
+    "1600": 450,
+    "1700": 18,
+    "1800": 4
+  }
+}

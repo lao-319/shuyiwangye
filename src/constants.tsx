@@ -258,6 +258,43 @@ export function getSpeedLabel(v: number): string {
   return 'MINIMAL';
 }
 
+// ===== 欧洲鼠疫：世纪颜色映射 =====
+export const CENTURY_COLORS: Record<number, string> = {
+  1300: '#DC2626', // 14世纪 — 红
+  1400: '#F97316', // 15世纪 — 橙
+  1500: '#EAB308', // 16世纪 — 金黄
+  1600: '#22C55E', // 17世纪 — 绿
+  1700: '#06B6D4', // 18世纪 — 青
+  1800: '#8B5CF6', // 19世纪 — 紫
+};
+
+export const CENTURY_LABELS: Record<number, string> = {
+  1300: '14th Century',
+  1400: '15th Century',
+  1500: '16th Century',
+  1600: '17th Century',
+  1700: '18th Century',
+  1800: '19th Century',
+};
+
+/** 按爆发次数计算圆点半径 */
+export function getOutbreakRadius(count: number): number {
+  if (count > 20) return 12;
+  if (count > 7) return 9;
+  if (count > 3) return 6;
+  if (count > 1) return 5;
+  return 4;
+}
+
+/** 按爆发次数获取标签 */
+export function getOutbreakLabel(count: number): string {
+  if (count > 20) return '极高频 (21+)';
+  if (count > 7) return '高频 (8-20)';
+  if (count > 3) return '中频 (4-7)';
+  if (count > 1) return '低频 (2-3)';
+  return '单次';
+}
+
 // ===== 节点度 → 圆半径 =====
 export function getNodeDegreeRadius(jdd: number): number {
   if (jdd > 20) return 14;
@@ -313,4 +350,34 @@ export interface PlagueStats {
   }>;
   max_speed_region: string;
   max_speed_value: number;
+}
+
+// ===== 欧洲鼠疫点属性 (GeoJSON Feature properties) =====
+export interface EuropeSiteProperties {
+  NAME: string;
+  YEARS: string;
+  FIRST_YR: number;
+  LAST_YR: number;
+  COUNT: number;
+  CENTURY: number;
+}
+
+// ===== 欧洲鼠疫统计摘要 =====
+export interface EuropeStats {
+  total_records: number;
+  total_cities: number;
+  year_range: string;
+  top_cities: Array<{
+    Location: string;
+    outbreak_count: number;
+    first_year: number;
+    last_year: number;
+    lat: number;
+    lon: number;
+  }>;
+  decade_trend: Array<{
+    decade: number;
+    count: number;
+  }>;
+  century_stats: Record<string, number>;
 }

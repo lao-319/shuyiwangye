@@ -6,7 +6,8 @@ import { BootScreen } from './components/BootScreen';
 import { Dashboard } from './components/Dashboard';
 import ChinaMap from './components/ChinaMap';
 import type { FeatureCollection } from 'geojson';
-import type { PlagueStats } from './constants';
+import type { PlagueStats, EuropeStats } from './constants';
+import EuropeMap from './components/EuropeMap';
 import {
   CursorScanner,
   DataFlow,
@@ -49,6 +50,28 @@ const App: React.FC = () => {
   const [mapStats, setMapStats] = useState<PlagueStats | null>(null);
   const [mapDataReady, setMapDataReady] = useState(false);
 
+  // ============================================================
+  // 欧洲地图数据预加载
+  // ============================================================
+  const [europeSites, setEuropeSites] = useState<FeatureCollection | null>(null);
+  const [europeStats, setEuropeStats] = useState<EuropeStats | null>(null);
+  const [europeDataReady, setEuropeDataReady] = useState(false);
+
+  const preloadEuropeData = useCallback(() => {
+    if (europeDataReady) return;
+    Promise.all([
+      fetch('/data/plague_europe_sites.geojson').then(r => r.json()),
+      fetch('/data/plague_europe_stats.json').then(r => r.json()),
+    ]).then(([sites, stats]) => {
+      setEuropeSites(sites);
+      setEuropeStats(stats);
+      setEuropeDataReady(true);
+    }).catch(err => {
+      console.error('Europe data preload error:', err);
+      setEuropeDataReady(true);
+    });
+  }, [europeDataReady]);
+
   const preloadMapData = useCallback(() => {
     if (mapDataReady) return; // 已加载完成，跳过
     Promise.all([
@@ -90,7 +113,14 @@ const App: React.FC = () => {
       case TerminalView.CHINA_REPORT:
         return <PlaceholderView key={view} title="分析报告：东北肺鼠疫" view={view} />;
       case TerminalView.EUROPE_MAP:
-        return <PlaceholderView key={view} title="欧洲大陆·腺鼠疫 1347-1900" view={view} />;
+        return (
+          <PageTransition key={view} keyValue={TerminalView.EUROPE_MAP}>
+            <EuropeMap
+              sites={europeSites}
+              stats={europeStats}
+            />
+          </PageTransition>
+        );
       case TerminalView.EUROPE_ANALYSIS:
         return <PlaceholderView key={view} title="医疗分析：欧洲腺鼠疫" view={view} />;
       case TerminalView.EUROPE_REPORT:
@@ -108,6 +138,7 @@ const App: React.FC = () => {
         setView(TerminalView.DASHBOARD);
         // 后台预加载地图数据，确保用户导航到东北·肺鼠疫时数据已就绪
         preloadMapData();
+        preloadEuropeData();
       }} />
     );
   }
