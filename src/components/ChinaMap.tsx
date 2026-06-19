@@ -11,7 +11,6 @@ import {
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
 import { CyberpunkTitle, CyberpunkPanel, useMouseTilt } from './HUD';
 import ChinaBoundary from './ChinaBoundary';
-import ZoomControl from './ZoomControl';
 import SouthChinaSeaInset from './SouthChinaSeaInset';
 import { extractSortedDates, dateToEpoch } from '../utils/dateUtils';
 import { useTimeController } from './useTimeController';
@@ -552,8 +551,6 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         {/* 中国国界线叠加层（省界 + 九段线）— 始终可见，不入 LayersControl */}
         <ChinaBoundary />
 
-        {/* 自定义缩放控制面板 */}
-        <ZoomControl />
       </MapContainer>
       </div>
 
@@ -586,8 +583,7 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       <CyberpunkPanel
         title="数据来源"
         color={MED_COLORS.BLUE}
-        persistent={true}
-        style={{ bottom: 24, right: 24 }}
+        style={{ top: 24, left: '50%', transform: 'translateX(-50%)' }}
       >
         <div style={{ fontSize: 9, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 280 }}>
           <div style={{ fontWeight: 700, marginBottom: 4, color: MED_COLORS.BLUE }}>
