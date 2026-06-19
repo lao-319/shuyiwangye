@@ -55,7 +55,7 @@ export const CursorScanner: React.FC = () => {
   }, []);
   return (
     <div
-      className="fixed pointer-events-none z-[100] mix-blend-screen opacity-30 font-mono text-[8px] overflow-hidden w-28 h-14"
+      className="fixed pointer-events-none z-[100] mix-blend-screen opacity-30 font-mono text-[9px] overflow-hidden w-28 h-14"
       style={{ left: pos.x + 18, top: pos.y + 18, color: MED_COLORS.BLUE }}
     >
       <div className="animate-pulse">
@@ -133,7 +133,7 @@ export const BoundingBox: React.FC<{
       style={{ backgroundColor: color, color: '#FFFFFF' }}
     >
       <span>{label}</span>
-      {subtext && <span className="opacity-60 text-[8px]">{subtext}</span>}
+      {subtext && <span className="opacity-60 text-[9px]">{subtext}</span>}
     </div>
     {/* 四角传感器校准点 */}
     <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full pointer-events-none" style={{ backgroundColor: color, boxShadow: `0 0 4px ${color}` }} />
@@ -206,7 +206,7 @@ export const InteractiveBox: React.FC<{
             }}
           />
           <span
-            className="text-[8px] font-bold uppercase tracking-widest whitespace-nowrap"
+            className="text-[9px] font-bold uppercase tracking-widest whitespace-nowrap"
             style={{ color: currentColor, opacity: active ? 1 : 0.5 }}
           >
             {label}
@@ -347,7 +347,7 @@ const MED_DATA_PATTERNS = [
 export const DataFlow: React.FC<{ color?: string }> = ({ color = MED_COLORS.BLUE }) => {
   const rows = Array.from({ length: 40 }, (_, i) => MED_DATA_PATTERNS[i % MED_DATA_PATTERNS.length]);
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden font-mono text-[8px] flex justify-around p-4 select-none z-0" style={{ opacity: 0.04 }}>
+    <div className="absolute inset-0 pointer-events-none overflow-hidden font-mono text-[9px] flex justify-around p-4 select-none z-0" style={{ opacity: 0.04 }}>
       {Array.from({ length: 10 }).map((_, i) => (
         <div key={i} className="flex flex-col gap-1 data-stream" style={{ animationDelay: `${i * -2.5}s`, opacity: 0.3 + (i % 5) * 0.15 }}>
           {rows.map((text, j) => (
@@ -413,8 +413,8 @@ export const VitalSigns: React.FC<{
   color?: string;
   pulse?: boolean;
 }> = ({ label, value, unit = '', color = MED_COLORS.BLUE, pulse = false }) => (
-  <div className="flex flex-col items-center p-2 border" style={{ minWidth: 80, borderColor: MED_COLORS.GRAY_MID }}>
-    <span className="text-[8px] uppercase tracking-wider opacity-50 mb-1" style={{ color: MED_COLORS.GRAY_LIGHT }}>{label}</span>
+  <div className="flex flex-col items-center p-2 border" style={{ minWidth: 90, borderColor: MED_COLORS.GRAY_MID }}>
+    <span className="text-[10px] uppercase tracking-wider opacity-50 mb-1" style={{ color: MED_COLORS.GRAY_LIGHT }}>{label}</span>
     <motion.span
       className="text-lg font-bold font-mono"
       style={{ color }}
@@ -434,7 +434,7 @@ export const ScanProgress: React.FC<{
   color?: string;
 }> = ({ progress, label = 'ANALYZING BIOSAMPLE', color = MED_COLORS.BLUE }) => (
   <div className="w-full space-y-2">
-    <div className="flex justify-between text-[9px] uppercase font-bold" style={{ color }}>
+    <div className="flex justify-between text-[10px] uppercase font-bold" style={{ color }}>
       <span>{label}</span>
       <span>{Math.round(progress)}%</span>
     </div>
@@ -470,11 +470,11 @@ export const AlertBanner: React.FC<{
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          className="overflow-hidden border-b text-center py-2 px-4 font-mono text-[10px] uppercase font-bold tracking-widest"
+          className="overflow-hidden border-b text-center py-1 px-3 font-mono text-[9px] uppercase font-bold tracking-normal"
           style={{ backgroundColor: `${color}15`, borderColor: color, color }}
         >
           <span className="animate-pulse mr-2">⚠</span>
-          [{level}] {message}
+          [{level}]{message ? ` ${message}` : ''}
         </motion.div>
       )}
     </AnimatePresence>
@@ -520,9 +520,9 @@ export const TimelineMarker: React.FC<{
         boxShadow: active ? `0 0 8px ${color}` : 'none',
       }}
     />
-    <span className="text-[9px] font-mono opacity-50 w-16 flex-shrink-0" style={{ color: MED_COLORS.GRAY_LIGHT }}>{date}</span>
+    <span className="text-[10px] font-mono opacity-50 w-16 flex-shrink-0" style={{ color: MED_COLORS.GRAY_LIGHT }}>{date}</span>
     <span
-      className="text-[9px] uppercase tracking-wider font-bold truncate"
+      className="text-[10px] uppercase tracking-wider font-bold truncate"
       style={{ color: active ? color : MED_COLORS.GRAY_LIGHT }}
     >
       {label}
@@ -565,11 +565,11 @@ export const StatCard: React.FC<{
     <div className="flex items-center gap-2 mb-2">
       {/* 极简几何图标 */}
       {icon && <span style={{ color }}>{icon}</span>}
-      <span className="text-[9px] uppercase tracking-wider opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{title}</span>
+      <span className="text-[10px] uppercase tracking-wider opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{title}</span>
     </div>
     <div className="text-2xl font-bold font-mono" style={{ color }}>{value}</div>
     {subtitle && (
-      <div className="text-[9px] mt-1 opacity-40" style={{ color: MED_COLORS.GRAY_LIGHT }}>{subtitle}</div>
+      <div className="text-[10px] mt-1 opacity-45" style={{ color: MED_COLORS.GRAY_LIGHT }}>{subtitle}</div>
     )}
   </motion.div>
 );
@@ -1176,7 +1176,9 @@ export const LogStream: React.FC<{
   maxLines?: number;
   autoScroll?: boolean;
   className?: string;
-}> = ({ maxLines = 50, autoScroll = true, className = '' }) => {
+  /** 单行模式：仅显示一行代码，居中，持续变换 */
+  singleLine?: boolean;
+}> = ({ maxLines = 50, autoScroll = true, className = '', singleLine = false }) => {
   const [lines, setLines] = useState<LogEntry[]>([]);
   const [initIndex, setInitIndex] = useState(0);
   const [initComplete, setInitComplete] = useState(false);
@@ -1260,6 +1262,116 @@ export const LogStream: React.FC<{
         return { color: '#94A3B8' };
     }
   };
+
+  // ============================================================
+  // 单行模式状态 — 仅显示一行居中代码，持续变换
+  // ============================================================
+  const [singleCurrentLine, setSingleCurrentLine] = useState<LogEntry | null>(null);
+  const singleLineRef = useRef<{ index: number; initDone: boolean }>({ index: 0, initDone: false });
+
+  useEffect(() => {
+    if (!singleLine) return;
+    const streamTimer: ReturnType<typeof setTimeout>[] = [];
+
+    const advance = () => {
+      const { index, initDone } = singleLineRef.current;
+
+      if (!initDone && index < INITIAL_LOG.length) {
+        // 初始化阶段：逐条展示启动日志
+        const entry = INITIAL_LOG[index];
+        setSingleCurrentLine(entry);
+        singleLineRef.current.index = index + 1;
+
+        if (index + 1 >= INITIAL_LOG.length) {
+          singleLineRef.current.initDone = true;
+          singleLineRef.current.index = 0;
+        }
+
+        const delay = entry.text === '' ? 400 : 600 + Math.random() * 400;
+        const t = setTimeout(advance, delay);
+        streamTimer.push(t);
+      } else {
+        // 初始化完成后：随机生成日志行
+        singleLineRef.current.initDone = true;
+        const entry = generateStreamEntry();
+        setSingleCurrentLine(entry);
+
+        const delay = 1000 + Math.random() * 2000;
+        const t = setTimeout(advance, delay);
+        streamTimer.push(t);
+      }
+    };
+
+    // 短暂延迟后开始
+    const startTimer = setTimeout(advance, 300);
+    streamTimer.push(startTimer);
+
+    return () => streamTimer.forEach(clearTimeout);
+  }, [singleLine]);
+
+  // ============================================================
+  // 单行模式渲染
+  // ============================================================
+  if (singleLine) {
+    return (
+      <div
+        className={`font-mono border rounded h-full ${className}`}
+        style={{
+          backgroundColor: '#FFFFFF',
+          borderColor: MED_COLORS.GRAY_MID,
+          fontFamily: "'JetBrains Mono', 'Consolas', 'SimHei', monospace",
+          padding: '12px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {singleCurrentLine ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={singleCurrentLine.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.35 }}
+              className="whitespace-nowrap overflow-hidden text-ellipsis"
+              style={{
+                ...getLineStyle(singleCurrentLine.type),
+                fontSize: 10,
+                lineHeight: 1.4,
+              }}
+            >
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+                style={{ color: MED_COLORS.BLUE, marginRight: 4 }}
+              >
+                ▸
+              </motion.span>
+              {singleCurrentLine.text || ' '}
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.6, repeat: Infinity }}
+                style={{ color: MED_COLORS.BLUE, marginLeft: 2 }}
+              >
+                █
+              </motion.span>
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <div className="flex items-center gap-2" style={{ color: MED_COLORS.BLUE }}>
+            <motion.div
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: MED_COLORS.BLUE }}
+            />
+            <span>正在初始化诊断系统...</span>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -1357,7 +1469,7 @@ export const TerminalStatusBar: React.FC<{
         </span>
 
         {/* 版本号 */}
-        <span className="font-bold tracking-wider uppercase" style={{ color: MED_COLORS.BLUE, fontSize: '9px' }}>
+        <span className="font-bold tracking-wider uppercase" style={{ color: MED_COLORS.BLUE, fontSize: '8px' }}>
           v4.1-MED
         </span>
 

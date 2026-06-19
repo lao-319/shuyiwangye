@@ -206,7 +206,7 @@ const App: React.FC = () => {
 
           {/* ===== Footer — 极简终端信息行 ===== */}
           <footer
-            className="h-7 flex items-center justify-between px-6 text-[7px] uppercase font-mono z-30 pointer-events-auto"
+            className="h-7 flex items-center justify-between px-6 text-[8px] uppercase font-mono z-30 pointer-events-auto"
             style={{
               backgroundColor: 'rgba(245,247,250,0.85)',
               color: MED_COLORS.GRAY_LIGHT,
@@ -282,7 +282,7 @@ const NavButton: React.FC<{
         {icon}
       </div>
       <span
-        className="text-[7px] uppercase font-bold mt-0.5 tracking-widest transition-colors duration-300"
+        className="text-[8px] uppercase font-bold mt-0.5 tracking-widest transition-colors duration-300"
         style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}
       >
         {label}

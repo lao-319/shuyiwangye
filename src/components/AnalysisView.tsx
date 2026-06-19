@@ -4,6 +4,7 @@ import { MED_COLORS, GeoIcons } from '../constants';
 import type { PlagueData, PlagueRegion, CityOutbreak } from '../types';
 import { PageTransition } from './HUD';
 import PlagueModel from './PlagueModel';
+import PaginatedDoc from './analysis/PaginatedDoc';
 
 // ============================================================
 // 类型定义
@@ -101,7 +102,7 @@ const AnalysisPanel: React.FC<{
       case 'pathogen':
         return (
           <div className="space-y-3">
-            <div className="text-[10px] leading-relaxed" style={{ color: MED_COLORS.TEXT }}>
+            <div className="text-[9px] leading-relaxed" style={{ color: MED_COLORS.TEXT }}>
               <span className="font-bold" style={{ color: MED_COLORS.VIOLET }}>Yersinia pestis</span>
               {' '}— 革兰氏阴性球杆菌，属于肠杆菌科耶尔森菌属。1894年由亚历山大·耶尔森在香港首次分离。
             </div>
@@ -114,7 +115,7 @@ const AnalysisPanel: React.FC<{
               <InfoChip label="毒力" value="III 型分泌系统" />
             </div>
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>临床分型</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>临床分型</div>
               <div className="grid grid-cols-3 gap-1 text-[9px]">
                 <TypeBadge label="腺鼠疫" sub="BUBONIC" color={MED_COLORS.ORANGE} active />
                 <TypeBadge label="肺鼠疫" sub="PNEUMONIC" color={MED_COLORS.RED} active />
@@ -130,13 +131,13 @@ const AnalysisPanel: React.FC<{
       case 'transmit':
         return (
           <div className="space-y-3">
-            <div className="text-[10px] leading-relaxed" style={{ color: MED_COLORS.TEXT }}>
+            <div className="text-[9px] leading-relaxed" style={{ color: MED_COLORS.TEXT }}>
               <span className="font-bold" style={{ color: MED_COLORS.BLUE }}>传播方式：</span>
               鼠疫耶尔森菌主要通过<span style={{ color: MED_COLORS.ORANGE }}>跳蚤叮咬</span>在啮齿动物间传播，也可通过<span style={{ color: MED_COLORS.RED }}>飞沫</span>在人与人之间传播（肺鼠疫）。
             </div>
             {chinaRegions.length > 0 && (
               <div>
-                <div className="text-[8px] uppercase tracking-wider mb-2" style={{ color: MED_COLORS.BLUE }}>东北肺鼠疫 传播速度</div>
+                <div className="text-[9px] uppercase tracking-wider mb-2" style={{ color: MED_COLORS.BLUE }}>东北肺鼠疫 传播速度</div>
                 <div className="space-y-1.5">
                   <StatBar
                     label="最快传播"
@@ -173,7 +174,7 @@ const AnalysisPanel: React.FC<{
           <div className="space-y-3">
             {chinaStats && (
               <div>
-                <div className="text-[8px] uppercase tracking-wider mb-2" style={{ color: MED_COLORS.RED }}>东北肺鼠疫 1910-1911</div>
+                <div className="text-[9px] uppercase tracking-wider mb-2" style={{ color: MED_COLORS.RED }}>东北肺鼠疫 1910-1911</div>
                 <div className="grid grid-cols-2 gap-2">
                   <VitalBlock label="总死亡人数" value={chinaStats.total_deaths.toLocaleString()} color={MED_COLORS.RED} />
                   <VitalBlock label="疫区数量" value={`${chinaStats.total_regions}`} color={MED_COLORS.BLUE} />
@@ -194,7 +195,7 @@ const AnalysisPanel: React.FC<{
               </div>
             )}
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲腺鼠疫 1347-1900</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲腺鼠疫 1347-1900</div>
               <div className="grid grid-cols-2 gap-2">
                 <VitalBlock label="总爆发记录" value={europeStats?.total_records.toLocaleString() ?? '--'} color={MED_COLORS.ORANGE} />
                 <VitalBlock label="涉及城市" value={`${europeStats?.total_cities ?? '--'}`} color={MED_COLORS.VIOLET} />
@@ -212,7 +213,7 @@ const AnalysisPanel: React.FC<{
       case 'timeline':
         return (
           <div className="space-y-2">
-            <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.BLUE }}>关键时间节点</div>
+            <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.BLUE }}>关键时间节点</div>
             <div className="space-y-2">
               <TimelineItem date="1910.10.25" label="东北鼠疫首发" sub="胪滨府（今满洲里）报告首例" color={MED_COLORS.BLUE} />
               <TimelineItem date="1910.11-12" label="疫情快速扩散" sub="沿中东铁路蔓延至哈尔滨等地" color={MED_COLORS.ORANGE} />
@@ -220,7 +221,7 @@ const AnalysisPanel: React.FC<{
               <TimelineItem date="1911.03-04" label="疫情终结" sub="肺鼠疫被完全控制" color={MED_COLORS.GREEN} />
             </div>
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲鼠疫世纪分布</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲鼠疫世纪分布</div>
               <div className="space-y-1">
                 {Object.entries(centuryStats)
                   .sort(([a], [b]) => parseInt(a) - parseInt(b))
@@ -254,7 +255,7 @@ const AnalysisPanel: React.FC<{
       case 'geography':
         return (
           <div className="space-y-2">
-            <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>东北鼠疫 省份分布</div>
+            <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>东北鼠疫 省份分布</div>
             {data.chinaStats && (
               <div className="space-y-1.5">
                 {['黑龙江', '吉林', '奉天', '直隶', '山东'].map(prov => {
@@ -298,7 +299,7 @@ const AnalysisPanel: React.FC<{
               </div>
             )}
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>欧洲鼠疫 重灾区 TOP 5</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>欧洲鼠疫 重灾区 TOP 5</div>
               <div className="space-y-1">
                 {europeCities.slice(0, 5).map((city, i) => (
                   <div key={i} className="flex items-center justify-between text-[9px]">
@@ -319,7 +320,7 @@ const AnalysisPanel: React.FC<{
       case 'highrisk':
         return (
           <div className="space-y-2">
-            <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.RED }}>东北鼠疫 最高风险区 TOP 5</div>
+            <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.RED }}>东北鼠疫 最高风险区 TOP 5</div>
             <div className="space-y-1.5">
               {[...chinaRegions]
                 .sort((a, b) => (b.deaths ?? 0) - (a.deaths ?? 0))
@@ -335,7 +336,7 @@ const AnalysisPanel: React.FC<{
                 ))}
             </div>
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲鼠疫 最高频发区 TOP 5</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲鼠疫 最高频发区 TOP 5</div>
               <div className="space-y-1.5">
                 {[...europeCities]
                   .sort((a, b) => b.outbreak_count - a.outbreak_count)
@@ -360,7 +361,7 @@ const AnalysisPanel: React.FC<{
       case 'population':
         return (
           <div className="space-y-2">
-            <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>东北鼠疫 人口统计</div>
+            <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>东北鼠疫 人口统计</div>
             <div className="grid grid-cols-2 gap-2">
               <VitalBlock label="总涉及人口" value={
                 `${chinaRegions.reduce((s, r) => s + (r.population ?? 0), 0).toFixed(0)} 万`} color={MED_COLORS.BLUE} />
@@ -380,7 +381,7 @@ const AnalysisPanel: React.FC<{
               </div>
             )}
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>欧洲鼠疫 社会影响</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>欧洲鼠疫 社会影响</div>
               <div className="grid grid-cols-2 gap-2">
                 <VitalBlock label="爆发跨度" value={europeStats?.year_range ?? '--'} color={MED_COLORS.ORANGE} />
                 <VitalBlock label="城市总数" value={`${europeStats?.total_cities ?? '--'}`} color={MED_COLORS.VIOLET} />
@@ -398,7 +399,7 @@ const AnalysisPanel: React.FC<{
       case 'trend':
         return (
           <div className="space-y-2">
-            <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>东北鼠疫 传播速度分析</div>
+            <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>东北鼠疫 传播速度分析</div>
             <div className="space-y-1.5">
               {[
                 { label: '极高速 (>20km/d)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 20).length, color: '#991B1B' },
@@ -417,7 +418,7 @@ const AnalysisPanel: React.FC<{
               ))}
             </div>
             <div className="border-t pt-2" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
-              <div className="text-[8px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲鼠疫 持续时间</div>
+              <div className="text-[9px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.ORANGE }}>欧洲鼠疫 持续时间</div>
               <div className="text-[9px]" style={{ color: MED_COLORS.TEXT }}>
                 欧洲鼠疫从 1347 年持续至 1900 年，跨越 <span style={{ color: MED_COLORS.ORANGE, fontWeight: 'bold' }}>553 年</span>，
                 期间经历多次大流行。14 世纪（黑死病）为最高峰，17 世纪后逐渐消退。
@@ -478,14 +479,14 @@ const AnalysisPanel: React.FC<{
           <div className="flex items-center gap-2 mb-2 pb-2 border-b" style={{ borderColor: MED_COLORS.GRAY_DARK }}>
             <span style={{ color: category.color }}>{category.icon}</span>
             <span
-              className="text-[10px] font-bold uppercase tracking-wider"
+              className="text-[9px] font-bold uppercase tracking-wider"
               style={{ color: category.color, fontFamily: "'JetBrains Mono','SimHei',monospace" }}
             >
               {category.label}
             </span>
           </div>
           {/* 内容体 */}
-          <div className="text-[10px]" style={{ fontFamily: "'JetBrains Mono','SimHei',monospace" }}>
+          <div className="text-[9px]" style={{ fontFamily: "'JetBrains Mono','SimHei',monospace" }}>
             {renderContent()}
           </div>
         </div>
@@ -513,7 +514,7 @@ const TypeBadge: React.FC<{ label: string; sub: string; color: string; active?: 
       backgroundColor: active ? `${color}08` : 'transparent',
     }}
   >
-    <div className="text-[8px] font-bold" style={{ color: active ? color : MED_COLORS.GRAY_LIGHT }}>{label}</div>
+    <div className="text-[9px] font-bold" style={{ color: active ? color : MED_COLORS.GRAY_LIGHT }}>{label}</div>
     <div className="text-[6px] uppercase opacity-50" style={{ color: MED_COLORS.GRAY_LIGHT }}>{sub}</div>
   </div>
 );
@@ -527,7 +528,7 @@ const VitalBlock: React.FC<{ label: string; value: string; color: string }> = ({
 
 const StatBar: React.FC<{ label: string; value: string; pct: number; color: string }> = ({ label, value, pct, color }) => (
   <div>
-    <div className="flex justify-between text-[8px] mb-0.5">
+    <div className="flex justify-between text-[9px] mb-0.5">
       <span style={{ color: MED_COLORS.TEXT }}>{label}</span>
       <span className="font-mono opacity-60" style={{ color }}>{value}</span>
     </div>
@@ -550,9 +551,9 @@ const TimelineItem: React.FC<{ date: string; label: string; sub: string; color: 
       <div className="w-px flex-1 mt-0.5" style={{ backgroundColor: MED_COLORS.GRAY_MID }} />
     </div>
     <div className="pb-2">
-      <div className="text-[8px] font-mono opacity-50" style={{ color: MED_COLORS.GRAY_LIGHT }}>{date}</div>
+      <div className="text-[9px] font-mono opacity-50" style={{ color: MED_COLORS.GRAY_LIGHT }}>{date}</div>
       <div className="text-[9px] font-bold" style={{ color: color }}>{label}</div>
-      <div className="text-[8px] opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{sub}</div>
+      <div className="text-[9px] opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{sub}</div>
     </div>
   </div>
 );
@@ -575,6 +576,7 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
   const [lockedPointIdx, setLockedPointIdx] = useState<number | null>(null);
   const panelHoverRef = useRef(false);
   const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
+  const [showDoc, setShowDoc] = useState(false);
 
   // ============================================================
   // 加载数据
@@ -786,7 +788,7 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
 
             {/* 副标题 — 闪烁 */}
             <p
-              className="text-[10px] uppercase tracking-wider"
+              className="text-[9px] uppercase tracking-wider"
               style={{
                 color: MED_COLORS.GRAY_LIGHT,
                 opacity: isFading ? 0 : 0.3,
@@ -895,10 +897,10 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
         <div className="absolute inset-0 med-dot-grid opacity-30 pointer-events-none" />
 
         {/* ============================================================ */}
-        {/* 中央病株模型 */}
+        {/* 中央病株模型 (pointer-events-none 确保鼠标事件穿透到容器) */}
         {/* ============================================================ */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
@@ -1014,7 +1016,54 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
             />
           )}
         </AnimatePresence>
+
+        {/* ============================================================ */}
+        {/* WHO 档案按钮 — 右下角浮动，科幻档案入口 */}
+        {/* ============================================================ */}
+        <motion.button
+          className="absolute bottom-5 right-5 z-[150] flex items-center gap-2 px-3 py-2 cursor-pointer"
+          style={{
+            backgroundColor: 'rgba(245,247,250,0.88)',
+            backdropFilter: 'blur(8px)',
+            border: `1px solid ${MED_COLORS.BLUE}40`,
+            borderRadius: '3px',
+          }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1.2, duration: 0.4 }}
+          onClick={() => setShowDoc(true)}
+          whileHover={{
+            borderColor: MED_COLORS.BLUE,
+            boxShadow: `0 0 16px ${MED_COLORS.BLUE}30`,
+          }}
+          title="WHO 鼠疫事实档案"
+        >
+          <GeoIcons.Report />
+          <span
+            className="text-[9px] font-bold uppercase tracking-wider"
+            style={{
+              color: MED_COLORS.BLUE,
+              fontFamily: "'JetBrains Mono','SimHei',monospace",
+            }}
+          >
+            WHO 档案
+          </span>
+          {/* 脉冲指示点 */}
+          <div
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              backgroundColor: MED_COLORS.BLUE,
+              boxShadow: `0 0 5px ${MED_COLORS.BLUE}`,
+              animation: 'pulse-blue 1.5s ease-in-out infinite',
+            }}
+          />
+        </motion.button>
       </div>
+
+      {/* ============================================================ */}
+      {/* WHO 分页电子档案 */}
+      {/* ============================================================ */}
+      <PaginatedDoc visible={showDoc} onClose={() => setShowDoc(false)} />
     </PageTransition>
   );
 };

@@ -27,7 +27,7 @@ const PlagueModel: React.FC<PlagueModelProps> = ({ size = 300, className = '' })
       className={className}
       animate={{ y: [0, -8, 0] }}
       transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-      style={{ width: size, height: size * (vbH / vbW) }}
+      style={{ width: size, height: size * (vbH / vbW), pointerEvents: 'none' }}
     >
       <svg
         viewBox={`0 0 ${vbW} ${vbH}`}

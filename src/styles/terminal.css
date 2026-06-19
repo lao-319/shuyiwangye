@@ -191,7 +191,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: 10px;
   font-family: 'JetBrains Mono', 'Consolas', monospace;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -203,4 +203,52 @@ html, body, #root {
   50%  { opacity: 0.72; }
   51%  { opacity: 1; }
   100% { opacity: 0.96; }
+}
+
+/* ===== 赛博朋克故障闪烁 — 文字 RGB 分裂 + 水平抖动 ===== */
+@keyframes glitch-skew {
+  0%, 100% { transform: translateX(0); }
+  10%      { transform: translateX(-4px); }
+  20%      { transform: translateX(4px); }
+  30%      { transform: translateX(-2px); }
+  40%      { transform: translateX(5px); }
+  50%      { transform: translateX(-5px); }
+  60%      { transform: translateX(3px); }
+  70%      { transform: translateX(-3px); }
+  80%      { transform: translateX(2px); }
+  90%      { transform: translateX(-1px); }
+}
+
+@keyframes glitch-clip-1 {
+  0%, 100% { clip-path: inset(0 0 0 0); }
+  10%      { clip-path: inset(10% 0 70% 0); }
+  30%      { clip-path: inset(60% 0 25% 0); }
+  50%      { clip-path: inset(30% 0 50% 0); }
+  70%      { clip-path: inset(75% 0 10% 0); }
+  90%      { clip-path: inset(0 0 80% 0); }
+}
+
+@keyframes glitch-clip-2 {
+  0%, 100% { clip-path: inset(0 0 0 0); }
+  15%      { clip-path: inset(70% 0 15% 0); }
+  35%      { clip-path: inset(20% 0 60% 0); }
+  55%      { clip-path: inset(0 0 70% 0); }
+  75%      { clip-path: inset(50% 0 35% 0); }
+  95%      { clip-path: inset(15% 0 70% 0); }
+}
+
+@keyframes glitch-opacity {
+  0%, 100% { opacity: 1; }
+  8%       { opacity: 0.2; }
+  16%      { opacity: 1; }
+  24%      { opacity: 0.4; }
+  32%      { opacity: 0.1; }
+  40%      { opacity: 1; }
+  48%      { opacity: 0.3; }
+  56%      { opacity: 1; }
+  64%      { opacity: 0.15; }
+  72%      { opacity: 0.8; }
+  80%      { opacity: 0.25; }
+  88%      { opacity: 1; }
+  96%      { opacity: 0.5; }
 }

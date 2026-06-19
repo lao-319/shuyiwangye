@@ -39,7 +39,6 @@ const BOOT_SEQUENCE: BootLine[] = [
 ];
 
 // ===== ECG 波形路径生成 =====
-// 生成模拟真实心电图的 SVG path
 const generateECGPath = (width: number, height: number, segments: number): string => {
   const midY = height / 2;
   const amp = height * 0.35;
@@ -48,48 +47,37 @@ const generateECGPath = (width: number, height: number, segments: number): strin
 
   for (let i = 0; i <= segments; i++) {
     const x = i * segW;
-    // 每个周期内模拟 P-Q-R-S-T 波形
-    const phase = (i % 8) / 8; // 8个点一个心跳周期
+    const phase = (i % 8) / 8;
     let y: number;
 
     if (phase < 0.15) {
-      // 基线
       y = midY;
     } else if (phase < 0.25) {
-      // P 波 (小隆起)
       const p = (phase - 0.15) / 0.10;
       y = midY - amp * 0.25 * Math.sin(p * Math.PI);
     } else if (phase < 0.35) {
-      // PR 段
       y = midY;
     } else if (phase < 0.40) {
-      // Q 波 (小下陷)
       const q = (phase - 0.35) / 0.05;
       y = midY + amp * 0.15 * Math.sin(q * Math.PI / 2);
     } else if (phase < 0.50) {
-      // R 波 (大尖峰)
       const r = (phase - 0.40) / 0.10;
       y = midY - amp * Math.sin(r * Math.PI);
     } else if (phase < 0.55) {
-      // S 波 (深下陷)
       const s = (phase - 0.50) / 0.05;
       y = midY + amp * 0.5 * Math.sin(s * Math.PI / 2);
     } else if (phase < 0.70) {
-      // ST 段
       y = midY;
     } else if (phase < 0.90) {
-      // T 波 (宽隆起)
       const t = (phase - 0.70) / 0.20;
       y = midY - amp * 0.35 * Math.sin(t * Math.PI);
     } else {
-      // 回到基线
       y = midY;
     }
 
     points.push([x, y]);
   }
 
-  // 平滑路径
   if (points.length < 3) return '';
   let path = `M ${points[0][0].toFixed(2)} ${points[0][1].toFixed(2)}`;
   for (let i = 1; i < points.length - 1; i++) {
@@ -108,24 +96,95 @@ const generateECGPath = (width: number, height: number, segments: number): strin
 };
 
 /** 医疗白色调 */
-const MED_WHITE = '#F5F7FA';
-const MED_WHITE_BG = '#EEF1F5';
 const DANGER_RED = '#DC2626';
 const DANGER_RED_DARK = '#991B1B';
 const ECG_BLUE = '#3B82F6';
+
+// ===== 红色警告行 =====
+const RED_WARNINGS = [
+  '⚠ BIOHAZARD ALERT — YERSINIA PESTIS DETECTED',
+  '⚠ CONTAINMENT BREACH — LEVEL 4 BIOSAFETY',
+  '⚠ PANDEMIC SPREAD — MORTALITY 56,287',
+];
+
+// ===== 赛博朋克故障风闪烁文字组件 =====
+const GlitchText: React.FC<{
+  text: string;
+  active: boolean;
+  color: string;
+  className?: string;
+  fontSize?: string;
+}> = ({ text, active, color, className = '', fontSize }) => {
+  return (
+    <span
+      className={`relative inline-block ${className}`}
+      style={{
+        fontSize,
+        fontFamily: "'JetBrains Mono', 'SimHei', monospace",
+        animation: active ? 'glitch-skew 0.15s ease-in-out infinite' : 'none',
+      }}
+    >
+      {/* 主文字 */}
+      <span
+        className="relative"
+        style={{
+          color,
+          animation: active ? 'glitch-opacity 0.2s steps(1) infinite' : 'none',
+        }}
+      >
+        {text}
+      </span>
+
+      {/* 红色残影 — 向左偏移，被 clip 切条 */}
+      {active && (
+        <>
+          <span
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              color: DANGER_RED,
+              left: '-3px',
+              textShadow: `2px 0 ${DANGER_RED}`,
+              animation: 'glitch-clip-1 0.3s steps(1) infinite',
+              clipPath: 'inset(0 0 0 0)',
+            }}
+          >
+            {text}
+          </span>
+          {/* 蓝色残影 — 向右偏移 */}
+          <span
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              color: ECG_BLUE,
+              left: '3px',
+              textShadow: `-2px 0 ${ECG_BLUE}`,
+              animation: 'glitch-clip-2 0.3s steps(1) infinite',
+              clipPath: 'inset(0 0 0 0)',
+            }}
+          >
+            {text}
+          </span>
+        </>
+      )}
+    </span>
+  );
+};
 
 export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [visibleLines, setVisibleLines] = useState<number[]>([]);
   const [showButton, setShowButton] = useState(false);
-  const [phase, setPhase] = useState<'loading' | 'danger' | 'ready'>('loading');
-  const [bgColor, setBgColor] = useState('#E8ECF0'); // 比 MED_WHITE 暗一点，衬托暗角
+  const [phase, setPhase] = useState<'loading' | 'glitch' | 'warning' | 'ready'>('loading');
+  const [bgColor, setBgColor] = useState('#E8ECF0');
   const [ecgColor, setEcgColor] = useState(ECG_BLUE);
-  const [alarmFlash, setAlarmFlash] = useState(false);
+  const [glitchActive, setGlitchActive] = useState(false);
+  const [screenShake, setScreenShake] = useState(false);
+  const [visibleWarnings, setVisibleWarnings] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const [svgSize, setSvgSize] = useState({ width: 800, height: 120 });
-  const [pathLen, setPathLen] = useState(1600); // 近似值，渲染后实测修正
+  const [pathLen, setPathLen] = useState(1600);
 
   // 响应式 SVG 尺寸
   useEffect(() => {
@@ -142,7 +201,6 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
 
   const ecgPath = generateECGPath(svgSize.width, svgSize.height, 64);
 
-  // 实测 ECG 路径真实长度，修正描边动画速度
   useEffect(() => {
     if (pathRef.current) {
       const len = pathRef.current.getTotalLength();
@@ -164,7 +222,7 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
 
   // 进度条动画（ECG 描边 + 百分比）
   useEffect(() => {
-    const totalDuration = 9000; // 与启动序列同步
+    const totalDuration = 9000;
     const startTime = Date.now();
 
     const tick = () => {
@@ -175,24 +233,47 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
       if (p < 100) {
         requestAnimationFrame(tick);
       } else {
-        // 进度完成 → 立即触发危险警报（无延迟，制造紧迫感）
-        setPhase('danger');
-        setBgColor(DANGER_RED_DARK);
+        // ===== 进度完成 → 赛博朋克故障闪烁 → 红色警告 =====
+        setPhase('glitch');
         setEcgColor(DANGER_RED);
+        setScreenShake(true);
 
-        // 快速警报闪烁（短间隔、少次数，像真实紧急警报）
-        let flashes = 0;
-        const flashInterval = setInterval(() => {
-          setAlarmFlash(prev => !prev);
-          flashes++;
-          if (flashes >= 5) {
-            clearInterval(flashInterval);
-            setAlarmFlash(false);
+        // 故障闪烁节奏：4 轮 burst，每轮亮→灭
+        const glitchBursts = [
+          { start: 0,    duration: 300 },
+          { start: 500,  duration: 200 },
+          { start: 850,  duration: 350 },
+          { start: 1350, duration: 250 },
+        ];
+
+        glitchBursts.forEach(({ start, duration }) => {
+          setTimeout(() => {
+            setGlitchActive(true);
+            setTimeout(() => setGlitchActive(false), duration);
+          }, start);
+        });
+
+        // 最后一轮故障结束后 → 显示红色警告
+        const glitchEnd = 1350 + 250 + 200; // ~1800ms
+        setTimeout(() => {
+          setGlitchActive(false);
+          setScreenShake(false);
+          setPhase('warning');
+
+          // 红色警告逐行出现
+          RED_WARNINGS.forEach((_, i) => {
+            setTimeout(() => {
+              setVisibleWarnings(prev => [...prev, i]);
+            }, i * 350);
+          });
+
+          // 警告显示完毕后 → ready
+          const warningDuration = RED_WARNINGS.length * 350 + 600;
+          setTimeout(() => {
             setPhase('ready');
-            // 几乎立即显示按钮
             setTimeout(() => setShowButton(true), 250);
-          }
-        }, 180);
+          }, warningDuration);
+        }, glitchEnd);
       }
     };
 
@@ -209,13 +290,15 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
     }
   };
 
+  const isDangerPhase = phase === 'glitch' || phase === 'warning' || phase === 'ready';
+
   return (
     <div
       ref={containerRef}
       className="fixed inset-0 z-[1000] flex flex-col items-center justify-center overflow-hidden"
       style={{
         backgroundColor: bgColor,
-        animation: phase === 'danger' ? 'screen-shake 0.3s ease-in-out infinite' : 'none',
+        animation: screenShake ? 'screen-shake 0.2s ease-in-out infinite' : 'none',
       }}
     >
       {/* ===== 屏幕四周虚化暗角（进度100%时移除） ===== */}
@@ -233,55 +316,57 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundSize: '20px 20px',
-          backgroundImage: phase === 'danger'
-            ? `radial-gradient(circle, ${DANGER_RED}18 1px, transparent 1px)`
-            : 'radial-gradient(circle, #CBD5E1 1px, transparent 1px)',
-          opacity: phase === 'danger' ? 0.6 : 0.5,
-          transition: 'opacity 0.25s ease-out, background-image 0.25s ease-out',
+          backgroundImage: 'radial-gradient(circle, #CBD5E1 1px, transparent 1px)',
+          opacity: 0.5,
         }}
       />
 
-      {/* ===== 警报闪烁叠加层 ===== */}
-      <AnimatePresence>
-        {alarmFlash && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.35 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 pointer-events-none z-10"
-            style={{ backgroundColor: DANGER_RED }}
-          />
-        )}
-      </AnimatePresence>
+      {/* ===== 故障闪烁时的扫描线叠加（赛博朋克感） ===== */}
+      {glitchActive && (
+        <div
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{
+            background: `repeating-linear-gradient(
+              0deg,
+              transparent,
+              transparent 2px,
+              rgba(220,38,38,0.03) 2px,
+              rgba(220,38,38,0.03) 4px
+            )`,
+          }}
+        />
+      )}
 
       {/* ===== 主视觉区：ECG 心电图进度条 ===== */}
-      <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-4xl px-10">
-        {/* 标题 */}
+      <div className="relative z-20 flex flex-col items-center gap-8 w-full max-w-4xl px-10">
+        {/* 标题 — 故障闪烁 */}
         <motion.div
           className="text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          <h1
-            className="text-2xl font-bold tracking-[0.3em] uppercase mb-2"
-            style={{
-              color: phase === 'danger' ? DANGER_RED : '#1E293B',
-              fontFamily: "'JetBrains Mono', 'SimHei', monospace",
-              transition: 'color 0.25s ease-out',
-            }}
-          >
-            {SYSTEM_INFO.NAME}
+          <h1 className="text-2xl font-bold tracking-[0.3em] uppercase mb-2">
+            <GlitchText
+              text={SYSTEM_INFO.NAME}
+              active={glitchActive}
+              color={isDangerPhase ? DANGER_RED : '#1E293B'}
+              className="text-2xl font-bold tracking-[0.3em] uppercase"
+            />
           </h1>
           <p
             className="text-[10px] tracking-[0.2em] uppercase"
             style={{
-              color: phase === 'danger' ? `${DANGER_RED}99` : '#94A3B8',
+              color: isDangerPhase ? `${DANGER_RED}99` : '#94A3B8',
               transition: 'color 0.25s ease-out',
             }}
           >
-            {SYSTEM_INFO.BUILD}
+            <GlitchText
+              text={SYSTEM_INFO.BUILD}
+              active={glitchActive}
+              color={isDangerPhase ? `${DANGER_RED}99` : '#94A3B8'}
+              className="text-[10px] tracking-[0.2em] uppercase"
+            />
           </p>
         </motion.div>
 
@@ -302,13 +387,13 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
                 y1={(svgSize.height / 5) * i}
                 x2={svgSize.width}
                 y2={(svgSize.height / 5) * i}
-                stroke={phase === 'danger' ? `${DANGER_RED}15` : '#CBD5E1'}
+                stroke={'#CBD5E1'}
                 strokeWidth={0.5}
                 strokeDasharray="4 4"
               />
             ))}
 
-            {/* ECG 波形路径 — 使用 stroke-dasharray 实现绘制动画 */}
+            {/* ECG 波形路径 */}
             <path
               ref={pathRef}
               d={ecgPath}
@@ -319,12 +404,10 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
               strokeLinejoin="round"
               strokeDasharray={pathLen}
               strokeDashoffset={pathLen * (1 - progress / 100)}
-              style={{
-                transition: 'stroke 0.25s ease-out',
-              }}
+              style={{ transition: 'stroke 0.25s ease-out' }}
             />
 
-            {/* ECG 发光轨迹（更粗、半透明，跟随主线） */}
+            {/* ECG 发光轨迹 */}
             <path
               d={ecgPath}
               fill="none"
@@ -335,10 +418,7 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
               opacity={0.25}
               strokeDasharray={pathLen}
               strokeDashoffset={pathLen * (1 - progress / 100)}
-              style={{
-                filter: `blur(3px)`,
-                transition: 'stroke 0.25s ease-out',
-              }}
+              style={{ filter: 'blur(3px)', transition: 'stroke 0.25s ease-out' }}
             />
           </svg>
 
@@ -347,7 +427,7 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
             <span
               className="text-sm font-mono font-bold tabular-nums"
               style={{
-                color: phase === 'danger' ? DANGER_RED : '#64748B',
+                color: isDangerPhase ? DANGER_RED : '#64748B',
                 transition: 'color 0.25s ease-out',
               }}
             >
@@ -356,34 +436,84 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
           </div>
         </div>
 
-        {/* 状态标签 — 固定高度避免文本/按钮切换时跳动 */}
-        <div className="flex flex-col items-center gap-3 mt-4" style={{ minHeight: 80 }}>
-          <div className="flex items-center gap-3">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{
-                backgroundColor: phase === 'danger' ? DANGER_RED : ECG_BLUE,
-                boxShadow: phase === 'danger'
-                  ? `0 0 10px ${DANGER_RED}, 0 0 20px ${DANGER_RED}60`
-                  : `0 0 8px ${ECG_BLUE}80`,
-                transition: 'all 0.25s ease-out',
-                animation: phase === 'danger' ? 'pulse-red 0.8s ease-in-out infinite' : 'pulse-blue 2s ease-in-out infinite',
-              }}
-            />
-            <span
-              className="text-[11px] uppercase font-bold tracking-[0.15em] font-mono whitespace-nowrap"
-              style={{
-                color: phase === 'danger' ? DANGER_RED : '#64748B',
-                transition: 'color 0.25s ease-out',
-              }}
-            >
-              {phase === 'loading' && 'MONITORING BIOSIGNAL...'}
-              {phase === 'danger' && '⚠ BIOHAZARD DETECTED ⚠'}
-              {phase === 'ready' && '◈ SYSTEM ALERT — PANDEMIC CRISIS ◈'}
-            </span>
-          </div>
+        {/* ===== 红色警告文字 — 故障闪烁结束后，标题下方逐行浮现 ===== */}
+        <div className="flex flex-col items-center gap-2 mt-2" style={{ minHeight: 72 }}>
+          <AnimatePresence>
+            {visibleWarnings.map((i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -30, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="flex items-center gap-2"
+              >
+                {/* 红色闪烁指示灯 */}
+                <div
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{
+                    backgroundColor: DANGER_RED,
+                    boxShadow: `0 0 6px ${DANGER_RED}, 0 0 12px ${DANGER_RED}50`,
+                    animation: 'pulse-red 1s ease-in-out infinite',
+                  }}
+                />
+                <span
+                  className="text-[10px] font-mono font-bold tracking-wider"
+                  style={{
+                    color: DANGER_RED,
+                    textShadow: `0 0 8px ${DANGER_RED}40`,
+                  }}
+                >
+                  {RED_WARNINGS[i]}
+                </span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
 
-          {/* 进入按钮 — 绝对定位，不影响布局流 */}
+        {/* 状态标签 + 进入按钮 */}
+        <div className="flex flex-col items-center gap-3 mt-2" style={{ minHeight: 56 }}>
+          {/* 阶段一：加载中指示器 */}
+          {phase === 'loading' && (
+            <div className="flex items-center gap-3">
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{
+                  backgroundColor: ECG_BLUE,
+                  boxShadow: `0 0 8px ${ECG_BLUE}80`,
+                  animation: 'pulse-blue 2s ease-in-out infinite',
+                }}
+              />
+              <span
+                className="text-[11px] uppercase font-bold tracking-[0.15em] font-mono whitespace-nowrap"
+                style={{ color: '#64748B' }}
+              >
+                MONITORING BIOSIGNAL...
+              </span>
+            </div>
+          )}
+
+          {/* 阶段二/三：故障闪烁时 / 警告显示时 — 红色状态指示 */}
+          {(phase === 'glitch' || phase === 'warning') && (
+            <div className="flex items-center gap-3">
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{
+                  backgroundColor: DANGER_RED,
+                  boxShadow: `0 0 10px ${DANGER_RED}, 0 0 20px ${DANGER_RED}60`,
+                  animation: 'pulse-red 0.8s ease-in-out infinite',
+                }}
+              />
+              <span
+                className="text-[11px] uppercase font-bold tracking-[0.15em] font-mono whitespace-nowrap"
+                style={{ color: DANGER_RED }}
+              >
+                {phase === 'glitch' && '⚠ BIOHAZARD DETECTED ⚠'}
+                {phase === 'warning' && '⚠ CONTAINMENT BREACH ⚠'}
+              </span>
+            </div>
+          )}
+
+          {/* 进入按钮 */}
           <div className="relative" style={{ width: 240, height: 52 }}>
             <AnimatePresence>
               {showButton && (
@@ -409,11 +539,11 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
         </div>
       </div>
 
-      {/* ===== 底部信息（极淡） ===== */}
+      {/* ===== 底部信息 ===== */}
       <div
         className="absolute bottom-6 z-10 font-mono text-[9px] tracking-wider uppercase"
         style={{
-          color: phase === 'danger' ? `${DANGER_RED}50` : '#94A3B8',
+          color: isDangerPhase ? `${DANGER_RED}50` : '#94A3B8',
           opacity: 0.4,
           transition: 'color 0.25s ease-out',
         }}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { MapContainer, TileLayer, GeoJSON, LayersControl, useMap } from 'react-leaflet';
+import { MapContainer, GeoJSON, LayersControl, useMap } from 'react-leaflet';
 import { motion } from 'framer-motion';
 import type { FeatureCollection, Feature } from 'geojson';
 import L from 'leaflet';
@@ -10,6 +10,7 @@ import {
 } from '../constants';
 import type { EuropeSiteProperties, EuropeStats } from '../constants';
 import { CyberpunkPanel, useMouseTilt } from './HUD';
+import ResilientTileLayer from './ResilientTileLayer';
 
 // ============================================================
 // Props：支持外部预加载数据以消除导航时的加载闪烁
@@ -48,7 +49,7 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
         <StatLine label="总爆发记录" value={`${stats.total_records}`} color={MED_COLORS.VIOLET} />
         <StatLine label="时间跨度" value={stats.year_range} color={MED_COLORS.ORANGE} />
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-          <div style={{ fontSize: 8, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
+          <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
             最严重疫点 TOP 3
           </div>
           {stats.top_cities.slice(0, 3).map((loc, i) => (
@@ -62,7 +63,7 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
         </div>
         {stats.century_stats && (
           <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-            <div style={{ fontSize: 8, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
+            <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
               按世纪分布
             </div>
             {Object.entries(stats.century_stats)
@@ -88,7 +89,7 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
 
 const StatLine: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-    <span style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>{label}</span>
+    <span style={{ fontSize: 10, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>{label}</span>
     <span style={{ fontSize: 10, color, fontWeight: 700 }}>{value}</span>
   </div>
 );
@@ -100,7 +101,7 @@ const MapLegend: React.FC = () => {
   return (
     <CyberpunkPanel title="图例" color={MED_COLORS.BLUE} style={{ bottom: 24, left: 24 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-        <div style={{ fontSize: 8, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
+        <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
           世纪颜色
         </div>
         {Object.entries(CENTURY_LABELS).map(([century, label]) => {
@@ -114,12 +115,12 @@ const MapLegend: React.FC = () => {
                 borderRadius: '50%',
                 border: `1px solid ${MED_COLORS.GRAY_MID}`,
               }} />
-              <span style={{ color: MED_COLORS.TEXT, fontSize: 10 }}>{label}</span>
+              <span style={{ color: MED_COLORS.TEXT, fontSize: 9 }}>{label}</span>
             </div>
           );
         })}
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-          <div style={{ fontSize: 8, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
+          <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
             爆发频率 (大小)
           </div>
           {[
@@ -137,7 +138,7 @@ const MapLegend: React.FC = () => {
                 border: `1px solid ${MED_COLORS.BLUE}`,
                 flexShrink: 0,
               }} />
-              <span style={{ color: MED_COLORS.TEXT, fontSize: 10 }}>{label}</span>
+              <span style={{ color: MED_COLORS.TEXT, fontSize: 9 }}>{label}</span>
             </div>
           ))}
         </div>
@@ -302,10 +303,14 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
           zoomControl={false}
           attributionControl={false}
         >
-          {/* 底图 — 与东北页面一致的 CartoDB Light */}
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+          {/* 底图 — 与东北页面一致，多源容错 */}
+          <ResilientTileLayer
+            sources={[
+              'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+            ]}
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
           />
 
           <LayersControl position="topright">
@@ -404,16 +409,16 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
             href="https://doi.org/10.1093/cid/cis723"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 8 }}
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 9 }}
           >
             DOI: 10.1093/cid/cis723
           </a>
-          <span style={{ color: MED_COLORS.GRAY_LIGHT, fontSize: 8, margin: '0 4px' }}>|</span>
+          <span style={{ color: MED_COLORS.GRAY_LIGHT, fontSize: 9, margin: '0 4px' }}>|</span>
           <a
             href="https://opendata.swiss/en/dataset/digitizing-historical-plague"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 8 }}
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 9 }}
           >
             opendata.swiss
           </a>
