@@ -1095,13 +1095,232 @@ export const CyberpunkPanel: React.FC<{
 };
 
 // ============================================================
+// 终端日志流 — 代码流逐行加载效果
+// 用于总览页面生命体征面板下方，模拟系统实时诊断日志
+// ============================================================
+
+/** 日志行类型 */
+interface LogEntry {
+  id: number;
+  text: string;
+  type: 'info' | 'success' | 'warn' | 'highlight' | 'header';
+}
+
+/** 初始启动日志序列 */
+const INITIAL_LOG: LogEntry[] = [
+  { id: 1,  text: '╔══════════════════════════════════════════════════════════╗', type: 'header' },
+  { id: 2,  text: '║  PESTIS TERMINAL — 实时疫情监测诊断系统 v4.1-MED        ║', type: 'header' },
+  { id: 3,  text: '╚══════════════════════════════════════════════════════════╝', type: 'header' },
+  { id: 4,  text: '', type: 'info' },
+  { id: 5,  text: '[SYS] ◈ 时空锚点状态: 已脱离 — 历史数据回溯模式', type: 'highlight' },
+  { id: 6,  text: '[SYS] 生物安全等级: BSL-4 — 最高防护', type: 'warn' },
+  { id: 7,  text: '', type: 'info' },
+  { id: 8,  text: '[DB] 加载东北鼠疫数据集 (1910-1911)............... OK', type: 'success' },
+  { id: 9,  text: '[DB] 加载欧洲鼠疫数据集 (1347-1853)............... OK', type: 'success' },
+  { id: 10, text: '[DB] 鼠疫耶尔森菌株数据: 130 疫区已索引', type: 'success' },
+  { id: 11, text: '[DB] 死亡统计数据: 56,287 条记录已载入', type: 'warn' },
+  { id: 12, text: '', type: 'info' },
+  { id: 13, text: '[GIS] 地图投影: Xian 1980 → WGS84 重投影完成', type: 'success' },
+  { id: 14, text: '[GIS] 瓦片服务器: 在线 — 延迟 12ms', type: 'success' },
+  { id: 15, text: '[GIS] 东北疫区多边形: 130 regions loaded', type: 'success' },
+  { id: 16, text: '[GIS] 欧洲城市坐标: 6,926 records indexed', type: 'success' },
+  { id: 17, text: '', type: 'info' },
+  { id: 18, text: '[MED] 疫情传播模型: SIR-Spatial 已就绪', type: 'success' },
+  { id: 19, text: '[MED] 病原体分析引擎: Y. pestis — 3 种生物变型', type: 'info' },
+  { id: 20, text: '[MED] 肺鼠疫死亡率: 95-100% | 腺鼠疫: 40-60% | 败血症: 100%', type: 'warn' },
+  { id: 21, text: '', type: 'info' },
+  { id: 22, text: '[SEC] 隔离协议: ACTIVE — 跨时空防火墙已启用', type: 'success' },
+  { id: 23, text: '[SEC] 生物危害遏制场: NOMINAL — 稳定', type: 'success' },
+  { id: 24, text: '', type: 'info' },
+  { id: 25, text: '>>> 所有子系统在线 — 监测已激活 <<<', type: 'highlight' },
+  { id: 26, text: '>>> 等待管理员指令... <<<', type: 'info' },
+];
+
+/** 持续生成的随机日志模板 */
+const STREAM_TEMPLATES: Array<{ text: string; type: LogEntry['type'] }> = [
+  { text: '[MON] 东北疫区 #{n} 生命体征扫描完成 — 正常', type: 'success' },
+  { text: '[MON] 欧洲城市 #{n} 历史记录校验通过', type: 'success' },
+  { text: '[MON] Y. pestis 菌株 #{n} 基因组比对: 99.7% 匹配', type: 'info' },
+  { text: '[MON] 时空坐标 #{n} 锚定波动 — 已自动修正', type: 'info' },
+  { text: '[MON] 死亡率异常检测: 区域 #{n} 超出阈值 (>{p}%)', type: 'warn' },
+  { text: '[MON] 生物传感器 #{n} 校准完成 — 漂移 0.02%', type: 'success' },
+  { text: '[MON] 跨时空数据链路 #{n} 握手成功 — 延迟 {p}ms', type: 'success' },
+  { text: '[MON] 疫情扩散模拟 #{n} 迭代完成 — R₀={p}', type: 'info' },
+  { text: '[MON] 检疫节点 #{n} 状态检查: 全部通过', type: 'success' },
+  { text: '[MON] 数据库碎片整理 #{n} — 优化完成', type: 'info' },
+  { text: '[MON] 异常数据点 #{n} 已标记 — 需人工复核', type: 'warn' },
+  { text: '[MON] GIS 图层 #{n} 渲染缓存已刷新', type: 'success' },
+  { text: '[MON] 接触者追踪网络 #{n} 拓扑更新完成', type: 'info' },
+  { text: '[MON] 生物危害传感器 #{n} 读数: {p} ppm — 安全范围', type: 'success' },
+  { text: '[MON] 量子纠缠通信 #{n} 链路验证: STABLE', type: 'success' },
+  { text: '[MON] 历史数据交叉校验 #{n} — 一致性 98.3%', type: 'info' },
+  { text: '[MON] 预警阈值 #{n} 动态调整 — 当前: {p}', type: 'info' },
+  { text: '[MON] 医疗资源分配模型 #{n} 优化迭代完成', type: 'success' },
+  { text: '[MON] 鼠蚤媒介监测 #{n} — 密度正常', type: 'success' },
+  { text: '[MON] 肺鼠疫潜伏期模型 #{n} — 参数更新', type: 'info' },
+];
+
+let globalLogId = 1000;
+
+const generateStreamEntry = (): LogEntry => {
+  const template = STREAM_TEMPLATES[Math.floor(Math.random() * STREAM_TEMPLATES.length)];
+  const n = Math.floor(Math.random() * 9999) + 1;
+  const p = Math.floor(Math.random() * 95) + 1;
+  const text = template.text
+    .replace(/\{n\}/g, String(n).padStart(4, '0'))
+    .replace(/\{p\}/g, String(p));
+  return { id: globalLogId++, text, type: template.type };
+};
+
+export const LogStream: React.FC<{
+  maxLines?: number;
+  autoScroll?: boolean;
+  className?: string;
+}> = ({ maxLines = 50, autoScroll = true, className = '' }) => {
+  const [lines, setLines] = useState<LogEntry[]>([]);
+  const [initIndex, setInitIndex] = useState(0);
+  const [initComplete, setInitComplete] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // 初始日志逐行加载
+  useEffect(() => {
+    if (initIndex < INITIAL_LOG.length) {
+      const delay = INITIAL_LOG[initIndex].text === '' ? 120 : 80 + Math.random() * 100;
+      const timer = setTimeout(() => {
+        setLines(prev => [...prev, INITIAL_LOG[initIndex]]);
+        setInitIndex(prev => prev + 1);
+      }, delay);
+      timersRef.current.push(timer);
+      return () => { timer && clearTimeout(timer); };
+    } else if (!initComplete) {
+      const timer = setTimeout(() => setInitComplete(true), 600);
+      timersRef.current.push(timer);
+      return () => clearTimeout(timer);
+    }
+  }, [initIndex, initComplete]);
+
+  // 初始完成后持续生成新日志行
+  useEffect(() => {
+    if (!initComplete) return;
+
+    const addLine = () => {
+      setLines(prev => {
+        const next = [...prev, generateStreamEntry()];
+        if (next.length > maxLines) {
+          return next.slice(next.length - maxLines);
+        }
+        return next;
+      });
+    };
+
+    const scheduleNext = () => {
+      const delay = 600 + Math.random() * 1900;
+      const timer = setTimeout(() => {
+        addLine();
+        scheduleNext();
+      }, delay);
+      timersRef.current.push(timer);
+    };
+
+    scheduleNext();
+
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+    };
+  }, [initComplete, maxLines]);
+
+  // 自动滚动到底部
+  useEffect(() => {
+    if (autoScroll && containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [lines, autoScroll]);
+
+  // 组件卸载清理
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const getLineStyle = (type: LogEntry['type']): React.CSSProperties => {
+    switch (type) {
+      case 'header':
+        return { color: '#64748B', opacity: 0.7 };
+      case 'success':
+        return { color: '#22C55E' };
+      case 'warn':
+        return { color: '#F97316' };
+      case 'highlight':
+        return { color: '#3B82F6', fontWeight: 700 };
+      case 'info':
+      default:
+        return { color: '#94A3B8' };
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={`font-mono text-[9px] leading-relaxed overflow-y-auto border rounded h-full ${className}`}
+      style={{
+        backgroundColor: '#FFFFFF',
+        borderColor: MED_COLORS.GRAY_MID,
+        fontFamily: "'JetBrains Mono', 'Consolas', 'SimHei', monospace",
+        padding: '12px 16px',
+        scrollBehavior: 'smooth',
+      }}
+    >
+      {lines.length === 0 && (
+        <div className="flex items-center gap-2" style={{ color: MED_COLORS.BLUE }}>
+          <motion.div
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1, repeat: Infinity }}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: MED_COLORS.BLUE }}
+          />
+          <span>正在初始化诊断系统...</span>
+        </div>
+      )}
+      {lines.map((line, idx) => (
+        <motion.div
+          key={line.id}
+          initial={{ opacity: 0, x: -4 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+          className="whitespace-pre-wrap break-all"
+          style={{
+            ...getLineStyle(line.type),
+            lineHeight: '1.6',
+          }}
+        >
+          {line.text === '' ? ' ' : line.text}
+          {idx === lines.length - 1 && line.text !== '' && (
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.6, repeat: Infinity }}
+              style={{ color: MED_COLORS.BLUE }}
+            >
+              █
+            </motion.span>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// ============================================================
 // 终端状态栏 — 赛博朋克医疗监视仪器 HUD
 // 单行嵌入式，无边框无面板，数据直接印在页面上
 // ============================================================
 
 export const TerminalStatusBar: React.FC<{
   context?: 'dashboard' | 'china' | 'europe' | 'analysis';
-}> = ({ context = 'dashboard' }) => {
+  className?: string;
+}> = ({ context = 'dashboard', className = '' }) => {
   const contextCoord: Record<string, string> = {
     dashboard: 'SYS: ORIGIN',
     china:     '43.5°N 124.0°E',
@@ -1113,9 +1332,8 @@ export const TerminalStatusBar: React.FC<{
 
   return (
     <div
-      className="absolute top-0 left-0 z-[1000] pointer-events-none"
+      className={`pointer-events-none ${className}`}
       style={{
-        padding: '10px 0 0 16px',
         fontFamily: "'JetBrains Mono','SimHei',monospace",
         whiteSpace: 'nowrap',
         userSelect: 'none',
@@ -1171,16 +1389,6 @@ export const TerminalStatusBar: React.FC<{
           ◈ MONITORING
         </span>
       </div>
-
-      {/* 底部 1px 渐变分隔线 */}
-      <div
-        className="mt-1.5"
-        style={{
-          width: '72%',
-          height: 1,
-          background: `linear-gradient(to right, ${MED_COLORS.GRAY_LIGHT}18, transparent)`,
-        }}
-      />
     </div>
   );
 };

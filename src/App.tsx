@@ -134,9 +134,6 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen overflow-hidden select-none relative flex flex-col" style={{ backgroundColor: MED_COLORS.BG }}>
-      {/* ===== 左上角科幻终端状态栏 ===== */}
-      <TerminalStatusBar context={statusContext} />
-
       <CursorScanner />
 
       {/* 背景数据流 */}
@@ -146,15 +143,16 @@ const App: React.FC = () => {
 
       <ParallaxWrapper>
         <div className="h-screen w-screen flex flex-col relative z-10 pointer-events-none">
-          {/* ===== Header — 极简导航栏 ===== */}
+          {/* ===== Header — 极简导航栏（含左上角终端状态栏） ===== */}
           <header
-            className="h-12 border-b flex items-center justify-end px-6 z-30 pointer-events-auto"
+            className="h-12 flex items-center justify-between px-6 z-30 pointer-events-auto"
             style={{
-              borderColor: MED_COLORS.GRAY_MID,
               backgroundColor: 'rgba(245,247,250,0.88)',
               backdropFilter: 'blur(12px)',
             }}
           >
+            {/* 左上角科幻终端状态栏 — 与导航栏同一层级 */}
+            <TerminalStatusBar context={statusContext} />
 
             {/* 导航 */}
             <nav className="flex items-center gap-4">
@@ -192,8 +190,15 @@ const App: React.FC = () => {
             </nav>
           </header>
 
+          {/* 左半截淡线 — 仅左侧延续 terminal 状态栏的视觉节奏 */}
+          <div
+            className="h-[1px] w-1/2 pointer-events-none"
+            style={{ backgroundColor: MED_COLORS.GRAY_MID, opacity: 0.5 }}
+          />
+
           {/* ===== 主内容区 ===== */}
           <main className="flex-1 relative z-20 pointer-events-auto overflow-hidden">
+            <FrameCorners />
             <AnimatePresence mode="wait">
               {renderContent()}
             </AnimatePresence>
@@ -228,6 +233,33 @@ const App: React.FC = () => {
         </div>
       </ParallaxWrapper>
     </div>
+  );
+};
+
+/** 四角 L 形相框装饰线 — 随内容区浮动，限定在 header/footer 之间 */
+const FrameCorners: React.FC = () => {
+  const CORNER_SIZE = 24;
+  const LINE_WIDTH = 2;
+  const GAP = 0;
+  const COLOR = '#64748B';
+  const OPACITY = 0.55;
+
+  const corner: React.CSSProperties = {
+    position: 'absolute',
+    width: CORNER_SIZE,
+    height: CORNER_SIZE,
+    pointerEvents: 'none',
+    zIndex: 50,
+    opacity: OPACITY,
+  };
+
+  return (
+    <>
+      <div style={{ ...corner, top: GAP, left: GAP,    borderTop: `${LINE_WIDTH}px solid ${COLOR}`, borderLeft: `${LINE_WIDTH}px solid ${COLOR}` }} />
+      <div style={{ ...corner, top: GAP, right: GAP,   borderTop: `${LINE_WIDTH}px solid ${COLOR}`, borderRight: `${LINE_WIDTH}px solid ${COLOR}` }} />
+      <div style={{ ...corner, bottom: GAP, left: GAP,  borderBottom: `${LINE_WIDTH}px solid ${COLOR}`, borderLeft: `${LINE_WIDTH}px solid ${COLOR}` }} />
+      <div style={{ ...corner, bottom: GAP, right: GAP, borderBottom: `${LINE_WIDTH}px solid ${COLOR}`, borderRight: `${LINE_WIDTH}px solid ${COLOR}` }} />
+    </>
   );
 };
 

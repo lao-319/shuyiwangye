@@ -9,6 +9,7 @@ import {
   ECGLine,
   AlertBanner,
   StatusIndicator,
+  LogStream,
 } from './HUD';
 import type { PlagueData } from '../types';
 
@@ -53,7 +54,7 @@ export const Dashboard: React.FC = () => {
 
   return (
     <PageTransition keyValue="dashboard">
-      <div className="h-full overflow-y-auto p-6 space-y-6">
+      <div className="h-full flex flex-col p-6">
         {/* 警报横幅 */}
         <AlertBanner
           level="WARNING"
@@ -62,7 +63,7 @@ export const Dashboard: React.FC = () => {
         />
 
         {/* 第一行：核心统计卡片 */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4 mt-5">
           <StatCard
             title="东北鼠疫疫区数"
             value={chinaStats?.total_regions ?? '--'}
@@ -94,7 +95,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* 第二行：生命体征面板 + 严重度 */}
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-6 mt-5">
           {/* 左侧：生命体征面板 */}
           <div className="col-span-2 border p-5 space-y-4 rounded" style={{ borderColor: MED_COLORS.GRAY_MID, backgroundColor: '#FFFFFF' }}>
             <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: MED_COLORS.GRAY_MID }}>
@@ -183,8 +184,13 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* 第三行：数据来源 */}
-        <div className="border-t pt-3" style={{ borderColor: MED_COLORS.GRAY_MID }}>
+        {/* 第三行：终端代码流 — 填充生命体征面板下方空白，逐行加载系统诊断日志 */}
+        <div className="mt-5 flex-1 min-h-0">
+          <LogStream />
+        </div>
+
+        {/* 第四行：数据来源 */}
+        <div className="border-t pt-3 mt-5" style={{ borderColor: MED_COLORS.GRAY_MID }}>
           <div className="flex justify-between text-[8px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
             <span>东北大鼠疫数据: 刘晓峥,龚胜生 (2025) DOI:10.3974/geodb.2025.01.06.V1</span>
             <span>欧洲鼠疫数据: Büntgen et al. (2012) DOI:10.1093/cid/cis723 — opendata.swiss</span>
