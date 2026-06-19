@@ -9,7 +9,7 @@ import {
   ANIMATION,
 } from '../constants';
 import type { RegionProperties, SiteProperties, PlagueStats } from '../constants';
-import { CyberpunkTitle, CyberpunkPanel, useMouseTilt } from './HUD';
+import { CyberpunkPanel, useMouseTilt } from './HUD';
 import ChinaBoundary from './ChinaBoundary';
 import SouthChinaSeaInset from './SouthChinaSeaInset';
 import { extractSortedDates, dateToEpoch } from '../utils/dateUtils';
@@ -608,13 +608,6 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
           </a>
         </div>
       </CyberpunkPanel>
-
-      {/* 赛博朋克可折叠标题 — 自动收回/悬浮展开 */}
-      <CyberpunkTitle
-        text="东北 · 肺鼠疫 1910-1911"
-        subtext="GIS Projection: Xian 1980 → WGS84 | 疫情传播时间轴"
-        color={MED_COLORS.BLUE}
-      />
 
       {/* 南海诸岛缩略图 */}
       <SouthChinaSeaInset />

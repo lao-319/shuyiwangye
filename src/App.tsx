@@ -13,10 +13,9 @@ import {
   CursorScanner,
   DataFlow,
   InteractiveBox,
-  StatusIndicator,
   ParallaxWrapper,
-  VoiceWave,
   PageTransition,
+  TerminalStatusBar,
 } from './components/HUD';
 
 const App: React.FC = () => {
@@ -125,8 +124,19 @@ const App: React.FC = () => {
     );
   }
 
+  // 根据当前视图确定 TerminalStatusBar 上下文
+  const statusContext = (() => {
+    if (view === TerminalView.DASHBOARD) return 'dashboard' as const;
+    if (view === TerminalView.CHINA_MAP || view === TerminalView.CHINA_ANALYSIS || view === TerminalView.CHINA_REPORT) return 'china' as const;
+    if (view === TerminalView.EUROPE_MAP || view === TerminalView.EUROPE_ANALYSIS || view === TerminalView.EUROPE_REPORT) return 'europe' as const;
+    return 'analysis' as const;
+  })();
+
   return (
     <div className="h-screen w-screen overflow-hidden select-none relative flex flex-col" style={{ backgroundColor: MED_COLORS.BG }}>
+      {/* ===== 左上角科幻终端状态栏 ===== */}
+      <TerminalStatusBar context={statusContext} />
+
       <CursorScanner />
 
       {/* 背景数据流 */}
@@ -136,42 +146,15 @@ const App: React.FC = () => {
 
       <ParallaxWrapper>
         <div className="h-screen w-screen flex flex-col relative z-10 pointer-events-none">
-          {/* ===== Header ===== */}
+          {/* ===== Header — 极简导航栏 ===== */}
           <header
-            className="h-16 border-b flex items-center justify-between px-6 z-30 pointer-events-auto"
+            className="h-12 border-b flex items-center justify-end px-6 z-30 pointer-events-auto"
             style={{
               borderColor: MED_COLORS.GRAY_MID,
               backgroundColor: 'rgba(245,247,250,0.88)',
               backdropFilter: 'blur(12px)',
             }}
           >
-            {/* Logo + 系统名 */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div
-                  className="w-10 h-10 border-2 flex items-center justify-center font-bold text-xl"
-                  style={{
-                    borderColor: MED_COLORS.BLUE,
-                    color: MED_COLORS.BLUE,
-                    boxShadow: `0 0 12px ${MED_COLORS.BLUE}20`,
-                  }}
-                >
-                  P
-                </div>
-                <div
-                  className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full animate-ping"
-                  style={{ backgroundColor: MED_COLORS.RED }}
-                />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tighter uppercase leading-none" style={{ color: MED_COLORS.BLUE }}>
-                  {SYSTEM_INFO.NAME}
-                </h1>
-                <p className="text-[8px] uppercase tracking-[0.2em] mt-0.5 opacity-50" style={{ color: MED_COLORS.GRAY_LIGHT }}>
-                  {SYSTEM_INFO.BUILD}
-                </p>
-              </div>
-            </div>
 
             {/* 导航 */}
             <nav className="flex items-center gap-4">
@@ -216,35 +199,30 @@ const App: React.FC = () => {
             </AnimatePresence>
           </main>
 
-          {/* ===== Footer 状态栏 ===== */}
+          {/* ===== Footer — 极简终端信息行 ===== */}
           <footer
-            className="h-8 border-t flex items-center justify-between px-6 text-[9px] uppercase font-mono z-30 pointer-events-auto"
+            className="h-7 flex items-center justify-between px-6 text-[7px] uppercase font-mono z-30 pointer-events-auto"
             style={{
-              borderColor: MED_COLORS.GRAY_MID,
-              backgroundColor: 'rgba(245,247,250,0.92)',
+              backgroundColor: 'rgba(245,247,250,0.85)',
               color: MED_COLORS.GRAY_LIGHT,
-              backdropFilter: 'blur(8px)',
             }}
           >
-            <div className="flex gap-6">
-              <StatusIndicator label="Biosafety Level 4" active={true} color={MED_COLORS.GREEN} />
-              <StatusIndicator label="Temporal Anchor" active={true} color={MED_COLORS.BLUE} />
-              <span className="opacity-40">
-                <VoiceWave active={true} color={MED_COLORS.BLUE} />
-              </span>
+            <div className="flex items-center gap-3 opacity-30">
+              <span>PESTIS Terminal</span>
+              <span>·</span>
+              <span>{SYSTEM_INFO.VERSION}</span>
+              <span>·</span>
+              <span>{SYSTEM_INFO.BUILD}</span>
+              <span>·</span>
+              <span>CODENAME: {SYSTEM_INFO.CODENAME}</span>
+            </div>
+            <div className="flex items-center gap-4 opacity-25">
               {view === TerminalView.CHINA_MAP && (
-                <span>数据来源: 刘晓峥,龚胜生 (2025) DOI:10.3974/geodb.2025.01.06.V1</span>
+                <span>数据来源: Liu &amp; Gong (2025) DOI:10.3974/geodb.2025.01.06.V1</span>
               )}
               {view === TerminalView.EUROPE_MAP && (
-                <span>数据来源: Büntgen et al. (2012) DOI:10.1093/cid/cis723 — opendata.swiss</span>
+                <span>数据来源: Büntgen et al. (2012) DOI:10.1093/cid/cis723</span>
               )}
-            </div>
-            <div className="flex gap-5 opacity-50">
-              <span>NODES: 1,492,055</span>
-              <span>|</span>
-              <span>SYS:{new Date().toLocaleTimeString()}</span>
-              <span>|</span>
-              <span>{SYSTEM_INFO.VERSION}</span>
             </div>
           </footer>
         </div>

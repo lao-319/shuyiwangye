@@ -1093,3 +1093,94 @@ export const CyberpunkPanel: React.FC<{
     </div>
   );
 };
+
+// ============================================================
+// 终端状态栏 — 赛博朋克医疗监视仪器 HUD
+// 单行嵌入式，无边框无面板，数据直接印在页面上
+// ============================================================
+
+export const TerminalStatusBar: React.FC<{
+  context?: 'dashboard' | 'china' | 'europe' | 'analysis';
+}> = ({ context = 'dashboard' }) => {
+  const contextCoord: Record<string, string> = {
+    dashboard: 'SYS: ORIGIN',
+    china:     '43.5°N 124.0°E',
+    europe:    '48.0°N 10.0°E',
+    analysis:  'BIO-LVL: 4 ACTIVE',
+  };
+
+  const coord = contextCoord[context] || contextCoord.dashboard;
+
+  return (
+    <div
+      className="absolute top-0 left-0 z-[1000] pointer-events-none"
+      style={{
+        padding: '10px 0 0 16px',
+        fontFamily: "'JetBrains Mono','SimHei',monospace",
+        whiteSpace: 'nowrap',
+        userSelect: 'none',
+      }}
+    >
+      {/* 单行状态 */}
+      <div className="flex items-center gap-2.5 text-[9px] tracking-[0.04em]">
+        {/* 红色脉冲指示灯 */}
+        <div
+          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+          style={{
+            backgroundColor: MED_COLORS.RED,
+            boxShadow: `0 0 5px ${MED_COLORS.RED}, 0 0 10px ${MED_COLORS.RED}40`,
+            animation: 'pulse-red 1.2s ease-in-out infinite',
+          }}
+        />
+
+        {/* 设备名称 */}
+        <span className="font-bold text-[11px] tracking-[0.06em] uppercase" style={{ color: '#1E293B' }}>
+          PESTIS Terminal
+        </span>
+
+        {/* 版本号 */}
+        <span className="font-bold tracking-wider uppercase" style={{ color: MED_COLORS.BLUE, fontSize: '9px' }}>
+          v4.1-MED
+        </span>
+
+        <span className="opacity-20" style={{ color: MED_COLORS.GRAY_LIGHT }}>|</span>
+
+        {/* 生物安全等级 */}
+        <span className="uppercase tracking-wider font-bold" style={{ color: MED_COLORS.RED, opacity: 0.75, fontSize: '8px' }}>
+          BSL-4
+        </span>
+
+        <span className="opacity-20" style={{ color: MED_COLORS.GRAY_LIGHT }}>|</span>
+
+        {/* 坐标 */}
+        <span className="uppercase tracking-wider" style={{ color: MED_COLORS.GRAY_LIGHT, opacity: 0.5, fontSize: '8px' }}>
+          {coord}
+        </span>
+
+        <span className="opacity-20" style={{ color: MED_COLORS.GRAY_LIGHT }}>|</span>
+
+        {/* 病原体 */}
+        <span className="uppercase tracking-wider" style={{ color: MED_COLORS.ORANGE, opacity: 0.65, fontSize: '8px' }}>
+          Y. PESTIS
+        </span>
+
+        <span className="opacity-20" style={{ color: MED_COLORS.GRAY_LIGHT }}>|</span>
+
+        {/* 监测状态 */}
+        <span className="uppercase tracking-wider" style={{ color: MED_COLORS.GREEN, opacity: 0.6, fontSize: '8px' }}>
+          ◈ MONITORING
+        </span>
+      </div>
+
+      {/* 底部 1px 渐变分隔线 */}
+      <div
+        className="mt-1.5"
+        style={{
+          width: '72%',
+          height: 1,
+          background: `linear-gradient(to right, ${MED_COLORS.GRAY_LIGHT}18, transparent)`,
+        }}
+      />
+    </div>
+  );
+};

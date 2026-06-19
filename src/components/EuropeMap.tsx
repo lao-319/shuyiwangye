@@ -9,7 +9,7 @@ import {
   getOutbreakRadius, getOutbreakLabel,
 } from '../constants';
 import type { EuropeSiteProperties, EuropeStats } from '../constants';
-import { CyberpunkTitle, CyberpunkPanel, useMouseTilt } from './HUD';
+import { CyberpunkPanel, useMouseTilt } from './HUD';
 
 // ============================================================
 // Props：支持外部预加载数据以消除导航时的加载闪烁
@@ -420,12 +420,6 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
         </div>
       </CyberpunkPanel>
 
-      {/* 赛博朋克可折叠标题 */}
-      <CyberpunkTitle
-        text="欧洲 · 腺鼠疫 1347-1900"
-        subtext="GIS Projection: WGS84 | Historical Outbreak Survey"
-        color={MED_COLORS.BLUE}
-      />
     </div>
   );
 };

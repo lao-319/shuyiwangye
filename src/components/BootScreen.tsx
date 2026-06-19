@@ -255,31 +255,6 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
         )}
       </AnimatePresence>
 
-      {/* ===== 背景数据加载文本（极淡、低层级） ===== */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
-        style={{ opacity: 0.09 }}
-      >
-        <div className="w-full h-full flex items-start justify-center pt-20">
-          <div className="font-mono text-[11px] leading-relaxed space-y-0 max-w-2xl px-8">
-            <AnimatePresence>
-              {BOOT_SEQUENCE.filter(l => visibleLines.includes(l.id)).map((line) => (
-                <motion.div
-                  key={line.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ color: lineColor(line.type) }}
-                  className="whitespace-pre tracking-wide"
-                >
-                  {line.text || ' '}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
-
       {/* ===== 主视觉区：ECG 心电图进度条 ===== */}
       <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-4xl px-10">
         {/* 标题 */}
