@@ -28,7 +28,7 @@ const DataRow: React.FC<{
   emphasis?: boolean;
 }> = ({ label, value, emphasis }) => (
   <div
-    className="flex border-b py-1.5 px-1 text-[11px]"
+    className="flex border-b py-1.5 px-1 text-[13px]"
     style={{ borderColor: MED_COLORS.GRAY_DARK }}
   >
     <span
@@ -57,14 +57,14 @@ const InfoBlock: React.FC<{
     <div className="flex items-center gap-1.5 mb-1">
       <div className="w-1 h-3" style={{ backgroundColor: MED_COLORS.BLUE }} />
       <span
-        className="text-[11px] font-bold uppercase tracking-wider"
+        className="text-[13px] font-bold uppercase tracking-wider"
         style={{ color: MED_COLORS.BLUE }}
       >
         {title}
       </span>
     </div>
     <div
-      className="text-[10px] leading-relaxed pl-2.5"
+      className="text-[12px] leading-relaxed pl-2.5"
       style={{ color: MED_COLORS.TEXT }}
     >
       {children}
@@ -85,13 +85,13 @@ const TypePill: React.FC<{
     }}
   >
     <div
-      className="text-[10px] font-bold"
+      className="text-[12px] font-bold"
       style={{ color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT }}
     >
       {label}
     </div>
     <div
-      className="text-[8px] uppercase opacity-50"
+      className="text-[10px] uppercase opacity-50"
       style={{ color: MED_COLORS.GRAY_LIGHT }}
     >
       {sub}
@@ -101,7 +101,7 @@ const TypePill: React.FC<{
 
 const Footnote: React.FC<{ text: string }> = ({ text }) => (
   <div
-    className="text-[9px] mt-2 pt-1 border-t opacity-40 uppercase"
+    className="text-[11px] mt-2 pt-1 border-t opacity-40 uppercase"
     style={{ borderColor: MED_COLORS.GRAY_MID, color: MED_COLORS.GRAY_LIGHT }}
   >
     {text}
@@ -109,7 +109,7 @@ const Footnote: React.FC<{ text: string }> = ({ text }) => (
 );
 
 const StepItem: React.FC<{ step: string; label: string; desc: string }> = ({ step, label, desc }) => (
-  <div className="flex gap-2 text-[11px]">
+  <div className="flex gap-2 text-[13px]">
     <span className="font-mono font-bold flex-shrink-0" style={{ color: MED_COLORS.BLUE }}>{step}</span>
     <span className="font-bold flex-shrink-0 w-[56px]" style={{ color: MED_COLORS.TEXT }}>{label}</span>
     <span style={{ color: MED_COLORS.GRAY_LIGHT }}>{desc}</span>
@@ -117,7 +117,7 @@ const StepItem: React.FC<{ step: string; label: string; desc: string }> = ({ ste
 );
 
 const AntibioticItem: React.FC<{ label: string; sub: string }> = ({ label, sub }) => (
-  <div className="flex items-center gap-2 text-[11px]">
+  <div className="flex items-center gap-2 text-[13px]">
     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: MED_COLORS.BLUE }} />
     <span className="font-bold w-[72px]" style={{ color: MED_COLORS.BLUE }}>{label}</span>
     <span style={{ color: MED_COLORS.GRAY_LIGHT }}>{sub}</span>
@@ -126,7 +126,7 @@ const AntibioticItem: React.FC<{ label: string; sub: string }> = ({ label, sub }
 
 const AlertBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div
-    className="border p-2 text-[10px] uppercase tracking-wider font-bold"
+    className="border p-2 text-[12px] uppercase tracking-wider font-bold"
     style={{
       borderColor: MED_COLORS.BLUE,
       color: MED_COLORS.BLUE,
@@ -155,7 +155,7 @@ const ScanLineSVG: React.FC = () => (
 const ClassificationStamp: React.FC<{ level: string }> = ({ level }) => (
   <div className="absolute bottom-3 left-3 pointer-events-none" style={{ zIndex: 6 }}>
     <div
-      className="text-[8px] font-bold uppercase tracking-[0.2em] border px-2 py-0.5"
+      className="text-[10px] font-bold uppercase tracking-[0.2em] border px-2 py-0.5"
       style={{
         color: MED_COLORS.BLUE,
         borderColor: MED_COLORS.BLUE,
@@ -248,7 +248,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
 
           <div className="text-center space-y-1">
             <div
-              className="text-[10px] uppercase tracking-[0.2em] opacity-50"
+              className="text-[12px] uppercase tracking-[0.2em] opacity-50"
               style={{ color: MED_COLORS.BLUE }}
             >
               WORLD HEALTH ORGANIZATION
@@ -263,7 +263,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
               鼠疫 · 重要事实档案
             </h1>
             <div
-              className="text-[10px] uppercase tracking-wider"
+              className="text-[12px] uppercase tracking-wider"
               style={{ color: MED_COLORS.BLUE, opacity: 0.7 }}
             >
               Plague Fact Sheet
@@ -272,7 +272,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
 
           <div className="flex items-center gap-2 w-48">
             <div className="flex-1 h-px" style={{ backgroundColor: MED_COLORS.BLUE, opacity: 0.3 }} />
-            <span className="text-[8px] uppercase" style={{ color: MED_COLORS.BLUE, opacity: 0.6 }}>
+            <span className="text-[10px] uppercase" style={{ color: MED_COLORS.BLUE, opacity: 0.6 }}>
               CLASSIFIED
             </span>
             <div className="flex-1 h-px" style={{ backgroundColor: MED_COLORS.BLUE, opacity: 0.3 }} />
@@ -352,7 +352,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
             {['突然发烧', '寒战', '头痛', '身体疼痛', '虚弱乏力', '呕吐恶心'].map(s => (
               <div
                 key={s}
-                className="text-center py-1.5 rounded border text-[10px] font-bold"
+                className="text-center py-1.5 rounded border text-[12px] font-bold"
                 style={{
                   borderColor: `${MED_COLORS.BLUE}30`,
                   color: MED_COLORS.BLUE,
@@ -394,7 +394,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
           </InfoBlock>
 
           <div className="border p-2 space-y-1.5" style={{ borderColor: MED_COLORS.BLUE }}>
-            <div className="text-[9px] uppercase tracking-wider mb-1.5" style={{ color: MED_COLORS.BLUE }}>
+            <div className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: MED_COLORS.BLUE }}>
               ▸ 诊断检测流程
             </div>
             <div className="space-y-1">
@@ -482,10 +482,10 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
               backgroundColor: `${MED_COLORS.BLUE}06`,
             }}
           >
-            <div className="text-[10px] uppercase tracking-wider font-bold mb-1" style={{ color: MED_COLORS.BLUE }}>
+            <div className="text-[12px] uppercase tracking-wider font-bold mb-1" style={{ color: MED_COLORS.BLUE }}>
               ⚠ 灭蚤灭鼠顺序 — 绝不能颠倒！
             </div>
-            <div className="text-[11px]" style={{ color: MED_COLORS.TEXT }}>
+            <div className="text-[13px]" style={{ color: MED_COLORS.TEXT }}>
               必须先<Em>灭跳蚤</Em>再灭鼠。如果先灭鼠，跳蚤会离开死鼠身体跳到新的宿主（包括人类）身上，反而加速疫情传播。
             </div>
           </div>
@@ -511,7 +511,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
       renderContent: () => (
         <div className="space-y-3">
           <div
-            className="border p-2 text-[10px] font-bold text-center"
+            className="border p-2 text-[12px] font-bold text-center"
             style={{
               borderColor: MED_COLORS.BLUE,
               color: MED_COLORS.BLUE,
@@ -546,23 +546,23 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
 
           <InfoBlock title="鼠疫疫情的管理">
             <div className="space-y-1 mt-1">
-              <div className="text-[11px]" style={{ color: MED_COLORS.TEXT }}>
+              <div className="text-[13px]" style={{ color: MED_COLORS.TEXT }}>
                 <span style={{ fontWeight: 700, color: MED_COLORS.BLUE }}>1. 快速检测与报告：</span>
                 疑似病例立即上报当地卫生部门，启动应急响应。
               </div>
-              <div className="text-[11px]" style={{ color: MED_COLORS.TEXT }}>
+              <div className="text-[13px]" style={{ color: MED_COLORS.TEXT }}>
                 <span style={{ fontWeight: 700, color: MED_COLORS.BLUE }}>2. 隔离患者：</span>
                 肺鼠疫患者必须隔离至有效抗生素治疗 48 小时后。
               </div>
-              <div className="text-[11px]" style={{ color: MED_COLORS.TEXT }}>
+              <div className="text-[13px]" style={{ color: MED_COLORS.TEXT }}>
                 <span style={{ fontWeight: 700, color: MED_COLORS.BLUE }}>3. 接触者追踪：</span>
                 识别并评估所有密切接触者，给予预防性抗生素。
               </div>
-              <div className="text-[11px]" style={{ color: MED_COLORS.TEXT }}>
+              <div className="text-[13px]" style={{ color: MED_COLORS.TEXT }}>
                 <span style={{ fontWeight: 700, color: MED_COLORS.BLUE }}>4. 媒介控制：</span>
                 在疫区实施灭蚤和灭鼠，顺序必须为先灭蚤后灭鼠。
               </div>
-              <div className="text-[11px]" style={{ color: MED_COLORS.TEXT }}>
+              <div className="text-[13px]" style={{ color: MED_COLORS.TEXT }}>
                 <span style={{ fontWeight: 700, color: MED_COLORS.BLUE }}>5. 社区教育：</span>
                 向公众宣传鼠疫传播方式、症状识别和防护措施。
               </div>
@@ -593,7 +593,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
                 '更新感染尸体处理的个人防护装备方案',
                 '加强全球卫生应急准备和应对能力建设',
               ].map((t, i) => (
-                <div key={i} className="flex gap-2 text-[11px]">
+                <div key={i} className="flex gap-2 text-[13px]">
                   <span className="font-mono font-bold flex-shrink-0" style={{ color: MED_COLORS.BLUE }}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
@@ -613,12 +613,12 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
 
           <div className="space-y-1">
             <div
-              className="text-[9px] uppercase tracking-wider mb-1"
+              className="text-[11px] uppercase tracking-wider mb-1"
               style={{ color: MED_COLORS.BLUE }}
             >
               ▸ 参考来源
             </div>
-            <div className="text-[9px] space-y-0.5" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+            <div className="text-[11px] space-y-0.5" style={{ color: MED_COLORS.GRAY_LIGHT }}>
               <div>
                 [1] WHO Fact Sheet — Plague.{' '}
                 <span style={{ color: MED_COLORS.BLUE }}>who.int/zh/news-room/fact-sheets/detail/plague</span>
@@ -674,7 +674,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.85, y: 20 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            style={{ width: 520, height: 620, zIndex: 2 }}
+            style={{ width: 560, height: 660, zIndex: 2 }}
           >
             {/* 外部发光 */}
             <div
@@ -757,13 +757,13 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
                       }}
                     />
                     <span
-                      className="text-[11px] font-bold uppercase tracking-wider"
+                      className="text-[13px] font-bold uppercase tracking-wider"
                       style={{ color: MED_COLORS.BLUE }}
                     >
                       {page.title}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-[10px]">
+                  <div className="flex items-center gap-3 text-[12px]">
                     <span style={{ color: MED_COLORS.GRAY_LIGHT, opacity: 0.6 }}>
                       {currentPage + 1} / {pages.length}
                     </span>
@@ -779,7 +779,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
                 {/* 副标题 */}
                 {page.subtitle && (
                   <div
-                    className="text-[9px] uppercase tracking-[0.15em] mb-3 flex-shrink-0"
+                    className="text-[11px] uppercase tracking-[0.15em] mb-3 flex-shrink-0"
                     style={{
                       color: MED_COLORS.GRAY_LIGHT,
                       opacity: 0.5,
@@ -874,7 +874,7 @@ const PaginatedDoc: React.FC<PaginatedDocProps> = ({ visible, onClose }) => {
 
             {/* 键盘提示 */}
             <div
-              className="absolute -bottom-10 right-0 text-[8px] uppercase tracking-wider opacity-30"
+              className="absolute -bottom-10 right-0 text-[10px] uppercase tracking-wider opacity-30"
               style={{ color: MED_COLORS.GRAY_LIGHT, fontFamily: "'JetBrains Mono',monospace" }}
             >
               ← → 翻页 · ESC 关闭
