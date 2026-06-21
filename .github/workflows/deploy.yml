@@ -7,6 +7,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
@@ -20,12 +23,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: 安装依赖
-        run: npm install
+        run: npm ci
 
       - name: 构建
         run: npm run build
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v4
 
       - name: 上传构建产物
         uses: actions/upload-pages-artifact@v3
@@ -33,4 +40,5 @@ jobs:
           path: ./dist
 
       - name: 部署到 GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
