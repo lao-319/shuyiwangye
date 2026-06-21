@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MED_COLORS, SYSTEM_INFO, GeoIcons } from '../constants';
+import { TerminalView } from '../types';
 import {
   PageTransition,
   SeverityMeter,
@@ -13,7 +14,9 @@ import {
 } from './HUD';
 import type { PlagueData } from '../types';
 
-export const Dashboard: React.FC = () => {
+export const Dashboard: React.FC<{
+  onNavigate: (view: TerminalView, extra?: { autoShowDoc?: boolean }) => void;
+}> = ({ onNavigate }) => {
   const [data, setData] = useState<PlagueData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,13 +75,13 @@ export const Dashboard: React.FC = () => {
               <h3 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: MED_COLORS.BLUE }}>
                 ▸ 东北肺鼠疫 (1910–1911)
               </h3>
-              <p className="text-xs leading-relaxed mb-2" style={{ color: MED_COLORS.TEXT }}>
+              <p className="text-[13px] leading-relaxed mb-2" style={{ color: MED_COLORS.TEXT }}>
                 1910 年 10 月，满洲里首次发现鼠疫病例，病原体沿中东铁路迅速南下，在 6 个月内席卷东三省、
                 直隶、山东等北方诸省。这是人类历史上最后一次大规模的肺鼠疫大流行，由伍连德博士领导防疫，
                 开创了中国现代公共卫生体系。本次疫情共波及 <strong style={{ color: MED_COLORS.BLUE }}>{chinaStats?.total_regions ?? '—'}</strong> 个县/府级行政区，
                 累计造成 <strong style={{ color: MED_COLORS.RED }}>{totalDeaths.toLocaleString()}</strong> 人死亡。
               </p>
-              <div className="flex gap-3 text-[10px] flex-wrap" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+              <div className="flex gap-3 text-[11px] flex-wrap" style={{ color: '#64748B' }}>
                 <span>▸ 疫区: {chinaStats?.total_regions ?? '—'} 个</span>
                 <span>▸ 最严重: {chinaStats?.max_death_region ?? '—'} ({chinaStats?.max_death_count?.toLocaleString() ?? '—'}人)</span>
                 <span>▸ 数据来源: Liu &amp; Gong (2025)</span>
@@ -90,12 +93,12 @@ export const Dashboard: React.FC = () => {
               <h3 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: MED_COLORS.ORANGE }}>
                 ▸ 欧洲腺鼠疫 (1347–1853)
               </h3>
-              <p className="text-xs leading-relaxed mb-2" style={{ color: MED_COLORS.TEXT }}>
+              <p className="text-[13px] leading-relaxed mb-2" style={{ color: MED_COLORS.TEXT }}>
                 自 1347 年"黑死病"传入欧洲，鼠疫耶尔森菌在欧陆反复爆发达 500 余年。
                 数据集收录了欧洲 <strong style={{ color: MED_COLORS.ORANGE }}>{europeStats?.total_cities ?? '—'}</strong> 个城市的 <strong style={{ color: MED_COLORS.ORANGE }}>{europeStats?.total_records?.toLocaleString() ?? '—'}</strong> 条城市-年份爆发记录，
                 时间跨度从 {europeStats?.year_range ?? '—'}，涵盖中世纪晚期至工业革命初期的主要腺鼠疫流行事件。
               </p>
-              <div className="flex gap-3 text-[10px] flex-wrap" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+              <div className="flex gap-3 text-[11px] flex-wrap" style={{ color: '#64748B' }}>
                 <span>▸ 城市: {europeStats?.total_cities ?? '—'} 个</span>
                 <span>▸ 记录: {europeStats?.total_records?.toLocaleString() ?? '—'} 条</span>
                 <span>▸ 数据来源: Büntgen et al. (2012)</span>
@@ -169,19 +172,19 @@ export const Dashboard: React.FC = () => {
               <SeverityMeter level={severityLevel} label="THREAT LEVEL" />
 
               <div className="space-y-2 pt-2">
-                <div className="flex justify-between text-[9px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+                <div className="flex justify-between text-[10px] uppercase" style={{ color: '#64748B' }}>
                   <span>检测范围</span>
                   <span style={{ color: MED_COLORS.BLUE }}>跨时空 · 全球历史</span>
                 </div>
-                <div className="flex justify-between text-[9px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+                <div className="flex justify-between text-[10px] uppercase" style={{ color: '#64748B' }}>
                   <span>病原体</span>
                   <span style={{ color: MED_COLORS.ORANGE }}>Y. pestis · 鼠疫耶尔森菌</span>
                 </div>
-                <div className="flex justify-between text-[9px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+                <div className="flex justify-between text-[10px] uppercase" style={{ color: '#64748B' }}>
                   <span>疫病类型</span>
                   <span style={{ color: MED_COLORS.VIOLET }}>肺鼠疫 + 腺鼠疫</span>
                 </div>
-                <div className="flex justify-between text-[9px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+                <div className="flex justify-between text-[10px] uppercase" style={{ color: '#64748B' }}>
                   <span>时空锚点</span>
                   <span style={{ color: MED_COLORS.RED }}>已脱离 · 历史模式</span>
                 </div>
@@ -191,16 +194,17 @@ export const Dashboard: React.FC = () => {
             {/* 快速导航磁贴 — 医疗白底 + 左侧色彩点缀 + 右列空心边框 */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: '东北肺鼠疫地图', color: MED_COLORS.BLUE, variant: 'accent' as const, icon: <GeoIcons.MapPin /> },
-                { label: '欧洲腺鼠疫地图', color: MED_COLORS.ORANGE, variant: 'outlined' as const, icon: <GeoIcons.Globe /> },
-                { label: '疫情传播分析', color: MED_COLORS.VIOLET, variant: 'accent' as const, icon: <GeoIcons.Chart /> },
-                { label: '分析报告', color: MED_COLORS.GREEN, variant: 'outlined' as const, icon: <GeoIcons.Report /> },
+                { label: '东北肺鼠疫地图', color: MED_COLORS.BLUE,   variant: 'accent' as const, icon: <GeoIcons.MapPin />,  view: TerminalView.CHINA_MAP },
+                { label: '欧洲腺鼠疫地图', color: MED_COLORS.ORANGE, variant: 'outlined' as const, icon: <GeoIcons.Globe />,  view: TerminalView.EUROPE_MAP },
+                { label: '疫情传播分析',   color: MED_COLORS.VIOLET, variant: 'accent' as const, icon: <GeoIcons.Chart />,   view: TerminalView.CHINA_ANALYSIS },
+                { label: '分析报告',       color: MED_COLORS.GREEN,  variant: 'outlined' as const, icon: <GeoIcons.Report />,  view: TerminalView.CHINA_REPORT, autoShowDoc: true },
               ].map((item, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.1 }}
+                  onClick={() => onNavigate(item.view, item.autoShowDoc ? { autoShowDoc: true } : undefined)}
                   className="relative p-3 flex items-center gap-2.5 cursor-pointer transition-all duration-300 hover:scale-[1.03] overflow-hidden"
                   style={{
                     borderRadius: '5px',
@@ -218,7 +222,7 @@ export const Dashboard: React.FC = () => {
                   )}
                   <span className="flex-shrink-0" style={{ color: item.color }}>{item.icon}</span>
                   <span
-                    className="text-[9px] uppercase tracking-wider font-bold"
+                    className="text-[10px] uppercase tracking-wider font-bold"
                     style={{ color: '#334155' }}
                   >
                     {item.label}
@@ -236,7 +240,7 @@ export const Dashboard: React.FC = () => {
 
         {/* ===== 第四行：数据来源 ===== */}
         <div className="border-t pt-3 mt-5" style={{ borderColor: MED_COLORS.GRAY_MID }}>
-          <div className="flex justify-between text-[9px] uppercase" style={{ color: MED_COLORS.GRAY_LIGHT }}>
+          <div className="flex justify-between text-[10px] uppercase" style={{ color: '#64748B' }}>
             <span>东北大鼠疫数据: 刘晓峥, 龚胜生 (2025) DOI:10.3974/geodb.2025.01.06.V1</span>
             <span>欧洲鼠疫数据: Büntgen et al. (2012) DOI:10.1093/cid/cis723 — opendata.swiss</span>
           </div>

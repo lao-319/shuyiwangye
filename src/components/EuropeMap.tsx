@@ -389,7 +389,6 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
       <CyberpunkPanel
         title="数据来源"
         color={MED_COLORS.BLUE}
-        persistent={true}
         style={{ bottom: 24, right: 24 }}
       >
         <div style={{ fontSize: 9, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 280 }}>

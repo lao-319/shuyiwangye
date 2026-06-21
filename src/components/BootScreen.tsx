@@ -100,11 +100,9 @@ const DANGER_RED = '#DC2626';
 const DANGER_RED_DARK = '#991B1B';
 const ECG_BLUE = '#3B82F6';
 
-// ===== 红色警告行 =====
+// ===== 红色警告行（精简为一条核心警告） =====
 const RED_WARNINGS = [
   '⚠ BIOHAZARD ALERT — YERSINIA PESTIS DETECTED',
-  '⚠ CONTAINMENT BREACH — LEVEL 4 BIOSAFETY',
-  '⚠ PANDEMIC SPREAD — MORTALITY 56,287',
 ];
 
 // ===== 赛博朋克故障风闪烁文字组件 =====
@@ -267,8 +265,8 @@ export const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete })
             }, i * 350);
           });
 
-          // 警告显示完毕后 → ready
-          const warningDuration = RED_WARNINGS.length * 350 + 600;
+          // 警告显示完毕后 → ready（精简后单条警告缩短停留时间）
+          const warningDuration = RED_WARNINGS.length * 350 + 400;
           setTimeout(() => {
             setPhase('ready');
             setTimeout(() => setShowButton(true), 250);

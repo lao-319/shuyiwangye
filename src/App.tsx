@@ -21,6 +21,7 @@ import {
 const App: React.FC = () => {
   const [view, setView] = useState<TerminalView>(TerminalView.BOOT);
   const [showIntro, setShowIntro] = useState(true);
+  const [analysisAutoShowDoc, setAnalysisAutoShowDoc] = useState(false);
 
   // ============================================================
   // 地图数据预加载 — 启动画面结束后立即后台加载
@@ -70,15 +71,20 @@ const App: React.FC = () => {
     });
   }, [mapDataReady]);
 
-  const handleViewChange = (newView: TerminalView) => {
+  const handleViewChange = (newView: TerminalView, extra?: { autoShowDoc?: boolean }) => {
     setView(newView);
+    if (extra?.autoShowDoc) {
+      setAnalysisAutoShowDoc(true);
+    } else {
+      setAnalysisAutoShowDoc(false);
+    }
   };
 
   const renderContent = () => {
     // 每个分支都加上 key={view}，让 AnimatePresence 能正确追踪子元素切换
     switch (view) {
       case TerminalView.DASHBOARD:
-        return <Dashboard key={view} />;
+        return <Dashboard key={view} onNavigate={handleViewChange} />;
       case TerminalView.CHINA_MAP:
         return (
           <PageTransition key={view} keyValue={TerminalView.CHINA_MAP}>
@@ -90,9 +96,9 @@ const App: React.FC = () => {
           </PageTransition>
         );
       case TerminalView.CHINA_ANALYSIS:
-        return <AnalysisView key={view} keyValue={TerminalView.CHINA_ANALYSIS} />;
+        return <AnalysisView key={view} keyValue={TerminalView.CHINA_ANALYSIS} autoShowDoc={analysisAutoShowDoc} />;
       case TerminalView.CHINA_REPORT:
-        return <AnalysisView key={view} keyValue={TerminalView.CHINA_REPORT} />;
+        return <AnalysisView key={view} keyValue={TerminalView.CHINA_REPORT} autoShowDoc={analysisAutoShowDoc} />;
       case TerminalView.EUROPE_MAP:
         return (
           <PageTransition key={view} keyValue={TerminalView.EUROPE_MAP}>
@@ -103,9 +109,9 @@ const App: React.FC = () => {
           </PageTransition>
         );
       case TerminalView.EUROPE_ANALYSIS:
-        return <AnalysisView key={view} keyValue={TerminalView.EUROPE_ANALYSIS} />;
+        return <AnalysisView key={view} keyValue={TerminalView.EUROPE_ANALYSIS} autoShowDoc={analysisAutoShowDoc} />;
       case TerminalView.EUROPE_REPORT:
-        return <AnalysisView key={view} keyValue={TerminalView.EUROPE_REPORT} />;
+        return <AnalysisView key={view} keyValue={TerminalView.EUROPE_REPORT} autoShowDoc={analysisAutoShowDoc} />;
       default:
         return null;
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MED_COLORS, GeoIcons } from '../constants';
 import type { PlagueData, PlagueRegion, CityOutbreak } from '../types';
@@ -259,10 +259,6 @@ const AnalysisPanel: React.FC<{
             {data.chinaStats && (
               <div className="space-y-1.5">
                 {['黑龙江', '吉林', '奉天', '直隶', '山东'].map(prov => {
-                  const regions = chinaRegions.filter(r =>
-                    r.name_cn.includes(prov) || r.name_cn.includes(prov.replace('奉天', '奉').replace('直隶', '直'))
-                  );
-                  // 简单统计：按省份名匹配
                   const provinceKey = prov;
                   const counts = chinaRegions.filter(r => {
                     if (provinceKey === '黑龙江') return r.name_cn.includes('龙江') || r.name_cn.includes('呼伦') || r.name_cn.includes('胪滨') || r.name_cn.includes('黑');
@@ -561,7 +557,7 @@ const TimelineItem: React.FC<{ date: string; label: string; sub: string; color: 
 // ============================================================
 // 主分析视图组件
 // ============================================================
-const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
+const AnalysisView: React.FC<{ keyValue: string; autoShowDoc?: boolean }> = ({ keyValue, autoShowDoc = false }) => {
   // 入场动画
   const [introPhase, setIntroPhase] = useState<IntroPhase>('title');
   const introTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -614,6 +610,17 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
   }, [introPhase]);
 
   // ============================================================
+  // autoShowDoc：从 Dashboard "分析报告" 跳转时自动打开WHO档案
+  // ============================================================
+  useEffect(() => {
+    if (introPhase === 'content' && autoShowDoc) {
+      // 等入场动画稳定后弹出档案
+      const t = setTimeout(() => setShowDoc(true), 500);
+      return () => clearTimeout(t);
+    }
+  }, [introPhase, autoShowDoc]);
+
+  // ============================================================
   // 容器尺寸跟踪
   // ============================================================
   useEffect(() => {
@@ -646,42 +653,76 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
   }, [centerX, centerY, orbitRadius]);
 
   // ============================================================
-  // 鼠标追踪
+  // 鼠标追踪 — 原生 DOM mousemove 监听
+  //   原生事件直达浏览器事件队列，不受 React 合成事件批处理影响，
+  //   密集 mousemove 事件不丢失，快速滑动不漏判
+  //   锁定：鼠标移入面板后锁定，防止关闭
   // ============================================================
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current || introPhase !== 'content') return;
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || introPhase !== 'content') return;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    let wasInZoneRef = false;
+    let settleTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // 如果面板锁定了且鼠标在面板区域，不切换
-    if (lockedPointIdx !== null && panelHoverRef.current) return;
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
 
-    // 计算最近的点
-    const threshold = 80;
-    let closestIdx: number | null = null;
-    let closestDist = threshold;
+      let closest = -1;
+      let minDist = 80;
+      pointPositions.forEach((pos, i) => {
+        const d = Math.sqrt((mx - pos.x) ** 2 + (my - pos.y) ** 2);
+        if (d < minDist) { minDist = d; closest = i; }
+      });
 
-    pointPositions.forEach((pos, i) => {
-      const dist = Math.sqrt((mx - pos.x) ** 2 + (my - pos.y) ** 2);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestIdx = i;
+      const isInZone = closest >= 0;
+
+      if (isInZone) {
+        // 在热区内 → 取消任何待关闭延迟
+        if (settleTimer) {
+          clearTimeout(settleTimer);
+          settleTimer = undefined;
+        }
+        wasInZoneRef = true;
+        // 鼠标在面板上时不自动切换
+        if (panelHoverRef.current) return;
+        setActivePointIdx(closest);
+      } else if (wasInZoneRef) {
+        // 刚离开热区 → 启动延迟关闭，给手滑纠正留出缓冲
+        wasInZoneRef = false;
+        if (!settleTimer) {
+          settleTimer = setTimeout(() => {
+            setActivePointIdx(null);
+            setLockedPointIdx(null);
+            panelHoverRef.current = false;
+            settleTimer = undefined;
+          }, 150);
+        }
       }
-    });
+    };
 
-    if (closestIdx !== activePointIdx) {
-      setActivePointIdx(closestIdx);
-    }
-  }, [activePointIdx, lockedPointIdx, pointPositions, introPhase]);
+    const onMouseLeave = () => {
+      if (settleTimer) {
+        clearTimeout(settleTimer);
+        settleTimer = undefined;
+      }
+      wasInZoneRef = false;
+      if (!panelHoverRef.current) {
+        setActivePointIdx(null);
+        setLockedPointIdx(null);
+      }
+    };
 
-  const handleMouseLeave = useCallback(() => {
-    if (!panelHoverRef.current) {
-      setActivePointIdx(null);
-      setLockedPointIdx(null);
-    }
-  }, []);
+    el.addEventListener('mousemove', onMouseMove);
+    el.addEventListener('mouseleave', onMouseLeave);
+    return () => {
+      if (settleTimer) clearTimeout(settleTimer);
+      el.removeEventListener('mousemove', onMouseMove);
+      el.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, [introPhase, pointPositions]);
 
   // ============================================================
   // 构建面板数据
@@ -708,7 +749,6 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
     const dir = getPanelDir(cfg.angle);
     const panelW = 280;
     const panelH = 380;
-    const gap = 30;
     const lineLen = 60;
 
     let panelX: number;
@@ -811,8 +851,6 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
       <div
         ref={containerRef}
         className="h-full w-full relative overflow-hidden"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         style={{ backgroundColor: MED_COLORS.BG }}
       >
         {/* ============================================================ */}
@@ -983,7 +1021,7 @@ const AnalysisView: React.FC<{ keyValue: string }> = ({ keyValue }) => {
                 <span
                   className="text-[9px] font-bold uppercase tracking-wider"
                   style={{
-                    color: isActive ? pt.color : MED_COLORS.GRAY_LIGHT,
+                    color: isActive ? pt.color : '#C4933C',
                     fontFamily: "'JetBrains Mono','SimHei',monospace",
                   }}
                 >

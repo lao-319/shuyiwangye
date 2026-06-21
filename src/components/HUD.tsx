@@ -23,8 +23,8 @@ export const useMouseTilt = (): MouseTilt => useContext(MouseTiltContext);
 export const ParallaxWrapper: React.FC<{ children: React.ReactNode; disabled?: boolean }> = ({ children, disabled = false }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const handleMouseMove = (e: React.MouseEvent) => {
-    const x = (window.innerHeight / 2 - e.clientY) / 100;
-    const y = (e.clientX - window.innerWidth / 2) / 200;
+    const x = (window.innerHeight / 2 - e.clientY) / 800;
+    const y = (e.clientX - window.innerWidth / 2) / 1600;
     setRotate({ x, y });
   };
   // 禁用时或旋转值为零时不应用 transform，避免 CSS containing block 干扰 Leaflet 地图定位
@@ -414,7 +414,7 @@ export const VitalSigns: React.FC<{
   pulse?: boolean;
 }> = ({ label, value, unit = '', color = MED_COLORS.BLUE, pulse = false }) => (
   <div className="flex flex-col items-center p-2 border" style={{ minWidth: 90, borderColor: MED_COLORS.GRAY_MID }}>
-    <span className="text-[10px] uppercase tracking-wider opacity-50 mb-1" style={{ color: MED_COLORS.GRAY_LIGHT }}>{label}</span>
+    <span className="text-[11px] uppercase tracking-wider mb-1" style={{ color: '#64748B' }}>{label}</span>
     <motion.span
       className="text-lg font-bold font-mono"
       style={{ color }}
@@ -565,11 +565,11 @@ export const StatCard: React.FC<{
     <div className="flex items-center gap-2 mb-2">
       {/* 极简几何图标 */}
       {icon && <span style={{ color }}>{icon}</span>}
-      <span className="text-[10px] uppercase tracking-wider opacity-60" style={{ color: MED_COLORS.GRAY_LIGHT }}>{title}</span>
+      <span className="text-[11px] uppercase tracking-wider" style={{ color: '#64748B' }}>{title}</span>
     </div>
     <div className="text-2xl font-bold font-mono" style={{ color }}>{value}</div>
     {subtitle && (
-      <div className="text-[10px] mt-1 opacity-45" style={{ color: MED_COLORS.GRAY_LIGHT }}>{subtitle}</div>
+      <div className="text-[11px] mt-1" style={{ color: '#64748B' }}>{subtitle}</div>
     )}
   </motion.div>
 );
