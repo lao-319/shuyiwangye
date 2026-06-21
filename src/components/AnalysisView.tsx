@@ -578,7 +578,7 @@ const AnalysisView: React.FC<{ keyValue: string; autoShowDoc?: boolean }> = ({ k
   // 加载数据
   // ============================================================
   useEffect(() => {
-    fetch('/data/plague_data.json')
+    fetch(`${import.meta.env.BASE_URL}data/plague_data.json`)
       .then(r => r.json())
       .then(json => {
         setPlagueData(json);

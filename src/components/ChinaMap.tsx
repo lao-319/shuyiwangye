@@ -195,9 +195,9 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
     // 自行加载数据
     let cancelled = false;
     Promise.all([
-      fetch('/data/plague_region.geojson').then(r => r.json()),
-      fetch('/data/plague_sites.geojson').then(r => r.json()),
-      fetch('/data/plague_stats.json').then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_region.geojson`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_sites.geojson`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_stats.json`).then(r => r.json()),
     ]).then(([r, s, st]) => {
       if (!cancelled) {
         setRegions(r);

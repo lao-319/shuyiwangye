@@ -190,8 +190,8 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
 
     let cancelled = false;
     Promise.all([
-      fetch('/data/plague_europe_sites.geojson').then(r => r.json()),
-      fetch('/data/plague_europe_stats.json').then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_europe_sites.geojson`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_europe_stats.json`).then(r => r.json()),
     ]).then(([s, st]) => {
       if (!cancelled) {
         setSites(s);

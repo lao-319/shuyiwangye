@@ -117,8 +117,8 @@ const ChinaBoundary: React.FC = () => {
     let cancelled = false;
 
     Promise.all([
-      fetch('/data/china_provinces.json').then(r => r.json()),
-      fetch('/data/china_ninedash.json').then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/china_provinces.json`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/china_ninedash.json`).then(r => r.json()),
     ])
       .then(([provinces, nineDash]) => {
         if (!cancelled) {

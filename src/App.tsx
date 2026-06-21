@@ -42,8 +42,8 @@ const App: React.FC = () => {
   const preloadEuropeData = useCallback(() => {
     if (europeDataReady) return;
     Promise.all([
-      fetch('/data/plague_europe_sites.geojson').then(r => r.json()),
-      fetch('/data/plague_europe_stats.json').then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_europe_sites.geojson`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_europe_stats.json`).then(r => r.json()),
     ]).then(([sites, stats]) => {
       setEuropeSites(sites);
       setEuropeStats(stats);
@@ -57,9 +57,9 @@ const App: React.FC = () => {
   const preloadMapData = useCallback(() => {
     if (mapDataReady) return; // 已加载完成，跳过
     Promise.all([
-      fetch('/data/plague_region.geojson').then(r => r.json()),
-      fetch('/data/plague_sites.geojson').then(r => r.json()),
-      fetch('/data/plague_stats.json').then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_region.geojson`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_sites.geojson`).then(r => r.json()),
+      fetch(`${import.meta.env.BASE_URL}data/plague_stats.json`).then(r => r.json()),
     ]).then(([regions, sites, stats]) => {
       setMapRegions(regions);
       setMapSites(sites);
