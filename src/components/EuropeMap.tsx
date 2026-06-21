@@ -343,18 +343,18 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
                       const moreCount = props.COUNT > 20 ? ` ... 等共 ${props.COUNT} 次` : '';
                       const centuryLabel = CENTURY_LABELS[props.CENTURY] || `${props.CENTURY}s`;
                       const popupHtml = `
-                        <div style="font-family:'JetBrains Mono',Consolas,SimHei,monospace;font-size:11px;min-width:200px">
-                          <div style="background:${centuryColor};color:#FFF;padding:6px 10px;font-weight:700;font-size:13px;letter-spacing:0.05em;display:flex;justify-content:space-between;align-items:center">
+                        <div style="font-family:'JetBrains Mono',Consolas,SimHei,monospace;font-size:13px;min-width:200px">
+                          <div style="background:${centuryColor};color:#FFF;padding:6px 10px;font-weight:700;font-size:15px;letter-spacing:0.05em;display:flex;justify-content:space-between;align-items:center">
                             <span>${props.NAME}</span>
-                            <span style="font-size:9px;opacity:0.75">${centuryLabel}</span>
+                            <span style="font-size:12px;opacity:0.75">${centuryLabel}</span>
                           </div>
                           <div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
-                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:9px">首发年</span><span style="color:${MED_COLORS.RED};font-weight:700">${props.FIRST_YR}</span></div>
-                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:9px">末发年</span><span style="color:${MED_COLORS.ORANGE};font-weight:700">${props.LAST_YR}</span></div>
-                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:9px">爆发次数</span><span style="color:${MED_COLORS.BLUE};font-weight:700">${props.COUNT}</span></div>
+                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">首发年</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${props.FIRST_YR}</span></div>
+                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">末发年</span><span style="color:${MED_COLORS.ORANGE};font-weight:700;font-size:12px">${props.LAST_YR}</span></div>
+                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">爆发次数</span><span style="color:${MED_COLORS.BLUE};font-weight:700;font-size:12px">${props.COUNT}</span></div>
                             <div style="margin-top:4px;border-top:1px solid ${MED_COLORS.GRAY_DARK};padding-top:4px">
-                              <span style="color:${MED_COLORS.GRAY_LIGHT};font-size:8px">年份: </span>
-                              <span style="color:${MED_COLORS.TEXT};font-size:9px">${yearsList}${moreCount}</span>
+                              <span style="color:${MED_COLORS.GRAY_LIGHT};font-size:11px">年份: </span>
+                              <span style="color:${MED_COLORS.TEXT};font-size:12px">${yearsList}${moreCount}</span>
                             </div>
                           </div>
                         </div>`;

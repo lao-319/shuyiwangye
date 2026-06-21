@@ -379,16 +379,16 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
       const el = document.getElementById(`popup-${props.NAME_CH}`);
       if (el) {
         el.innerHTML = `
-          <div style="font-family:'JetBrains Mono',Consolas,SimHei,monospace;font-size:11px">
-            <div style="background:${MED_COLORS.BLUE};color:#FFF;padding:6px 10px;font-weight:700;font-size:13px;letter-spacing:0.05em;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-family:'JetBrains Mono',Consolas,SimHei,monospace;font-size:13px">
+            <div style="background:${MED_COLORS.BLUE};color:#FFF;padding:6px 10px;font-weight:700;font-size:15px;letter-spacing:0.05em;display:flex;justify-content:space-between;align-items:center">
               <span>${props.NAME_CH}</span>
-              <span style="font-size:10px;opacity:0.75">${props.NAME_PY}</span>
+              <span style="font-size:12px;opacity:0.75">${props.NAME_PY}</span>
             </div>
             <div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
-              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">省份</span><span style="color:${PROVINCE_COLORS[props.LEV1_CH] || MED_COLORS.GRAY_LIGHT};font-weight:700">${props.LEV1_CH}</span></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">传播速度</span><span style="color:${getSpeedColor(props.V)};font-weight:700">${props.V?.toFixed(2)} km/d</span></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">死亡人数</span><span style="color:${MED_COLORS.RED};font-weight:700">${(props.deaths ?? 0).toLocaleString()}</span></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">节点度</span><span style="color:${MED_COLORS.BLUE};font-weight:700">${props.node_degree ?? '--'}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">省份</span><span style="color:${PROVINCE_COLORS[props.LEV1_CH] || MED_COLORS.GRAY_LIGHT};font-weight:700;font-size:12px">${props.LEV1_CH}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">传播速度</span><span style="color:${getSpeedColor(props.V)};font-weight:700;font-size:12px">${props.V?.toFixed(2)} km/d</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">死亡人数</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${(props.deaths ?? 0).toLocaleString()}</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">节点度</span><span style="color:${MED_COLORS.BLUE};font-weight:700;font-size:12px">${props.node_degree ?? '--'}</span></div>
             </div>
           </div>`;
       }
@@ -520,16 +520,16 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
                   onEachFeature={(feature, layer) => {
                     const props = feature.properties as SiteProperties;
                     const popupHtml = `
-                      <div style="font-family:'JetBrains Mono',Consolas,SimHei,monospace;font-size:11px;min-width:200px">
-                        <div style="background:${provColor};color:#FFF;padding:6px 10px;font-weight:700;font-size:13px;letter-spacing:0.05em;display:flex;justify-content:space-between;align-items:center">
+                      <div style="font-family:'JetBrains Mono',Consolas,SimHei,monospace;font-size:13px;min-width:200px">
+                        <div style="background:${provColor};color:#FFF;padding:6px 10px;font-weight:700;font-size:15px;letter-spacing:0.05em;display:flex;justify-content:space-between;align-items:center">
                           <span>${props.NAME_CH}</span>
-                          <span style="font-size:10px;opacity:0.75">${props.LEV1_CH}</span>
+                          <span style="font-size:12px;opacity:0.75">${props.LEV1_CH}</span>
                         </div>
                         <div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
-                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">首发日</span><span style="color:${MED_COLORS.RED};font-weight:700">${props.SFR}</span></div>
-                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">终止日</span><span style="color:${MED_COLORS.ORANGE};font-weight:700">${props.ZZR}</span></div>
-                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">节点度</span><span style="color:${MED_COLORS.VIOLET};font-weight:700">${props.JDD}</span></div>
-                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:10px">死亡人数</span><span style="color:${MED_COLORS.RED};font-weight:700">${(props.deaths ?? 0).toLocaleString()}</span></div>
+                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">首发日</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${props.SFR}</span></div>
+                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">终止日</span><span style="color:${MED_COLORS.ORANGE};font-weight:700;font-size:12px">${props.ZZR}</span></div>
+                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">节点度</span><span style="color:${MED_COLORS.VIOLET};font-weight:700;font-size:12px">${props.JDD}</span></div>
+                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">死亡人数</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${(props.deaths ?? 0).toLocaleString()}</span></div>
                         </div>
                       </div>`;
                     layer.bindPopup(popupHtml, { maxWidth: 280 });
