@@ -77,7 +77,7 @@ const SouthChinaSeaInset: React.FC = () => {
         {/* SVG 缩略图 */}
         <div style={{ position: 'relative', zIndex: 1, padding: 5 }}>
           <img
-            src="/data/south_china_sea.svg"
+            src={`${import.meta.env.BASE_URL}data/south_china_sea.svg`}
             alt="南海诸岛"
             style={{
               width: '100%',
