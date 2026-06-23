@@ -145,6 +145,14 @@ html, body, #root {
   font-family: 'JetBrains Mono', 'Consolas', monospace !important;
 }
 
+/* 防止浏览器在点击 Leaflet 交互元素时显示聚焦方框 */
+.leaflet-container:focus,
+.leaflet-container *:focus,
+.leaflet-interactive:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: 0 !important;
   border: 1px solid var(--blue) !important;
