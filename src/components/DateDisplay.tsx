@@ -57,7 +57,7 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
     }}>
       {/* 红色脉冲指示灯 */}
       <div style={{
-        width: 5, height: 5, borderRadius: '50%',
+        width: 6, height: 6, borderRadius: '50%',
         backgroundColor: MED_COLORS.RED,
         boxShadow: `0 0 5px ${MED_COLORS.RED}`,
         animation: 'pulse-red 1s ease-in-out infinite',
@@ -66,13 +66,13 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
       {/* 时间文字：英文日期 + 中文日期 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         <span style={{
-          fontSize: 12, fontWeight: 700, color: MED_COLORS.RED,
+          fontSize: 14, fontWeight: 700, color: MED_COLORS.RED,
           letterSpacing: '0.05em', whiteSpace: 'nowrap', lineHeight: 1.2,
         }}>
           {enDate || '--- -- ----'}
         </span>
         <span style={{
-          fontSize: 9, color: MED_COLORS.GRAY_LIGHT,
+          fontSize: 12, color: MED_COLORS.GRAY_LIGHT,
           letterSpacing: '0.03em', whiteSpace: 'nowrap', lineHeight: 1.2,
         }}>
           {cnDate || '----年-月-日'}
@@ -96,13 +96,13 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
         {/* 日期显示 */}
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            fontSize: 13, fontWeight: 700, color: MED_COLORS.RED,
+            fontSize: 15, fontWeight: 700, color: MED_COLORS.RED,
             letterSpacing: '0.03em', lineHeight: 1.3,
           }}>
             {cnDate || '----年-月-日'}
           </div>
           <div style={{
-            fontSize: 9, color: MED_COLORS.GRAY_LIGHT,
+            fontSize: 12, color: MED_COLORS.GRAY_LIGHT,
             letterSpacing: '0.08em', marginTop: 1,
           }}>
             {enDate || '--- -- ----'}
@@ -113,7 +113,7 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
         <div>
           <div style={{
             display: 'flex', justifyContent: 'space-between',
-            fontSize: 8, color: MED_COLORS.GRAY_LIGHT, marginBottom: 3,
+            fontSize: 11, color: MED_COLORS.GRAY_LIGHT, marginBottom: 3,
           }}>
             <span>PROGRESS</span>
             <span>{frameIndex + 1} / {totalFrames}</span>
@@ -150,21 +150,21 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
                 boxShadow: `0 0 5px ${MED_COLORS.RED}`,
                 animation: 'pulse-red 1s ease-in-out infinite',
               }} />
-              <span style={{ fontSize: 9, color: MED_COLORS.RED, fontWeight: 700, letterSpacing: '0.1em' }}>
+              <span style={{ fontSize: 12, color: MED_COLORS.RED, fontWeight: 700, letterSpacing: '0.1em' }}>
                 LIVE
               </span>
             </div>
           )}
           {hasReachedEnd && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, fontWeight: 700, letterSpacing: '0.1em' }}>
+              <span style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, fontWeight: 700, letterSpacing: '0.1em' }}>
                 ▣ 扩散完成
               </span>
             </div>
           )}
           {!isPlaying && !hasReachedEnd && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, letterSpacing: '0.1em' }}>
+              <span style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, letterSpacing: '0.1em' }}>
                 ⏸ 已暂停
               </span>
             </div>
@@ -175,13 +175,13 @@ const DateDisplay: React.FC<DateDisplayProps> = ({
   );
 };
 
-// 与 StatsOverlay 中的 StatLine 字体大小一致：label=9, value=11
+// 与 StatsOverlay 中的 StatLine 字体大小一致：label=12, value=13
 const StatLine: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-    <span style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>
+    <span style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>
       {label}
     </span>
-    <span style={{ fontSize: 11, color, fontWeight: 700 }}>{value}</span>
+    <span style={{ fontSize: 13, color, fontWeight: 700 }}>{value}</span>
   </div>
 );
 

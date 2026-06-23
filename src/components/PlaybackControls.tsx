@@ -29,9 +29,9 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
       persistent
     >
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
+        display: 'flex', alignItems: 'center', gap: 12,
         fontFamily: "'JetBrains Mono', 'Consolas', 'SimHei', monospace",
-        fontSize: 10,
+        fontSize: 13,
         userSelect: 'none',
       }}>
         {/* 播放/暂停按钮 */}
@@ -56,7 +56,7 @@ const PlaybackControls: React.FC<PlaybackControlsProps> = ({
 
         {/* 速度选择 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{ fontSize: 8, color: MED_COLORS.GRAY_LIGHT, marginRight: 2 }}>
+          <span style={{ fontSize: 11, color: MED_COLORS.GRAY_LIGHT, marginRight: 2 }}>
             SPEED
           </span>
           {SPEED_OPTIONS.map(opt => (
@@ -82,12 +82,12 @@ const ControlButton: React.FC<{
   <div
     onClick={onClick}
     style={{
-      padding: '3px 8px',
+      padding: '4px 10px',
       cursor: 'pointer',
       border: `1px solid ${color}40`,
       color,
       fontWeight: 700,
-      fontSize: 10,
+      fontSize: 13,
       letterSpacing: '0.05em',
       whiteSpace: 'nowrap',
       transition: 'all 0.15s',
@@ -115,13 +115,13 @@ const SpeedChip: React.FC<{
   <div
     onClick={onClick}
     style={{
-      padding: '2px 5px',
+      padding: '3px 6px',
       cursor: 'pointer',
       border: `1px solid ${active ? MED_COLORS.BLUE : MED_COLORS.GRAY_MID}`,
       backgroundColor: active ? `${MED_COLORS.BLUE}15` : 'transparent',
       color: active ? MED_COLORS.BLUE : MED_COLORS.GRAY_LIGHT,
       fontWeight: active ? 700 : 400,
-      fontSize: 9,
+      fontSize: 12,
       letterSpacing: '0.05em',
       transition: 'all 0.15s',
     }}

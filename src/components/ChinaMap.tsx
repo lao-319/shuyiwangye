@@ -125,7 +125,7 @@ const StatsOverlay: React.FC<{ stats: PlagueStats | null }> = ({ stats }) => {
           ))}
         </div>
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-          <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>
             最快传播: <span style={{ color: MED_COLORS.RED, fontWeight: 700 }}>{stats.max_speed_region}</span>
             <span style={{ marginLeft: 4 }}>({stats.max_speed_value.toFixed(1)} km/d)</span>
           </div>
@@ -137,8 +137,8 @@ const StatsOverlay: React.FC<{ stats: PlagueStats | null }> = ({ stats }) => {
 
 const StatLine: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-    <span style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>{label}</span>
-    <span style={{ fontSize: 11, color, fontWeight: 700 }}>{value}</span>
+    <span style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>{label}</span>
+    <span style={{ fontSize: 13, color, fontWeight: 700 }}>{value}</span>
   </div>
 );
 
@@ -590,7 +590,7 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
         color={MED_COLORS.BLUE}
         style={{ top: 24, left: '50%', transform: 'translateX(-50%)' }}
       >
-        <div style={{ fontSize: 9, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 280 }}>
+        <div style={{ fontSize: 12, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 320 }}>
           <div style={{ fontWeight: 700, marginBottom: 4, color: MED_COLORS.BLUE }}>
             刘晓峥, 龚胜生*
           </div>
@@ -607,7 +607,7 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
             href="https://doi.org/10.3974/geodb.2025.01.06.V1"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 8 }}
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 11 }}
           >
             DOI: 10.3974/geodb.2025.01.06.V1
           </a>

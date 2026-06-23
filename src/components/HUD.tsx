@@ -1035,7 +1035,7 @@ export const CyberpunkPanel: React.FC<{
         {/* 折叠态：自定义内容 或 脉冲小圆点（position:relative 确保在背景之上） */}
         {phase === 'collapsed' && (
           collapsedContent ? (
-            <div style={{ padding: '5px 10px', position: 'relative', zIndex: 1 }}>
+            <div style={{ padding: '8px 16px', position: 'relative', zIndex: 1 }}>
               {collapsedContent}
             </div>
           ) : (
@@ -1053,10 +1053,10 @@ export const CyberpunkPanel: React.FC<{
 
         {/* 展开态：标题 + 内容 — position:relative 确保在绝对定位背景之上 */}
         {isExpanded && (
-          <div style={{ position: 'relative', zIndex: 1, padding: '8px 12px', minWidth: 160 }}>
+          <div style={{ position: 'relative', zIndex: 1, padding: '12px 16px', minWidth: 200 }}>
             {/* 标题 — 逐字 glitch 闪烁（与 CyberpunkTitle 完全一致） */}
             <div style={{
-              fontSize: 10,
+              fontSize: 13,
               fontWeight: 700,
               color,
               textTransform: 'uppercase' as const,

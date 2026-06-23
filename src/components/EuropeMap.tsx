@@ -49,7 +49,7 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
         <StatLine label="总爆发记录" value={`${stats.total_records}`} color="#8B5CF6" />
         <StatLine label="时间跨度" value={stats.year_range} color="#F97316" />
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-          <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
             最严重疫点 TOP 3
           </div>
           {stats.top_cities.slice(0, 3).map((loc, i) => (
@@ -63,7 +63,7 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
         </div>
         {stats.century_stats && (
           <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-            <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
               按世纪分布
             </div>
             {Object.entries(stats.century_stats)
@@ -89,8 +89,8 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
 
 const StatLine: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-    <span style={{ fontSize: 10, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>{label}</span>
-    <span style={{ fontSize: 10, color, fontWeight: 700 }}>{value}</span>
+    <span style={{ fontSize: 13, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase' }}>{label}</span>
+    <span style={{ fontSize: 13, color, fontWeight: 700 }}>{value}</span>
   </div>
 );
 
@@ -101,7 +101,7 @@ const MapLegend: React.FC = () => {
   return (
     <CyberpunkPanel title="图例" color={MED_COLORS.BLUE} style={{ bottom: 24, left: 24 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-        <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
+        <div style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
           世纪颜色
         </div>
         {Object.entries(CENTURY_LABELS).map(([century, label]) => {
@@ -115,12 +115,12 @@ const MapLegend: React.FC = () => {
                 borderRadius: '50%',
                 border: `1px solid ${MED_COLORS.GRAY_MID}`,
               }} />
-              <span style={{ color: MED_COLORS.TEXT, fontSize: 9 }}>{label}</span>
+              <span style={{ color: MED_COLORS.TEXT, fontSize: 12 }}>{label}</span>
             </div>
           );
         })}
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
-          <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
+          <div style={{ fontSize: 12, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 2 }}>
             爆发频率 (大小)
           </div>
           {[
@@ -138,7 +138,7 @@ const MapLegend: React.FC = () => {
                 border: `1px solid ${MED_COLORS.BLUE}`,
                 flexShrink: 0,
               }} />
-              <span style={{ color: MED_COLORS.TEXT, fontSize: 9 }}>{label}</span>
+              <span style={{ color: MED_COLORS.TEXT, fontSize: 12 }}>{label}</span>
             </div>
           ))}
         </div>
@@ -391,7 +391,7 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
         color={MED_COLORS.BLUE}
         style={{ bottom: 24, right: 24 }}
       >
-        <div style={{ fontSize: 9, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 280 }}>
+        <div style={{ fontSize: 12, color: MED_COLORS.TEXT, lineHeight: 1.6, maxWidth: 350 }}>
           <div style={{ fontWeight: 700, marginBottom: 4, color: MED_COLORS.BLUE }}>
             Büntgen, U., Ginzler, C., Esper, J., Tegel, W. & McMichael, A.J.
           </div>
@@ -408,16 +408,16 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
             href="https://doi.org/10.1093/cid/cis723"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 9 }}
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 12 }}
           >
             DOI: 10.1093/cid/cis723
           </a>
-          <span style={{ color: MED_COLORS.GRAY_LIGHT, fontSize: 9, margin: '0 4px' }}>|</span>
+          <span style={{ color: MED_COLORS.GRAY_LIGHT, fontSize: 12, margin: '0 4px' }}>|</span>
           <a
             href="https://opendata.swiss/en/dataset/digitizing-historical-plague"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 9 }}
+            style={{ color: MED_COLORS.BLUE, textDecoration: 'underline', fontSize: 12 }}
           >
             opendata.swiss
           </a>
