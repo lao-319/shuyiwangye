@@ -77,10 +77,10 @@ const regionStyleHover = {
 // ============================================================
 const SPEED_LEGEND_ITEMS = [
   { label: '>20 km/d · 极高', color: '#991B1B' },
-  { label: '10-20 km/d · 高', color: MED_COLORS.RED },
-  { label: '5-10 km/d · 中', color: MED_COLORS.ORANGE },
-  { label: '2-5 km/d · 低', color: MED_COLORS.BLUE },
-  { label: '<2 km/d · 极低', color: MED_COLORS.GREEN },
+  { label: '10-20 km/d · 高', color: '#DC2626' },
+  { label: '5-10 km/d · 中', color: '#F97316' },
+  { label: '2-5 km/d · 低', color: '#3B82F6' },
+  { label: '<2 km/d · 极低', color: '#22C55E' },
 ];
 
 const MapLegend: React.FC = () => {
@@ -116,7 +116,7 @@ const StatsOverlay: React.FC<{ stats: PlagueStats | null }> = ({ stats }) => {
     <CyberpunkPanel title="疫情统计摘要" color={MED_COLORS.BLUE} style={{ top: 24, right: 24 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <StatLine label="疫区数" value={`${stats.total_regions}`} color={MED_COLORS.BLUE} />
-        <StatLine label="疫点数" value={`${stats.total_sites}`} color={MED_COLORS.VIOLET} />
+        <StatLine label="疫点数" value={`${stats.total_sites}`} color="#8B5CF6" />
         <StatLine label="总死亡人数" value={stats.total_deaths.toLocaleString()} color={MED_COLORS.RED} />
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
           {Object.entries(stats.provinces).map(([prov, s]) => (
@@ -527,8 +527,8 @@ const ChinaMap: React.FC<ChinaMapProps> = ({
                         </div>
                         <div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
                           <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">首发日</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${props.SFR}</span></div>
-                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">终止日</span><span style="color:${MED_COLORS.ORANGE};font-weight:700;font-size:12px">${props.ZZR}</span></div>
-                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">节点度</span><span style="color:${MED_COLORS.VIOLET};font-weight:700;font-size:12px">${props.JDD}</span></div>
+                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">终止日</span><span style="color:#F97316;font-weight:700;font-size:12px">${props.ZZR}</span></div>
+                          <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">节点度</span><span style="color:#8B5CF6;font-weight:700;font-size:12px">${props.JDD}</span></div>
                           <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">死亡人数</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${(props.deaths ?? 0).toLocaleString()}</span></div>
                         </div>
                       </div>`;

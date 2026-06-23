@@ -46,8 +46,8 @@ const StatsOverlay: React.FC<{ stats: EuropeStats | null }> = ({ stats }) => {
     <CyberpunkPanel title="疫情统计摘要" color={MED_COLORS.BLUE} style={{ top: 24, right: 24 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
         <StatLine label="总疫点数" value={`${stats.total_cities}`} color={MED_COLORS.BLUE} />
-        <StatLine label="总爆发记录" value={`${stats.total_records}`} color={MED_COLORS.VIOLET} />
-        <StatLine label="时间跨度" value={stats.year_range} color={MED_COLORS.ORANGE} />
+        <StatLine label="总爆发记录" value={`${stats.total_records}`} color="#8B5CF6" />
+        <StatLine label="时间跨度" value={stats.year_range} color="#F97316" />
         <div style={{ marginTop: 4, borderTop: `1px solid ${MED_COLORS.GRAY_DARK}`, paddingTop: 4 }}>
           <div style={{ fontSize: 9, color: MED_COLORS.GRAY_LIGHT, textTransform: 'uppercase', marginBottom: 4 }}>
             最严重疫点 TOP 3
@@ -350,7 +350,7 @@ const EuropeMap: React.FC<EuropeMapProps> = ({
                           </div>
                           <div style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
                             <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">首发年</span><span style="color:${MED_COLORS.RED};font-weight:700;font-size:12px">${props.FIRST_YR}</span></div>
-                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">末发年</span><span style="color:${MED_COLORS.ORANGE};font-weight:700;font-size:12px">${props.LAST_YR}</span></div>
+                            <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">末发年</span><span style="color:#F97316;font-weight:700;font-size:12px">${props.LAST_YR}</span></div>
                             <div style="display:flex;justify-content:space-between"><span style="color:${MED_COLORS.GRAY_LIGHT};font-size:12px">爆发次数</span><span style="color:${MED_COLORS.BLUE};font-weight:700;font-size:12px">${props.COUNT}</span></div>
                             <div style="margin-top:4px;border-top:1px solid ${MED_COLORS.GRAY_DARK};padding-top:4px">
                               <span style="color:${MED_COLORS.GRAY_LIGHT};font-size:11px">年份: </span>
