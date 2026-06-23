@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MED_COLORS, GeoIcons } from '../constants';
+import { MED_COLORS, PROVINCE_COLORS, GeoIcons } from '../constants';
 import type { PlagueData, PlagueRegion, CityOutbreak } from '../types';
 import { PageTransition } from './HUD';
 import PlagueModel from './PlagueModel';
@@ -232,8 +232,8 @@ const AnalysisPanel: React.FC<{
                       '1600': '17 世纪', '1700': '18 世纪', '1800': '19 世纪',
                     };
                     const centuryColors: Record<string, string> = {
-                      '1300': MED_COLORS.RED, '1400': MED_COLORS.ORANGE, '1500': '#EAB308',
-                      '1600': MED_COLORS.GREEN, '1700': '#06B6D4', '1800': MED_COLORS.VIOLET,
+                      '1300': MED_COLORS.RED, '1400': MED_COLORS.RED, '1500': MED_COLORS.RED,
+                      '1600': MED_COLORS.BLUE, '1700': MED_COLORS.BLUE, '1800': MED_COLORS.BLUE,
                     };
                     return (
                       <div key={century} className="flex items-center justify-between text-[12px]">
@@ -278,10 +278,7 @@ const AnalysisPanel: React.FC<{
                       return false;
                     })
                     .reduce((s, r) => s + (r.deaths ?? 0), 0);
-                  const provColors: Record<string, string> = {
-                    '黑龙江': MED_COLORS.RED, '吉林': MED_COLORS.GREEN,
-                    '奉天': MED_COLORS.ORANGE, '直隶': MED_COLORS.VIOLET, '山东': MED_COLORS.BLUE,
-                  };
+                  const provColors: Record<string, string> = PROVINCE_COLORS;
                   return (
                     <StatBar
                       key={prov}
@@ -398,7 +395,7 @@ const AnalysisPanel: React.FC<{
             <div className="text-[12px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>东北鼠疫 传播速度分析</div>
             <div className="space-y-1.5">
               {[
-                { label: '极高速 (>20km/d)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 20).length, color: '#991B1B' },
+                { label: '极高速 (>20km/d)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 20).length, color: MED_COLORS.RED },
                 { label: '高速 (10-20)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 10 && (r.speed_km_day ?? 0) <= 20).length, color: MED_COLORS.RED },
                 { label: '中速 (5-10)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 5 && (r.speed_km_day ?? 0) <= 10).length, color: MED_COLORS.ORANGE },
                 { label: '低速 (2-5)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 2 && (r.speed_km_day ?? 0) <= 5).length, color: MED_COLORS.BLUE },

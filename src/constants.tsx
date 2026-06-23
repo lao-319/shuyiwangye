@@ -4,9 +4,9 @@ import React from 'react';
 export const MED_COLORS = {
   BLUE:       '#3B82F6',   // 主色调 — 心电图蓝
   RED:        '#DC2626',   // 危险色 — 心电图红
-  ORANGE:     '#F97316',   // 警告色 — 疫情爆发
-  GREEN:      '#22C55E',   // 安全色 — 已控制
-  VIOLET:     '#8B5CF6',   // 系统色 — 管理员
+  ORANGE:     '#DC2626',   // 警告色 → 归入红色
+  GREEN:      '#3B82F6',   // 安全色 → 归入蓝色
+  VIOLET:     '#3B82F6',   // 系统色 → 归入蓝色
   BG:         '#F5F7FA',   // 终端底色 — 医疗白
   TEXT:       '#1E293B',   // 监视器文字 — 深石板灰
   GRAY_DARK:  '#E2E8F0',   // 卡片/面板背景
@@ -16,8 +16,8 @@ export const MED_COLORS = {
 
 // ===== 疫情严重度等级阈值 =====
 export const SEVERITY_THRESHOLDS = {
-  LOW:      { max: 50,    color: MED_COLORS.GREEN,  label: '低风险' },
-  MODERATE: { max: 500,   color: MED_COLORS.ORANGE, label: '中度风险' },
+  LOW:      { max: 50,    color: MED_COLORS.BLUE,   label: '低风险' },
+  MODERATE: { max: 500,   color: MED_COLORS.RED,    label: '中度风险' },
   HIGH:     { max: 2000,  color: MED_COLORS.RED,    label: '高风险' },
   CRITICAL: { max: Infinity, color: MED_COLORS.RED, label: '危急' },
 } as const;
@@ -206,17 +206,17 @@ export function formatPlagueDate(value: number | null): string {
 export function getDeathSeverityColor(deaths: number | null): string {
   if (deaths == null) return MED_COLORS.GRAY_LIGHT;
   if (deaths > 2000) return MED_COLORS.RED;
-  if (deaths > 500)  return MED_COLORS.ORANGE;
+  if (deaths > 500)  return MED_COLORS.RED;
   if (deaths > 50)   return MED_COLORS.BLUE;
-  return MED_COLORS.GREEN;
+  return MED_COLORS.BLUE;
 }
 
 /** 根据爆发次数返回气泡颜色 */
 export function getOutbreakColor(count: number): string {
   if (count > 80) return MED_COLORS.RED;
-  if (count > 50) return MED_COLORS.ORANGE;
+  if (count > 50) return MED_COLORS.RED;
   if (count > 20) return MED_COLORS.BLUE;
-  return MED_COLORS.GREEN;
+  return MED_COLORS.BLUE;
 }
 
 // ===== 省份颜色映射 =====
@@ -234,20 +234,20 @@ export const ANIMATION = {
 
 // ===== 省份颜色映射 =====
 export const PROVINCE_COLORS: Record<string, string> = {
-  '直隶':   '#8B5CF6',  // violet
+  '直隶':   '#DC2626',  // red
   '山东':   '#3B82F6',  // blue
-  '奉天':   '#F97316',  // orange
-  '吉林':   '#22C55E',  // green
+  '奉天':   '#B91C1C',  // dark red
+  '吉林':   '#2563EB',  // dark blue
   '黑龙江': '#DC2626',  // red
 };
 
 // ===== 传播速度 → 颜色 =====
 export function getSpeedColor(v: number): string {
-  if (v > 20) return '#991B1B'; // 暗红 - 极高
+  if (v > 20) return '#B91C1C'; // 深红 - 极高
   if (v > 10) return MED_COLORS.RED;
-  if (v > 5)  return MED_COLORS.ORANGE;
+  if (v > 5)  return MED_COLORS.RED;
   if (v > 2)  return MED_COLORS.BLUE;
-  return MED_COLORS.GREEN;
+  return MED_COLORS.BLUE;
 }
 
 export function getSpeedLabel(v: number): string {
@@ -261,11 +261,11 @@ export function getSpeedLabel(v: number): string {
 // ===== 欧洲鼠疫：世纪颜色映射 =====
 export const CENTURY_COLORS: Record<number, string> = {
   1300: '#DC2626', // 14世纪 — 红
-  1400: '#F97316', // 15世纪 — 橙
-  1500: '#EAB308', // 16世纪 — 金黄
-  1600: '#22C55E', // 17世纪 — 绿
-  1700: '#06B6D4', // 18世纪 — 青
-  1800: '#8B5CF6', // 19世纪 — 紫
+  1400: '#B91C1C', // 15世纪 — 深红
+  1500: '#DC2626', // 16世纪 — 红
+  1600: '#3B82F6', // 17世纪 — 蓝
+  1700: '#2563EB', // 18世纪 — 深蓝
+  1800: '#3B82F6', // 19世纪 — 蓝
 };
 
 export const CENTURY_LABELS: Record<number, string> = {

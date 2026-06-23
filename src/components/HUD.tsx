@@ -1252,9 +1252,9 @@ export const LogStream: React.FC<{
       case 'header':
         return { color: '#64748B', opacity: 0.7 };
       case 'success':
-        return { color: '#22C55E' };
+        return { color: MED_COLORS.BLUE };
       case 'warn':
-        return { color: '#F97316' };
+        return { color: MED_COLORS.RED };
       case 'highlight':
         return { color: '#3B82F6', fontWeight: 700 };
       case 'info':

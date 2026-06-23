@@ -76,7 +76,7 @@ const regionStyleHover = {
 // 图例
 // ============================================================
 const SPEED_LEGEND_ITEMS = [
-  { label: '>20 km/d · 极高', color: '#991B1B' },
+  { label: '>20 km/d · 极高', color: MED_COLORS.RED },
   { label: '10-20 km/d · 高', color: MED_COLORS.RED },
   { label: '5-10 km/d · 中', color: MED_COLORS.ORANGE },
   { label: '2-5 km/d · 低', color: MED_COLORS.BLUE },

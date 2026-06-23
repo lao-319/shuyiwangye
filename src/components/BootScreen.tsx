@@ -97,7 +97,7 @@ const generateECGPath = (width: number, height: number, segments: number): strin
 
 /** 医疗白色调 */
 const DANGER_RED = '#DC2626';
-const DANGER_RED_DARK = '#991B1B';
+const DANGER_RED_DARK = '#B91C1C';
 const ECG_BLUE = '#3B82F6';
 
 // ===== 红色警告行（精简为一条核心警告） =====
