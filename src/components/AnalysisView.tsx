@@ -232,8 +232,8 @@ const AnalysisPanel: React.FC<{
                       '1600': '17 世纪', '1700': '18 世纪', '1800': '19 世纪',
                     };
                     const centuryColors: Record<string, string> = {
-                      '1300': MED_COLORS.RED, '1400': MED_COLORS.RED, '1500': MED_COLORS.RED,
-                      '1600': MED_COLORS.BLUE, '1700': MED_COLORS.BLUE, '1800': MED_COLORS.BLUE,
+                      '1300': '#DC2626', '1400': '#F97316', '1500': '#EAB308',
+                      '1600': '#22C55E', '1700': '#06B6D4', '1800': '#8B5CF6',
                     };
                     return (
                       <div key={century} className="flex items-center justify-between text-[12px]">
@@ -395,11 +395,11 @@ const AnalysisPanel: React.FC<{
             <div className="text-[12px] uppercase tracking-wider mb-1" style={{ color: MED_COLORS.VIOLET }}>东北鼠疫 传播速度分析</div>
             <div className="space-y-1.5">
               {[
-                { label: '极高速 (>20km/d)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 20).length, color: MED_COLORS.RED },
-                { label: '高速 (10-20)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 10 && (r.speed_km_day ?? 0) <= 20).length, color: MED_COLORS.RED },
-                { label: '中速 (5-10)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 5 && (r.speed_km_day ?? 0) <= 10).length, color: MED_COLORS.ORANGE },
-                { label: '低速 (2-5)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 2 && (r.speed_km_day ?? 0) <= 5).length, color: MED_COLORS.BLUE },
-                { label: '极低速 (<2)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) <= 2).length, color: MED_COLORS.GREEN },
+                { label: '极高速 (>20km/d)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 20).length, color: '#991B1B' },
+                { label: '高速 (10-20)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 10 && (r.speed_km_day ?? 0) <= 20).length, color: '#DC2626' },
+                { label: '中速 (5-10)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 5 && (r.speed_km_day ?? 0) <= 10).length, color: '#F97316' },
+                { label: '低速 (2-5)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) > 2 && (r.speed_km_day ?? 0) <= 5).length, color: '#3B82F6' },
+                { label: '极低速 (<2)', count: chinaRegions.filter(r => (r.speed_km_day ?? 0) <= 2).length, color: '#22C55E' },
               ].map((item, i) => (
                 <StatBar
                   key={i}

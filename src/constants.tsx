@@ -213,10 +213,10 @@ export function getDeathSeverityColor(deaths: number | null): string {
 
 /** 根据爆发次数返回气泡颜色 */
 export function getOutbreakColor(count: number): string {
-  if (count > 80) return MED_COLORS.RED;
-  if (count > 50) return MED_COLORS.RED;
-  if (count > 20) return MED_COLORS.BLUE;
-  return MED_COLORS.BLUE;
+  if (count > 80) return '#DC2626'; // 红
+  if (count > 50) return '#F97316'; // 橙
+  if (count > 20) return '#3B82F6'; // 蓝
+  return '#22C55E'; // 绿
 }
 
 // ===== 省份颜色映射 =====
@@ -234,20 +234,20 @@ export const ANIMATION = {
 
 // ===== 省份颜色映射 =====
 export const PROVINCE_COLORS: Record<string, string> = {
-  '直隶':   '#DC2626',  // red
+  '直隶':   '#8B5CF6',  // violet
   '山东':   '#3B82F6',  // blue
-  '奉天':   '#B91C1C',  // dark red
-  '吉林':   '#2563EB',  // dark blue
+  '奉天':   '#F97316',  // orange
+  '吉林':   '#22C55E',  // green
   '黑龙江': '#DC2626',  // red
 };
 
 // ===== 传播速度 → 颜色 =====
 export function getSpeedColor(v: number): string {
-  if (v > 20) return '#B91C1C'; // 深红 - 极高
-  if (v > 10) return MED_COLORS.RED;
-  if (v > 5)  return MED_COLORS.RED;
-  if (v > 2)  return MED_COLORS.BLUE;
-  return MED_COLORS.BLUE;
+  if (v > 20) return '#991B1B'; // 暗红 - 极高
+  if (v > 10) return '#DC2626'; // 红 - 高
+  if (v > 5)  return '#F97316'; // 橙 - 中
+  if (v > 2)  return '#3B82F6'; // 蓝 - 低
+  return '#22C55E'; // 绿 - 极低
 }
 
 export function getSpeedLabel(v: number): string {
@@ -261,11 +261,11 @@ export function getSpeedLabel(v: number): string {
 // ===== 欧洲鼠疫：世纪颜色映射 =====
 export const CENTURY_COLORS: Record<number, string> = {
   1300: '#DC2626', // 14世纪 — 红
-  1400: '#B91C1C', // 15世纪 — 深红
-  1500: '#DC2626', // 16世纪 — 红
-  1600: '#3B82F6', // 17世纪 — 蓝
-  1700: '#2563EB', // 18世纪 — 深蓝
-  1800: '#3B82F6', // 19世纪 — 蓝
+  1400: '#F97316', // 15世纪 — 橙
+  1500: '#EAB308', // 16世纪 — 金黄
+  1600: '#22C55E', // 17世纪 — 绿
+  1700: '#06B6D4', // 18世纪 — 青
+  1800: '#8B5CF6', // 19世纪 — 紫
 };
 
 export const CENTURY_LABELS: Record<number, string> = {
